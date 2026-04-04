@@ -9,7 +9,7 @@ if [[ "$branch" == "main" ]]; then
 fi
 
 if [[ ! -d node_modules ]]; then
-  echo "Missing node_modules. Run 'npm ci' and 'npx playwright install chromium' before pushing." >&2
+  echo "Missing node_modules. Run 'corepack pnpm install' and 'npx playwright install chromium' before pushing." >&2
   exit 1
 fi
 

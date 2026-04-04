@@ -6,10 +6,10 @@ Added a repo-local autonomous software delivery system that future work can foll
 ## Files And Surfaces
 - File: `autonomous-sdlc/README.md`
 - File: `autonomous-sdlc/constitution.md`
-- File: `autonomous-sdlc/standards/`
-- File: `autonomous-sdlc/agents/`
-- File: `autonomous-sdlc/workflows/`
-- File: `autonomous-sdlc/templates/`
+- File: `autonomous-sdlc/process.md`
+- File: `autonomous-sdlc/lessons.md`
+- File: `autonomous-sdlc/github-repo-settings.md`
+- File: `autonomous-sdlc/product/`
 - File: `autonomous-sdlc/scripts/`
 - File: `.github/`
 - File: `AGENTS.md`

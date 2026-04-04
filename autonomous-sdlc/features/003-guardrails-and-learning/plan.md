@@ -9,8 +9,8 @@ Implement guardrails at three levels: local git hooks, repository scripts, and G
 - Rejected alternative: relying on documentation and human discipline alone
 
 ## Touched Areas
-- Files: `package.json`, `playwright.config.ts`, `tests/e2e/`, `.githooks/`, `autonomous-sdlc/scripts/`, `autonomous-sdlc/knowledge/`, `.github/workflows/repository-checks.yml`, repo docs
-- Docs: contributor guide, autonomous SDLC README, workflow docs
+- Files: `package.json`, `playwright.config.ts`, `tests/e2e/`, `.githooks/`, `autonomous-sdlc/scripts/`, `autonomous-sdlc/lessons.md`, `.github/workflows/repository-checks.yml`, repo docs
+- Docs: contributor guide, autonomous SDLC README, and process guide
 - External dependencies: `@playwright/test`
 
 ## Research Notes

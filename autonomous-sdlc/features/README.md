@@ -15,3 +15,5 @@ Required files:
 - `retro.md`
 
 Use `bash autonomous-sdlc/scripts/new_feature.sh <slug> "<Title>"` to create a new workspace.
+
+For milestone-sized product work, start in `autonomous-sdlc/product/` first so the design approach, milestones, backlog, and discovery brief are aligned before implementation.

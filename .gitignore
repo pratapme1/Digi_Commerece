@@ -18,3 +18,8 @@ __pycache__/
 
 # Node package directories if the repo grows into an app later
 node_modules/
+
+# Local environment files
+.env
+.env.*
+!.env.example

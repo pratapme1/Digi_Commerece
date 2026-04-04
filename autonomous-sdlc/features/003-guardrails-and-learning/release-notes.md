@@ -14,7 +14,7 @@ Added enforced repository guardrails for context, testing, and session memory.
 - File: `autonomous-sdlc/scripts/run_quality_gates.sh`
 - File: `autonomous-sdlc/scripts/install_hooks.sh`
 - File: `autonomous-sdlc/scripts/start_session.sh`
-- File: `autonomous-sdlc/knowledge/`
+- File: `autonomous-sdlc/lessons.md`
 - File: `.github/workflows/repository-checks.yml`
 
 ## Verification Summary

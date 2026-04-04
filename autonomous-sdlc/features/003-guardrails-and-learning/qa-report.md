@@ -14,7 +14,7 @@
 - Evidence: the repo now has local `pre-commit` and `pre-push` hooks under `.githooks/`
 - Evidence: the quality gates execute Playwright smoke tests against both HTML prototypes
 - Evidence: the first full verify run caught a real ambiguous selector in the host smoke test, and the corrected test now targets the exact button
-- Evidence: `autonomous-sdlc/knowledge/lessons.md` exists as a durable memory file for later sessions
+- Evidence: `autonomous-sdlc/lessons.md` exists as a durable memory file for later sessions
 
 ## Defects
 - Defect: the initial host Playwright test used a non-exact button query and matched two elements

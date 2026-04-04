@@ -11,7 +11,7 @@
 
 ## Standards To Update
 - Standard: future UI work should expand Playwright coverage alongside visible interaction changes
-- Standard: every finished feature that teaches a durable lesson should update `autonomous-sdlc/knowledge/lessons.md`
+- Standard: every finished feature that teaches a durable lesson should update `autonomous-sdlc/lessons.md`
 
 ## Follow-up Actions
 - Action: turn on required status checks in GitHub branch protection

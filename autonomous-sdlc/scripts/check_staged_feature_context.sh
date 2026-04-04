@@ -10,8 +10,8 @@ fi
 mapfile -t staged_feature_files < <(printf '%s\n' "${staged_files[@]}" | grep -E '^autonomous-sdlc/features/[0-9]{3}-[^/]+/' || true)
 
 if printf '%s\n' "${staged_files[@]}" | grep -Eq '^autonomous-sdlc/features/[0-9]{3}-[^/]+/retro\.md$' && \
-   ! printf '%s\n' "${staged_files[@]}" | grep -Eq '^autonomous-sdlc/knowledge/lessons\.md$'; then
-  echo "A staged retro requires a staged update to autonomous-sdlc/knowledge/lessons.md." >&2
+   ! printf '%s\n' "${staged_files[@]}" | grep -Eq '^autonomous-sdlc/lessons\.md$'; then
+  echo "A staged retro requires a staged update to autonomous-sdlc/lessons.md." >&2
   exit 1
 fi
 

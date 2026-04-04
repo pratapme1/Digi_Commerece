@@ -22,10 +22,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          corepack enable
+          corepack pnpm install --frozen-lockfile
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium

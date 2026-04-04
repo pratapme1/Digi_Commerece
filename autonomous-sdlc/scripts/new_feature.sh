@@ -9,7 +9,6 @@ fi
 script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 root_dir="$(CDPATH= cd -- "$script_dir/../.." && pwd)"
 features_dir="$root_dir/autonomous-sdlc/features"
-templates_dir="$root_dir/autonomous-sdlc/templates"
 
 raw_slug="$1"
 title="${2:-$1}"
@@ -47,13 +46,183 @@ fi
 mkdir -p "$feature_dir"
 today="$(date +%F)"
 
+render_template() {
+  case "$1" in
+    spec.md)
+      cat <<'EOF'
+# Feature Spec: __FEATURE_ID__ __FEATURE_TITLE__
+
+## Summary
+State the user-facing change in 2-4 sentences.
+
+## Problem
+What is broken, missing, or unclear today?
+
+## Outcome
+What should be true when this feature is complete?
+
+## Users And Surfaces
+- Primary users:
+- Touched files or surfaces:
+
+## Scope
+- In scope:
+- Out of scope:
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
+
+## Risks
+- Risk:
+
+## Clarifications
+- Open question:
+
+## Approval
+- Status: draft
+- Approved by:
+- Date: __DATE__
+EOF
+      ;;
+    plan.md)
+      cat <<'EOF'
+# Implementation Plan: __FEATURE_ID__ __FEATURE_TITLE__
+
+## Summary
+Describe the chosen solution in 2-4 sentences.
+
+## Architecture
+- Key approach:
+- Why this shape:
+- Rejected alternative:
+
+## Touched Areas
+- Files:
+- Docs:
+- External dependencies:
+
+## Research Notes
+- Finding:
+
+## Implementation Slices
+1. Slice 1
+2. Slice 2
+3. Slice 3
+
+## Test And QA Plan
+- Local checks:
+- Manual checks:
+
+## Rollout And Rollback
+- Rollout:
+- Rollback:
+
+## Approval
+- Status: pending
+- Approved by:
+- Date: __DATE__
+EOF
+      ;;
+    tasks.md)
+      cat <<'EOF'
+# Tasks: __FEATURE_ID__ __FEATURE_TITLE__
+
+## Build
+- [ ] Confirm spec approval
+- [ ] Confirm plan approval
+- [ ] Implement slice 1
+- [ ] Implement slice 2
+- [ ] Implement slice 3
+
+## Verification
+- [ ] Run local validation
+- [ ] Perform manual QA
+- [ ] Update qa-report.md
+
+## Release
+- [ ] Update release-notes.md
+- [ ] Update retro.md
+EOF
+      ;;
+    qa-report.md)
+      cat <<'EOF'
+# QA Report: __FEATURE_ID__ __FEATURE_TITLE__
+
+## Status
+- Result: pending
+
+## Checks Run
+- Check:
+
+## Evidence
+- Evidence:
+
+## Defects
+- Defect:
+
+## Residual Risks
+- Risk:
+
+## Signoff
+- Reviewer:
+- Date: __DATE__
+EOF
+      ;;
+    release-notes.md)
+      cat <<'EOF'
+# Release Notes: __FEATURE_ID__ __FEATURE_TITLE__
+
+## Summary
+Describe the shipped change.
+
+## Files And Surfaces
+- File:
+
+## Verification Summary
+- Evidence:
+
+## Rollout
+- Step:
+
+## Rollback
+- Step:
+
+## Follow-ups
+- Follow-up:
+EOF
+      ;;
+    retro.md)
+      cat <<'EOF'
+# Retrospective: __FEATURE_ID__ __FEATURE_TITLE__
+
+## What Worked
+- Item:
+
+## What Did Not Work
+- Item:
+
+## Standards To Update
+- Standard:
+
+## Follow-up Actions
+- Action:
+EOF
+      ;;
+    *)
+      echo "Unknown template: $1" >&2
+      return 1
+      ;;
+  esac
+}
+
 for template in spec.md plan.md tasks.md qa-report.md release-notes.md retro.md; do
-  sed \
-    -e "s/{{FEATURE_ID}}/$next_id/g" \
-    -e "s/{{FEATURE_TITLE}}/$title/g" \
-    -e "s/{{FEATURE_SLUG}}/$slug/g" \
-    -e "s/{{DATE}}/$today/g" \
-    "$templates_dir/$template" > "$feature_dir/$template"
+  render_template "$template" | sed \
+    -e "s/__FEATURE_ID__/$next_id/g" \
+    -e "s/__FEATURE_TITLE__/$title/g" \
+    -e "s/__FEATURE_SLUG__/$slug/g" \
+    -e "s/__DATE__/$today/g" > "$feature_dir/$template"
 done
 
 echo "Created feature workspace: $feature_dir"

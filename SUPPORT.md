@@ -9,5 +9,5 @@ Use:
 For workflow questions, start with:
 - `AGENTS.md`
 - `autonomous-sdlc/README.md`
-- `autonomous-sdlc/governance/github-repo-settings.md`
-
+- `autonomous-sdlc/process.md`
+- `autonomous-sdlc/github-repo-settings.md`
