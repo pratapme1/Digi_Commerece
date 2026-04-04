@@ -1,0 +1,47 @@
+version: 1
+repo: Digi_Commerece
+categories:
+  - id: product
+    file: standards/product.md
+    priority: critical
+    triggers:
+      - scope
+      - requirements
+      - prd
+      - ux
+      - user flow
+  - id: engineering
+    file: standards/engineering.md
+    priority: critical
+    triggers:
+      - html
+      - css
+      - javascript
+      - file structure
+      - refactor
+  - id: testing
+    file: standards/testing.md
+    priority: high
+    triggers:
+      - qa
+      - regression
+      - validation
+      - acceptance
+  - id: security
+    file: standards/security.md
+    priority: high
+    triggers:
+      - secrets
+      - external scripts
+      - forms
+      - auth
+      - deployment
+  - id: ux
+    file: standards/ux.md
+    priority: high
+    triggers:
+      - layout
+      - typography
+      - motion
+      - mobile
+      - accessibility

@@ -1,0 +1,23 @@
+name: Repository Checks
+
+on:
+  push:
+    branches:
+      - main
+      - "codex/**"
+      - "feature/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run repository validation
+        run: bash autonomous-sdlc/scripts/validate_repo.sh
+

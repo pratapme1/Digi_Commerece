@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spaces — Host App</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,300&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --paper:  #F8F6F1;
+  --paper2: #F2EFE9;
+  --ink:    #1A1714;
+  --ink2:   #4A4540;
+  --ink3:   #9A9490;
+  --ink4:   #C8C4BE;
+  --line:   rgba(26,23,20,.08);
+  --live:   #16A34A;
+  --live-s: rgba(22,163,74,.1);
+  --blue:   #2563EB;
+  --blue-s: rgba(37,99,235,.08);
+  --red:    #DC2626;
+  --amber:  #D97706;
+}
+
+body{
+  background:#111;
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:40px 20px 60px;
+}
+
+.hd{text-align:center;margin-bottom:30px;}
+.hd-e{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:10px;}
+.hd h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;font-style:italic;color:rgba(255,255,255,.85);margin-bottom:6px;}
+.hd p{font-size:13px;color:rgba(255,255,255,.3);font-weight:300;}
+
+.nav{display:flex;gap:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:3px;margin-bottom:40px;flex-wrap:wrap;justify-content:center;}
+.nav button{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:rgba(255,255,255,.35);padding:7px 16px;border-radius:100px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.nav button.on{background:#F8F6F1;color:#1A1714;font-weight:500;}
+
+.stage{display:flex;align-items:flex-start;gap:36px;flex-wrap:wrap;justify-content:center;}
+.pw{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.pt{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);}
+
+.phone{
+  width:375px;height:812px;
+  border-radius:54px;
+  border:1.5px solid rgba(255,255,255,.1);
+  box-shadow:0 0 0 6px rgba(255,255,255,.02),0 60px 120px rgba(0,0,0,.9);
+  position:relative;overflow:hidden;flex-shrink:0;
+  background:var(--paper);
+  transition:background .3s;
+}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:30px;background:var(--paper);z-index:99;border-radius:0 0 16px 16px;transition:background .3s;}
+.ps{position:absolute;inset:0;overflow:hidden;border-radius:54px;}
+.sc{display:none;width:100%;height:100%;}
+.sc.on{display:flex;flex-direction:column;}
+
+/* shared status bar */
+.sbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:52px 24px 0;font-size:14px;font-weight:500;color:var(--ink2);
+  flex-shrink:0;
+}
+.sbar-r{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink3);}
+
+
+/* ═══════════════════════════════════════
+   SCREEN 1 — DASHBOARD
+   The host's home. Their spaces at a glance.
+   Speed to Go Live is the one job.
+═══════════════════════════════════════ */
+#dash{background:var(--paper);}
+
+.dash-header{
+  padding:52px 22px 0;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  flex-shrink:0;
+}
+.dash-greeting-label{font-size:11px;color:var(--ink3);font-weight:300;margin-bottom:4px;letter-spacing:.02em;}
+.dash-greeting{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:500;color:var(--ink);letter-spacing:-.01em;
+}
+.dash-avatar{
+  width:38px;height:38px;border-radius:11px;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--paper);
+  flex-shrink:0;
+}
+
+.dash-scroll{flex:1;overflow-y:auto;padding:20px 22px 24px;}
+.dash-scroll::-webkit-scrollbar{display:none;}
+
+/* quick stats row */
+.dash-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+  margin-bottom:24px;
+}
+.ds{
+  background:var(--paper2);border-radius:14px;padding:14px 12px;
+  text-align:center;
+}
+.ds-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:24px;font-weight:600;color:var(--ink);line-height:1;
+}
+.ds-l{font-size:10px;color:var(--ink3);margin-top:4px;font-weight:300;}
+
+/* section label */
+.sec-label{
+  font-size:10px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink3);
+  margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.sec-label-action{
+  font-size:11px;font-weight:400;color:var(--blue);letter-spacing:0;text-transform:none;cursor:pointer;
+}
+
+/* space card */
+.space-card{
+  background:#fff;border-radius:16px;
+  border:1px solid var(--line);
+  padding:16px;margin-bottom:10px;cursor:pointer;
+  transition:border-color .15s,box-shadow .15s;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.space-card:hover{border-color:rgba(26,23,20,.16);box-shadow:0 4px 16px rgba(0,0,0,.08);}
+.space-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.space-icon{
+  width:40px;height:40px;border-radius:11px;
+  background:var(--paper2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.space-card-info{flex:1;}
+.space-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.space-meta{font-size:11px;color:var(--ink3);font-weight:300;}
+.space-status-dot{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;
+}
+.dot-live{background:var(--live);animation:pulse 2s ease infinite;}
+.dot-draft{background:var(--ink4);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+.space-card-bot{display:flex;gap:8px;}
+.sc-stat{
+  background:var(--paper2);border-radius:8px;
+  padding:6px 10px;text-align:center;flex:1;
+}
+.sc-stat-n{font-size:13px;font-weight:500;color:var(--ink);}
+.sc-stat-l{font-size:9px;color:var(--ink3);margin-top:1px;}
+
+/* go live button — the main CTA */
+.go-live-btn{
+  width:100%;
+  background:var(--live);border:none;border-radius:14px;
+  padding:16px;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
+  color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:.02em;
+  margin-top:10px;
+  transition:background .15s;
+}
+.go-live-btn:hover{background:#15803D;}
+.go-live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.5s ease infinite;}
+
+/* create new space */
+.create-btn{
+  width:100%;
+  background:none;border:1.5px dashed var(--ink4);border-radius:16px;
+  padding:18px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;
+  color:var(--ink3);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:border-color .15s,color .15s;
+}
+.create-btn:hover{border-color:var(--ink2);color:var(--ink);}
+
+/* bottom tab bar */
+.tab-bar{
+  border-top:1px solid var(--line);
+  padding:12px 0 24px;
+  display:flex;justify-content:space-around;
+  flex-shrink:0;background:var(--paper);
+}
+.tab{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;padding:0 16px;
+}
+.tab-icon{font-size:20px;}
+.tab-label{font-size:10px;font-weight:400;color:var(--ink3);}
+.tab.on .tab-label{color:var(--ink);font-weight:500;}
+.tab.on .tab-icon{filter:saturate(0) brightness(0);}
+
+
+/* ═══════════════════════════════════════
+   SCREEN 2 — SPACE EDITOR
+   Build the space. See it live.
+   First time: guided. Every time after: instant.
+═══════════════════════════════════════ */
+#editor{background:var(--paper);}
+
+.editor-top{
+  padding:52px 20px 0;
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+}
+.editor-back{
+  width:32px;height:32px;border-radius:9px;
+  background:var(--paper2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--ink);cursor:pointer;flex-shrink:0;
+}
+.editor-space-name{
+  flex:1;
+  font-size:14px;font-weight:500;color:var(--ink);
+}
+.editor-preview-toggle{
+  display:flex;background:var(--paper2);border-radius:100px;padding:3px;gap:0;
+}
+.epv-btn{
+  background:none;border:none;border-radius:100px;
+  padding:6px 12px;font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:400;color:var(--ink3);cursor:pointer;
+  transition:all .15s;
+}
+.epv-btn.on{background:#fff;color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+/* draft status bar */
+.draft-bar{
+  margin:14px 20px 0;
+  background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.15);
+  border-radius:10px;padding:9px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.draft-label{font-size:12px;color:var(--amber);font-weight:400;}
+.draft-label span{font-weight:500;}
+.go-live-small{
+  background:var(--live);border:none;border-radius:7px;
+  padding:6px 14px;
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;
+  color:#fff;cursor:pointer;
+}
+
+.editor-scroll{flex:1;overflow-y:auto;padding:16px 20px 20px;}
+.editor-scroll::-webkit-scrollbar{display:none;}
+
+/* PREVIEW CARD — what attendee sees, thumbnail */
+.preview-card{
+  background:#fff;border-radius:14px;
+  border:1px solid var(--line);
+  padding:14px;margin-bottom:20px;
+  display:flex;gap:12px;align-items:center;
+  cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.preview-thumb{
+  width:56px;height:80px;border-radius:8px;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;position:relative;overflow:hidden;
+}
+/* tiny phone screen inside */
+.preview-thumb-inner{
+  position:absolute;inset:4px;border-radius:5px;
+  background:#FAF8F3;
+  display:flex;flex-direction:column;
+  padding:4px;gap:2px;overflow:hidden;
+}
+.pti-bar{height:3px;background:var(--ink);border-radius:2px;width:60%;}
+.pti-line{height:2px;background:var(--ink4);border-radius:1px;}
+.pti-line.w80{width:80%;}
+.pti-line.w60{width:60%;}
+.pti-line.w40{width:40%;}
+.pti-card{height:14px;background:var(--paper2);border-radius:3px;margin-top:2px;}
+.preview-card-info{flex:1;}
+.preview-card-label{font-size:11px;color:var(--ink3);font-weight:300;margin-bottom:3px;}
+.preview-card-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.preview-card-sub{font-size:11px;color:var(--ink3);}
+.preview-arrow{font-size:14px;color:var(--ink4);}
+
+/* content sections */
+.content-section{margin-bottom:20px;}
+.cs-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.cs-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);}
+.cs-add{
+  background:none;border:none;
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;
+  color:var(--blue);cursor:pointer;
+  display:flex;align-items:center;gap:4px;
+}
+
+/* content row */
+.content-row{
+  background:#fff;border-radius:12px;border:1px solid var(--line);
+  padding:12px 14px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;
+  transition:border-color .15s;
+}
+.content-row:hover{border-color:rgba(26,23,20,.15);}
+.cr-icon{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.cr-icon.peach{background:rgba(251,191,36,.1);}
+.cr-icon.blue{background:rgba(37,99,235,.08);}
+.cr-icon.green{background:rgba(22,163,74,.08);}
+.cr-icon.rose{background:rgba(220,38,38,.07);}
+.cr-icon.slate{background:rgba(100,116,139,.08);}
+.cr-info{flex:1;}
+.cr-name{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:1px;}
+.cr-sub{font-size:11px;color:var(--ink3);font-weight:300;}
+.cr-actions{display:flex;align-items:center;gap:6px;}
+.cr-pin{
+  background:none;border:none;font-size:14px;cursor:pointer;
+  color:var(--ink4);padding:4px;
+  transition:color .15s;
+}
+.cr-pin:hover{color:var(--amber);}
+.cr-pin.pinned{color:var(--amber);}
+.cr-drag{font-size:14px;color:var(--ink4);cursor:grab;}
+
+/* add content button — full width */
+.add-content-row{
+  background:none;border:1.5px dashed var(--ink4);border-radius:12px;
+  padding:13px 16px;width:100%;
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;
+  color:var(--ink3);cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:border-color .15s,color .15s;
+}
+.add-content-row:hover{border-color:var(--ink2);color:var(--ink);}
+
+/* brand strip */
+.brand-strip{
+  background:#fff;border-radius:12px;border:1px solid var(--line);
+  padding:12px 14px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+}
+.brand-colors{display:flex;gap:4px;}
+.brand-color-dot{width:16px;height:16px;border-radius:50%;}
+.brand-strip-info{flex:1;}
+.brand-strip-name{font-size:12px;font-weight:500;color:var(--ink);}
+.brand-strip-sub{font-size:10px;color:var(--ink3);}
+
+
+/* ═══════════════════════════════════════
+   SCREEN 3 — ADD CONTENT
+   Contact card creation.
+   Clean form that shows live preview.
+═══════════════════════════════════════ */
+#addcard{background:var(--paper);}
+
+.ac-top{
+  padding:52px 20px 0;
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+}
+.ac-back{
+  width:32px;height:32px;border-radius:9px;
+  background:var(--paper2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--ink);cursor:pointer;flex-shrink:0;
+}
+.ac-title{font-size:14px;font-weight:500;color:var(--ink);flex:1;}
+.ac-done{
+  background:var(--ink);border:none;border-radius:100px;
+  padding:8px 18px;font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:500;color:var(--paper);cursor:pointer;
+}
+
+/* card type selector */
+.card-type-row{
+  display:flex;gap:6px;overflow-x:auto;
+  padding:14px 20px 0;flex-shrink:0;
+}
+.card-type-row::-webkit-scrollbar{display:none;}
+.card-type{
+  flex-shrink:0;
+  background:#fff;border:1.5px solid var(--line);border-radius:100px;
+  padding:7px 14px;
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;
+  color:var(--ink2);cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+  transition:all .15s;
+}
+.card-type.on{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+/* live preview of the card being built */
+.ac-preview{
+  margin:14px 20px 0;
+  background:var(--ink);border-radius:16px;
+  padding:18px;display:flex;flex-direction:column;gap:0;
+  flex-shrink:0;
+}
+.ac-preview-label{font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px;}
+/* mini card preview */
+.mini-card{
+  background:var(--paper);border-radius:12px;padding:14px;
+}
+.mc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.mc-avatar{
+  width:38px;height:38px;border-radius:10px;
+  background:var(--paper2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--ink);
+  flex-shrink:0;
+}
+.mc-name{font-size:13px;font-weight:500;color:var(--ink);}
+.mc-role{font-size:10px;color:var(--ink3);}
+.mc-divider{height:1px;background:var(--line);margin-bottom:10px;}
+.mc-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.mc-row-icon{font-size:12px;}
+.mc-row-val{font-size:11px;color:var(--ink2);font-weight:300;}
+
+.ac-scroll{flex:1;overflow-y:auto;padding:16px 20px 24px;}
+.ac-scroll::-webkit-scrollbar{display:none;}
+
+/* form fields */
+.field-group{margin-bottom:16px;}
+.field-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;}
+.field-input{
+  width:100%;background:#fff;
+  border:1.5px solid var(--line);border-radius:12px;
+  padding:13px 16px;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;color:var(--ink);
+  outline:none;transition:border-color .15s;
+  -webkit-appearance:none;
+}
+.field-input:focus{border-color:rgba(26,23,20,.3);}
+.field-input::placeholder{color:var(--ink4);}
+.field-input.prefilled{color:var(--ink2);background:var(--paper2);}
+.field-row{display:flex;gap:8px;}
+.field-row .field-group{flex:1;}
+
+.photo-upload{
+  background:#fff;border:1.5px dashed var(--ink4);border-radius:12px;
+  padding:16px;width:100%;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:border-color .15s;
+}
+.photo-upload:hover{border-color:var(--ink2);}
+.photo-placeholder{width:40px;height:40px;border-radius:10px;background:var(--paper2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.photo-text{font-size:12px;color:var(--ink3);font-weight:300;}
+
+
+/* ═══════════════════════════════════════
+   SCREEN 4 — LIVE PANEL
+   The host is in the meeting.
+   Glance down. See everything. Look back up.
+   This is the most important screen.
+═══════════════════════════════════════ */
+#live{background:#0D0E10;}
+
+.live-header{
+  padding:52px 20px 0;
+  flex-shrink:0;
+}
+.live-session-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.live-badge{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);
+  border-radius:100px;padding:7px 14px;
+}
+.live-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--live);animation:pulse 1.8s ease infinite;}
+.live-badge-text{font-size:12px;font-weight:500;color:var(--live);letter-spacing:.04em;}
+.live-timer{font-size:13px;color:rgba(255,255,255,.35);font-weight:300;}
+.live-space-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:20px;font-weight:500;color:#F5F3EF;letter-spacing:-.01em;
+}
+
+/* room — who's inside */
+.room-section{
+  margin:14px 20px 0;flex-shrink:0;
+}
+.room-head{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:8px;}
+.room-people{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;padding:12px 14px;
+}
+.room-count-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.room-count{
+  display:flex;align-items:baseline;gap:4px;
+}
+.room-count-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:600;color:#F5F3EF;line-height:1;
+}
+.room-count-l{font-size:11px;color:rgba(255,255,255,.3);font-weight:300;}
+.room-count-badge{
+  background:rgba(22,163,74,.12);border-radius:100px;
+  padding:3px 10px;font-size:10px;font-weight:500;color:var(--live);
+  display:flex;align-items:center;gap:4px;
+}
+.new-dot{width:4px;height:4px;border-radius:50%;background:var(--live);}
+
+/* attendee pills */
+.attendee-list{display:flex;flex-wrap:wrap;gap:5px;}
+.att-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.05);border-radius:100px;
+  padding:4px 10px 4px 6px;
+}
+.att-avatar{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:600;color:rgba(255,255,255,.5);
+}
+.att-name{font-size:11px;color:rgba(255,255,255,.5);font-weight:300;}
+.att-pill.new{background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.15);}
+.att-pill.new .att-name{color:rgba(22,163,74,.9);}
+
+/* live controls — the three buttons */
+.controls-section{
+  margin:14px 20px 0;flex-shrink:0;
+}
+.controls-head{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:8px;}
+.controls-grid{display:flex;gap:8px;}
+.ctrl-btn{
+  flex:1;border:none;border-radius:14px;
+  padding:16px 8px;
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  transition:all .15s;
+}
+.ctrl-btn-icon{font-size:22px;}
+.ctrl-btn.pin{background:rgba(217,119,6,.1);color:#D97706;border:1px solid rgba(217,119,6,.2);}
+.ctrl-btn.pin:hover{background:rgba(217,119,6,.18);}
+.ctrl-btn.hide{background:rgba(100,116,139,.1);color:#94A3B8;border:1px solid rgba(100,116,139,.15);}
+.ctrl-btn.hide:hover{background:rgba(100,116,139,.18);}
+.ctrl-btn.announce{background:rgba(37,99,235,.1);color:#60A5FA;border:1px solid rgba(37,99,235,.2);}
+.ctrl-btn.announce:hover{background:rgba(37,99,235,.18);}
+
+/* what's showing */
+.showing-section{
+  margin:14px 20px 0;flex-shrink:0;
+}
+.showing-head{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:8px;}
+.showing-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;padding:12px 14px;
+  display:flex;align-items:center;gap:12px;
+}
+.showing-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(217,119,6,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.showing-info{flex:1;}
+.showing-name{font-size:13px;font-weight:500;color:#F5F3EF;}
+.showing-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:1px;}
+.showing-pinned{
+  font-size:10px;font-weight:500;color:#D97706;
+  background:rgba(217,119,6,.1);border-radius:6px;
+  padding:3px 8px;white-space:nowrap;
+}
+
+/* live scroll */
+.live-scroll{flex:1;overflow-y:auto;padding:14px 20px 0;}
+.live-scroll::-webkit-scrollbar{display:none;}
+
+/* engagement */
+.eng-section{}
+.eng-head{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:8px;}
+.eng-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.eng-row:last-child{border-bottom:none;}
+.eng-name{font-size:12px;color:rgba(255,255,255,.5);flex:1;font-weight:300;}
+.eng-bar-wrap{width:80px;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.eng-bar{height:100%;border-radius:2px;background:rgba(255,255,255,.2);}
+.eng-count{font-size:11px;color:rgba(255,255,255,.3);width:28px;text-align:right;}
+
+/* end session */
+.live-foot{
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:12px 20px 28px;flex-shrink:0;
+  display:flex;gap:8px;
+}
+.end-session{
+  flex:1;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.15);
+  border-radius:12px;padding:14px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;
+  color:rgba(220,38,38,.7);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.extend-session{
+  flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:14px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;
+  color:rgba(255,255,255,.4);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+
+
+/* info panel */
+.ip{width:210px;display:flex;flex-direction:column;gap:10px;padding-top:4px;}
+.ic{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;}
+.ic-t{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:7px;}
+.ic-b{font-size:12px;color:rgba(255,255,255,.4);line-height:1.65;font-weight:300;}
+.ic-b strong{color:rgba(255,255,255,.75);font-weight:500;}
+
+@media(max-width:680px){.ip{display:none;}.phone{transform:scale(.86);transform-origin:top center;margin-bottom:-100px;}}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-e">Spaces · Host App</div>
+  <h1>The host side.</h1>
+  <p>Dashboard · Space Editor · Content Builder · Live Panel</p>
+</div>
+
+<div class="nav">
+  <button class="on" onclick="go('dash','Dashboard')">Dashboard</button>
+  <button onclick="go('editor','Editor')">Space Editor</button>
+  <button onclick="go('addcard','Add Content')">Add Content</button>
+  <button onclick="go('live','Live Panel')">Live Panel</button>
+</div>
+
+<div class="stage">
+  <div class="pw">
+    <div class="phone" id="PH">
+      <div class="ps">
+
+        <!-- DASHBOARD -->
+        <div class="sc on" id="dash">
+          <div class="dash-header">
+            <div>
+              <div class="dash-greeting-label">Good morning</div>
+              <div class="dash-greeting">Ananya Reddy</div>
+            </div>
+            <div class="dash-avatar">AR</div>
+          </div>
+          <div class="dash-scroll">
+
+            <div class="dash-stats">
+              <div class="ds"><div class="ds-n">3</div><div class="ds-l">Spaces</div></div>
+              <div class="ds"><div class="ds-n">847</div><div class="ds-l">Total Scans</div></div>
+              <div class="ds"><div class="ds-n">14</div><div class="ds-l">Live Now</div></div>
+            </div>
+
+            <div class="sec-label">
+              <span>Your Spaces</span>
+              <span class="sec-label-action">+ New Space</span>
+            </div>
+
+            <!-- active space -->
+            <div class="space-card" onclick="go('editor')">
+              <div class="space-card-top">
+                <div class="space-icon">📋</div>
+                <div class="space-card-info">
+                  <div class="space-name">Weekly Investor Meeting</div>
+                  <div class="space-meta">8 cards · Last session 2 days ago</div>
+                </div>
+                <div class="space-status-dot dot-live"></div>
+              </div>
+              <div class="space-card-bot">
+                <div class="sc-stat"><div class="sc-stat-n">14</div><div class="sc-stat-l">In Room</div></div>
+                <div class="sc-stat"><div class="sc-stat-n">247</div><div class="sc-stat-l">Total Scans</div></div>
+                <div class="sc-stat"><div class="sc-stat-n">83%</div><div class="sc-stat-l">Save Rate</div></div>
+              </div>
+              <button class="go-live-btn" onclick="event.stopPropagation();go('live')">
+                <div class="go-live-dot"></div>
+                Go Live Now
+              </button>
+            </div>
+
+            <!-- draft space -->
+            <div class="space-card">
+              <div class="space-card-top">
+                <div class="space-icon">🏪</div>
+                <div class="space-card-info">
+                  <div class="space-name">Vega Electronics — Dealer Day</div>
+                  <div class="space-meta">20 products · Draft</div>
+                </div>
+                <div class="space-status-dot dot-draft"></div>
+              </div>
+              <div class="space-card-bot">
+                <div class="sc-stat"><div class="sc-stat-n">20</div><div class="sc-stat-l">Products</div></div>
+                <div class="sc-stat"><div class="sc-stat-n">3</div><div class="sc-stat-l">Offers</div></div>
+                <div class="sc-stat"><div class="sc-stat-n">Draft</div><div class="sc-stat-l">Status</div></div>
+              </div>
+            </div>
+
+            <!-- another space -->
+            <div class="space-card">
+              <div class="space-card-top">
+                <div class="space-icon">🍽️</div>
+                <div class="space-card-info">
+                  <div class="space-name">Amara Kitchen — Daily Menu</div>
+                  <div class="space-meta">12 items · Updated today</div>
+                </div>
+                <div class="space-status-dot dot-draft"></div>
+              </div>
+              <div class="space-card-bot">
+                <div class="sc-stat"><div class="sc-stat-n">600</div><div class="sc-stat-l">Total Scans</div></div>
+                <div class="sc-stat"><div class="sc-stat-n">4.2</div><div class="sc-stat-l">Avg / Day</div></div>
+                <div class="sc-stat"><div class="sc-stat-n">Active</div><div class="sc-stat-l">Status</div></div>
+              </div>
+            </div>
+
+            <button class="create-btn">+ Create New Space</button>
+
+          </div>
+          <div class="tab-bar">
+            <div class="tab on"><div class="tab-icon">🏠</div><div class="tab-label">Home</div></div>
+            <div class="tab"><div class="tab-icon">📊</div><div class="tab-label">Analytics</div></div>
+            <div class="tab"><div class="tab-icon">👥</div><div class="tab-label">Contacts</div></div>
+            <div class="tab"><div class="tab-icon">⚙️</div><div class="tab-label">Settings</div></div>
+          </div>
+        </div>
+
+        <!-- SPACE EDITOR -->
+        <div class="sc" id="editor">
+          <div class="editor-top">
+            <div class="editor-back" onclick="go('dash')">‹</div>
+            <div class="editor-space-name">Weekly Investor Meeting</div>
+            <div class="editor-preview-toggle">
+              <button class="epv-btn on">Edit</button>
+              <button class="epv-btn">Preview</button>
+            </div>
+          </div>
+
+          <div class="draft-bar">
+            <div class="draft-label">Status: <span>Draft · Not live</span></div>
+            <button class="go-live-small" onclick="go('live')">Go Live →</button>
+          </div>
+
+          <div class="editor-scroll">
+
+            <!-- attendee preview thumbnail -->
+            <div class="preview-card">
+              <div class="preview-thumb">
+                <div class="preview-thumb-inner">
+                  <div class="pti-bar"></div>
+                  <div style="height:2px;"></div>
+                  <div class="pti-line w80"></div>
+                  <div class="pti-line w60"></div>
+                  <div class="pti-card"></div>
+                  <div class="pti-line w40"></div>
+                  <div class="pti-line w60"></div>
+                </div>
+              </div>
+              <div class="preview-card-info">
+                <div class="preview-card-label">Attendee sees this</div>
+                <div class="preview-card-title">Tap to preview</div>
+                <div class="preview-card-sub">8 items · Brand: NG Blue</div>
+              </div>
+              <div class="preview-arrow">›</div>
+            </div>
+
+            <!-- brand -->
+            <div class="sec-label" style="margin-bottom:8px;">
+              <span>Brand</span>
+              <span class="sec-label-action">Edit</span>
+            </div>
+            <div class="brand-strip" style="margin-bottom:20px;">
+              <div style="width:36px;height:36px;border-radius:10px;background:#1A1714;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;color:#F8F6F1;flex-shrink:0;">NG</div>
+              <div class="brand-strip-info">
+                <div class="brand-strip-name">NextGen Ventures</div>
+                <div class="brand-strip-sub">Logo set · 2 brand colours</div>
+              </div>
+              <div class="brand-colors">
+                <div class="brand-color-dot" style="background:#1A1714;"></div>
+                <div class="brand-color-dot" style="background:#2563EB;"></div>
+              </div>
+            </div>
+
+            <!-- featured / preset -->
+            <div class="sec-label" style="margin-bottom:8px;">
+              <span>Featured (Preset)</span>
+              <span class="sec-label-action">Change</span>
+            </div>
+            <div class="content-section" style="margin-bottom:20px;">
+              <div class="content-row" style="border-color:rgba(217,119,6,.25);background:rgba(217,119,6,.03);">
+                <div class="cr-icon peach">📢</div>
+                <div class="cr-info">
+                  <div class="cr-name">Series A — Now Open</div>
+                  <div class="cr-sub">Announcement · Shown first</div>
+                </div>
+                <div class="cr-actions">
+                  <button class="cr-pin pinned">📌</button>
+                  <div class="cr-drag">⠿</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- content -->
+            <div class="sec-label">
+              <span>Content</span>
+              <span class="sec-label-action" onclick="go('addcard')">+ Add</span>
+            </div>
+            <div class="content-section">
+              <div class="content-row">
+                <div class="cr-icon blue">👥</div>
+                <div class="cr-info">
+                  <div class="cr-name">Today's Presenters</div>
+                  <div class="cr-sub">4 contacts</div>
+                </div>
+                <div class="cr-actions">
+                  <button class="cr-pin">📌</button>
+                  <div class="cr-drag">⠿</div>
+                </div>
+              </div>
+              <div class="content-row">
+                <div class="cr-icon green">💰</div>
+                <div class="cr-info">
+                  <div class="cr-name">Series A Offer</div>
+                  <div class="cr-sub">Offer card · ₹50L min</div>
+                </div>
+                <div class="cr-actions">
+                  <button class="cr-pin">📌</button>
+                  <div class="cr-drag">⠿</div>
+                </div>
+              </div>
+              <div class="content-row">
+                <div class="cr-icon rose">📊</div>
+                <div class="cr-info">
+                  <div class="cr-name">Company Deck FY2026</div>
+                  <div class="cr-sub">5 slides</div>
+                </div>
+                <div class="cr-actions">
+                  <button class="cr-pin">📌</button>
+                  <div class="cr-drag">⠿</div>
+                </div>
+              </div>
+              <div class="content-row">
+                <div class="cr-icon slate">📋</div>
+                <div class="cr-info">
+                  <div class="cr-name">Meeting Agenda</div>
+                  <div class="cr-sub">Information · 6 points</div>
+                </div>
+                <div class="cr-actions">
+                  <button class="cr-pin">📌</button>
+                  <div class="cr-drag">⠿</div>
+                </div>
+              </div>
+              <button class="add-content-row" onclick="go('addcard')">+ Add content</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ADD CONTENT (Contact Card) -->
+        <div class="sc" id="addcard">
+          <div class="ac-top">
+            <div class="ac-back" onclick="go('editor')">‹</div>
+            <div class="ac-title">Add Content</div>
+            <button class="ac-done">Done</button>
+          </div>
+
+          <div class="card-type-row">
+            <div class="card-type on">👤 Contact</div>
+            <div class="card-type">🏷️ Offer</div>
+            <div class="card-type">📦 Product</div>
+            <div class="card-type">🖼️ Image</div>
+            <div class="card-type">📋 Info</div>
+          </div>
+
+          <!-- live preview -->
+          <div class="ac-preview">
+            <div class="ac-preview-label">Preview — what attendee sees</div>
+            <div class="mini-card">
+              <div class="mc-top">
+                <div class="mc-avatar">AR</div>
+                <div>
+                  <div class="mc-name">Ananya Reddy</div>
+                  <div class="mc-role">CEO & Co-Founder · NextGen Ventures</div>
+                </div>
+              </div>
+              <div class="mc-divider"></div>
+              <div class="mc-row"><span class="mc-row-icon">📱</span><span class="mc-row-val">+91 98765 43210</span></div>
+              <div class="mc-row"><span class="mc-row-icon">✉</span><span class="mc-row-val">ananya@nextgen.in</span></div>
+            </div>
+          </div>
+
+          <div class="ac-scroll">
+            <div class="field-group">
+              <div class="field-label">Photo</div>
+              <div class="photo-upload">
+                <div class="photo-placeholder">📷</div>
+                <div class="photo-text">Upload photo · or leave blank</div>
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Full Name</div>
+              <input class="field-input" type="text" value="Ananya Reddy" placeholder="Full name">
+            </div>
+            <div class="field-group">
+              <div class="field-label">Role</div>
+              <input class="field-input" type="text" value="CEO & Co-Founder" placeholder="Job title or role">
+            </div>
+            <div class="field-group">
+              <div class="field-label">Company</div>
+              <input class="field-input prefilled" type="text" value="NextGen Ventures Pvt. Ltd." placeholder="Company">
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <div class="field-label">Phone</div>
+                <input class="field-input" type="text" value="+91 98765 43210" placeholder="Mobile">
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field-label">Email</div>
+              <input class="field-input" type="text" value="ananya@nextgen.in" placeholder="Email address">
+            </div>
+            <div class="field-group">
+              <div class="field-label">LinkedIn (optional)</div>
+              <input class="field-input" type="text" placeholder="linkedin.com/in/...">
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE PANEL -->
+        <div class="sc" id="live">
+          <div class="live-header">
+            <div class="live-session-row">
+              <div class="live-badge">
+                <div class="live-badge-dot"></div>
+                <span class="live-badge-text">LIVE</span>
+              </div>
+              <span class="live-timer">42 min · ends 11:00 AM</span>
+            </div>
+            <div class="live-space-name">Weekly Investor Meeting</div>
+          </div>
+
+          <!-- room -->
+          <div class="room-section">
+            <div class="room-head">In the Room</div>
+            <div class="room-people">
+              <div class="room-count-row">
+                <div class="room-count">
+                  <div class="room-count-n">14</div>
+                  <div class="room-count-l">people</div>
+                </div>
+                <div class="room-count-badge"><div class="new-dot"></div> 2 just arrived</div>
+              </div>
+              <div class="attendee-list">
+                <div class="att-pill new"><div class="att-avatar">VR</div><span class="att-name">Vishnu R.</span></div>
+                <div class="att-pill new"><div class="att-avatar">SK</div><span class="att-name">S. Kumar</span></div>
+                <div class="att-pill"><div class="att-avatar">PM</div><span class="att-name">Priya M.</span></div>
+                <div class="att-pill"><div class="att-avatar">AR</div><span class="att-name">A. Rao</span></div>
+                <div class="att-pill"><div class="att-avatar">RK</div><span class="att-name">R. Kapoor</span></div>
+                <div class="att-pill"><div class="att-avatar">DG</div><span class="att-name">D. Gupta</span></div>
+                <div class="att-pill" style="background:rgba(255,255,255,.04);"><span class="att-name" style="font-size:11px;padding:0 4px;">+8 more</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- controls -->
+          <div class="controls-section">
+            <div class="controls-head">Host Controls</div>
+            <div class="controls-grid">
+              <button class="ctrl-btn pin">
+                <span class="ctrl-btn-icon">📌</span>
+                Pin
+              </button>
+              <button class="ctrl-btn hide">
+                <span class="ctrl-btn-icon">👁️</span>
+                Hide
+              </button>
+              <button class="ctrl-btn announce">
+                <span class="ctrl-btn-icon">📣</span>
+                Announce
+              </button>
+            </div>
+          </div>
+
+          <!-- showing now -->
+          <div class="showing-section">
+            <div class="showing-head">Showing to Everyone</div>
+            <div class="showing-card">
+              <div class="showing-icon">📢</div>
+              <div class="showing-info">
+                <div class="showing-name">Series A — Now Open</div>
+                <div class="showing-sub">Announcement · Preset</div>
+              </div>
+              <div class="showing-pinned">Pinned</div>
+            </div>
+          </div>
+
+          <!-- engagement -->
+          <div class="live-scroll">
+            <div class="eng-section">
+              <div class="eng-head">Engagement · last 30s</div>
+              <div class="eng-row">
+                <div class="eng-name">Series A Announcement</div>
+                <div class="eng-bar-wrap"><div class="eng-bar" style="width:90%;background:rgba(217,119,6,.5);"></div></div>
+                <div class="eng-count">12</div>
+              </div>
+              <div class="eng-row">
+                <div class="eng-name">Today's Presenters</div>
+                <div class="eng-bar-wrap"><div class="eng-bar" style="width:70%;"></div></div>
+                <div class="eng-count">9</div>
+              </div>
+              <div class="eng-row">
+                <div class="eng-name">Company Deck</div>
+                <div class="eng-bar-wrap"><div class="eng-bar" style="width:45%;"></div></div>
+                <div class="eng-count">6</div>
+              </div>
+              <div class="eng-row">
+                <div class="eng-name">Series A Offer</div>
+                <div class="eng-bar-wrap"><div class="eng-bar" style="width:30%;"></div></div>
+                <div class="eng-count">4</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="live-foot">
+            <button class="end-session">⏹ End Session</button>
+            <button class="extend-session">+30 min</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="pt">375 × 812 · Host Native App</div>
+  </div>
+
+  <div class="ip">
+    <div class="ic">
+      <div class="ic-t">Dashboard</div>
+      <div class="ic-b">One glance: spaces, scans, who's live. <strong>Go Live</strong> is the primary action — unmissable green. Quick stats per space.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Space Editor</div>
+      <div class="ic-b"><strong>Preview thumbnail</strong> always visible — they see what attendees see. Drag to reorder. Pin to feature. Toggle Edit/Preview.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Add Content</div>
+      <div class="ic-b"><strong>Live preview updates</strong> as they type. Company auto-filled. Six card types to choose from. No form anxiety.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Live Panel</div>
+      <div class="ic-b"><strong>Designed for a glance.</strong> Who's in the room. Three controls only. Engagement bars update every 30s. Session timer. End or extend.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">The live panel principle</div>
+      <div class="ic-b">Host is running a meeting. They look down for <strong>2 seconds</strong> — see everything they need — look back up. Not a dashboard they stare at.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const bgs={dash:'#F8F6F1',editor:'#F8F6F1',addcard:'#F8F6F1',live:'#0D0E10'};
+function go(id){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.nav button').forEach((b,i)=>{
+    b.classList.toggle('on',['dash','editor','addcard','live'][i]===id);
+  });
+  const bg=bgs[id]||'#F8F6F1';
+  document.getElementById('PH').style.background=bg;
+  document.getElementById('PH').style.setProperty('--paper',bg);
+}
+
+// tab bar interaction
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+  });
+});
+
+// edit/preview toggle
+document.querySelectorAll('.epv-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.epv-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+  });
+});
+
+// pin toggle
+document.querySelectorAll('.cr-pin').forEach(p=>{
+  p.addEventListener('click',e=>{
+    e.stopPropagation();
+    p.classList.toggle('pinned');
+    p.textContent=p.classList.contains('pinned')?'📌':'📌';
+  });
+});
+
+// card type toggle
+document.querySelectorAll('.card-type').forEach(ct=>{
+  ct.addEventListener('click',()=>{
+    document.querySelectorAll('.card-type').forEach(x=>x.classList.remove('on'));
+    ct.classList.add('on');
+  });
+});
+</script>
+</body>
+</html>

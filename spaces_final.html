@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spaces</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --ink:    #1A1714;
+  --ink2:   #4A4540;
+  --ink3:   #9A9490;
+  --ink4:   #C8C4C0;
+  --paper:  #FAF8F3;
+  --warm:   #F5F0E6;
+  --line:   rgba(26,23,20,.09);
+}
+
+body{
+  background:#111;
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:40px 20px 60px;
+}
+
+/* header */
+.hd{text-align:center;margin-bottom:32px;}
+.hd-e{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:10px;}
+.hd h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;font-style:italic;color:rgba(255,255,255,.85);margin-bottom:6px;}
+.hd p{font-size:13px;color:rgba(255,255,255,.3);font-weight:300;}
+
+/* nav */
+.nav{display:flex;gap:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:3px;margin-bottom:40px;flex-wrap:wrap;justify-content:center;}
+.nav button{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:rgba(255,255,255,.35);padding:7px 16px;border-radius:100px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.nav button.on{background:#FAF8F3;color:#1A1714;font-weight:500;}
+
+/* stage */
+.stage{display:flex;align-items:flex-start;gap:36px;flex-wrap:wrap;justify-content:center;}
+.pw{display:flex;flex-direction:column;align-items:center;gap:12px;}
+.pt{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);}
+
+/* phone */
+.phone{
+  width:375px;height:812px;
+  border-radius:54px;
+  border:1.5px solid rgba(255,255,255,.1);
+  box-shadow:0 0 0 6px rgba(255,255,255,.02),0 60px 120px rgba(0,0,0,.9);
+  position:relative;overflow:hidden;flex-shrink:0;
+  transition:background .4s ease;
+}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:30px;z-index:99;border-radius:0 0 16px 16px;}
+.ps{position:absolute;inset:0;overflow:hidden;border-radius:54px;}
+.sc{display:none;width:100%;height:100%;}
+.sc.on{display:flex;flex-direction:column;}
+
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 1 — BUSINESS CARD
+   One card. Nothing else. Held in your hand.
+═══════════════════════════════════════════════════ */
+.card-screen{
+  background:var(--ink);
+  align-items:center;justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+/* subtle linen texture on the "table" */
+.card-screen::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.012) 2px,rgba(255,255,255,.012) 4px),
+    repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.008) 3px,rgba(255,255,255,.008) 6px);
+  pointer-events:none;
+}
+.card-st{position:absolute;top:52px;left:0;right:0;display:flex;justify-content:space-between;padding:0 26px;font-size:14px;font-weight:400;color:rgba(255,255,255,.25);z-index:5;}
+
+/* THE CARD */
+.card-scene{
+  perspective:1400px;
+  width:320px;height:190px;
+  cursor:pointer;position:relative;z-index:2;
+  margin-bottom:0;
+}
+.card-body{
+  width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform .75s cubic-bezier(.4,0,.15,1);
+  position:relative;
+}
+.card-body.flip{transform:rotateY(180deg);}
+.face{
+  position:absolute;inset:0;
+  border-radius:14px;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  overflow:hidden;
+}
+
+/* FRONT — cream card */
+.front{
+  background:var(--warm);
+  padding:24px 26px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  box-shadow:
+    0 2px 4px rgba(0,0,0,.08),
+    0 8px 24px rgba(0,0,0,.2),
+    0 24px 48px rgba(0,0,0,.3),
+    inset 0 0 0 1px rgba(255,255,255,.5);
+}
+/* paper grain on card */
+.front::after{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.6;pointer-events:none;mix-blend-mode:multiply;
+}
+.front-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.front-mark{
+  width:30px;height:30px;border-radius:7px;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--warm);
+  letter-spacing:-.02em;
+}
+.front-verified{
+  font-size:9px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink3);display:flex;align-items:center;gap:4px;
+}
+.front-mid{padding:4px 0;}
+.front-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:600;color:var(--ink);
+  line-height:1.05;letter-spacing:-.01em;margin-bottom:5px;
+}
+.front-role{
+  font-size:10px;font-weight:400;color:var(--ink2);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.front-bot{display:flex;justify-content:space-between;align-items:flex-end;}
+.front-co{
+  font-family:'Cormorant Garamond',serif;
+  font-size:13px;font-weight:300;font-style:italic;color:var(--ink2);
+}
+.front-flip-hint{font-size:9px;color:var(--ink4);letter-spacing:.06em;}
+
+/* BACK — dark card */
+.back{
+  background:var(--ink);
+  padding:22px 26px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  transform:rotateY(180deg);
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+.back-co{
+  font-family:'Cormorant Garamond',serif;
+  font-size:16px;font-weight:400;color:rgba(245,240,230,.9);
+  letter-spacing:.01em;
+}
+.back-contacts{display:flex;flex-direction:column;gap:8px;}
+.back-row{display:flex;align-items:center;gap:10px;}
+.back-icon{
+  width:24px;height:24px;border-radius:6px;
+  background:rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;flex-shrink:0;
+}
+.back-val{font-size:12px;font-weight:300;color:rgba(245,240,230,.7);}
+.back-bot{display:flex;justify-content:space-between;align-items:center;}
+.back-gstin{font-size:8px;color:rgba(245,240,230,.2);letter-spacing:.05em;}
+
+/* card actions */
+.card-actions{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  position:relative;z-index:2;margin-top:28px;
+}
+.card-save{
+  background:var(--warm);border:none;border-radius:100px;
+  padding:13px 36px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--ink);
+  cursor:pointer;letter-spacing:.02em;
+}
+.card-share{font-size:12px;color:rgba(255,255,255,.25);cursor:pointer;letter-spacing:.04em;}
+.card-session{
+  position:absolute;bottom:36px;left:0;right:0;
+  text-align:center;font-size:10px;color:rgba(255,255,255,.14);
+  letter-spacing:.08em;text-transform:uppercase;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 2 — MENU
+   Pure typography. Nothing else.
+   Looks exactly like a printed restaurant menu.
+═══════════════════════════════════════════════════ */
+.menu-screen{background:var(--paper);overflow:hidden;}
+.menu-header{
+  padding:52px 28px 18px;
+  text-align:center;
+  border-bottom:1px solid var(--line);
+  flex-shrink:0;
+}
+.menu-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:32px;font-weight:400;color:var(--ink);
+  letter-spacing:.02em;margin-bottom:5px;
+}
+.menu-desc{
+  font-size:10px;font-weight:300;color:var(--ink3);
+  letter-spacing:.16em;text-transform:uppercase;
+}
+.menu-date{font-size:11px;color:var(--ink4);margin-top:5px;}
+
+.menu-scroll{flex:1;overflow-y:auto;}
+.menu-scroll::-webkit-scrollbar{display:none;}
+
+/* Today's special — barely a box */
+.menu-special{
+  padding:16px 28px;
+  background:#FFF8EE;
+  border-bottom:1px solid rgba(200,140,30,.12);
+}
+.menu-special-tag{
+  font-size:8px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(180,110,20,.7);margin-bottom:9px;
+  display:flex;align-items:center;gap:6px;
+}
+.menu-special-tag::after{content:'';flex:1;height:1px;background:rgba(180,110,20,.15);}
+.menu-s-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.menu-s-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:21px;font-weight:500;color:var(--ink);line-height:1.15;
+}
+.menu-s-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;font-weight:400;color:rgba(160,100,10,.9);
+  white-space:nowrap;margin-left:12px;
+}
+.menu-s-desc{font-size:11px;color:var(--ink3);font-weight:300;font-style:italic;line-height:1.6;}
+
+/* category heading */
+.menu-cat{
+  padding:16px 28px 6px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:11px;font-weight:400;font-style:italic;
+  color:var(--ink3);letter-spacing:.12em;text-transform:uppercase;
+}
+
+/* menu item — pure typography */
+.menu-item{
+  padding:11px 28px;
+  border-bottom:1px solid var(--line);
+}
+.menu-item-row{
+  display:flex;align-items:baseline;
+  margin-bottom:3px;
+}
+.menu-item-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:17px;font-weight:400;color:var(--ink);
+  flex-shrink:0;
+}
+/* dotted leader — exactly like a real menu */
+.menu-dots{
+  flex:1;
+  margin:0 8px 2px;
+  border-bottom:1px dotted var(--ink4);
+}
+.menu-item-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;font-weight:300;color:var(--ink2);
+  white-space:nowrap;
+}
+.menu-item-desc{
+  font-size:11px;color:var(--ink3);font-weight:300;
+  font-style:italic;line-height:1.55;
+}
+.menu-item-tags{display:flex;gap:4px;margin-top:4px;}
+.mtag{
+  font-size:8px;font-weight:500;letter-spacing:.05em;
+  border-radius:3px;padding:2px 5px;text-transform:uppercase;
+}
+.mtag.v{background:rgba(40,160,80,.1);color:rgba(20,120,50,.85);}
+.mtag.s{background:rgba(200,60,40,.08);color:rgba(160,40,20,.85);}
+.mtag.n{background:rgba(180,130,20,.1);color:rgba(140,90,0,.85);}
+
+.menu-foot{
+  border-top:1px solid var(--line);padding:13px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--paper);flex-shrink:0;
+}
+.menu-foot-note{
+  font-family:'Cormorant Garamond',serif;
+  font-size:12px;font-style:italic;color:var(--ink3);
+}
+.menu-save{
+  background:var(--ink);border:none;border-radius:100px;
+  padding:10px 20px;
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;
+  color:var(--warm);cursor:pointer;letter-spacing:.04em;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 3 — PRODUCTS
+   One product fills the screen. Swipe to move.
+   Section index on the right — thin, elegant.
+═══════════════════════════════════════════════════ */
+.prod-screen{background:var(--paper);overflow:hidden;}
+.prod-topbar{
+  padding:52px 22px 0;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  background:var(--paper);
+}
+.prod-back{
+  width:32px;height:32px;border-radius:9px;
+  background:rgba(26,23,20,.07);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:var(--ink);cursor:pointer;flex-shrink:0;
+}
+.prod-co{flex:1;}
+.prod-co-name{font-size:13px;font-weight:500;color:var(--ink);}
+.prod-co-sub{font-size:11px;color:var(--ink3);}
+.prod-count{
+  font-size:11px;color:var(--ink3);
+  background:rgba(26,23,20,.06);border-radius:100px;padding:5px 12px;
+}
+
+/* single product view */
+.prod-stage{
+  flex:1;position:relative;overflow:hidden;
+}
+.prod-card{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease,transform .3s ease;
+  transform:translateX(24px);
+  padding-right:32px; /* room for index */
+}
+.prod-card.on{opacity:1;pointer-events:all;transform:translateX(0);}
+.prod-card.out-left{transform:translateX(-24px);}
+
+/* product image — big, clean, honest */
+.prod-visual{
+  flex-shrink:0;
+  height:280px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+/* tinted background per product */
+.pv-blue{background:linear-gradient(160deg,#EEF2FA,#E0E8F5);}
+.pv-green{background:linear-gradient(160deg,#EEF5EE,#E0F0E0);}
+.pv-amber{background:linear-gradient(160deg,#FFF5E6,#FFEACC);}
+.pv-rose{background:linear-gradient(160deg,#FEF0F0,#FAE0E0);}
+.pv-slate{background:linear-gradient(160deg,#F0F2F5,#E4E8F0);}
+.pv-sage{background:linear-gradient(160deg,#EFF5F0,#E2EDE3);}
+
+.prod-visual-emoji{
+  font-size:100px;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.12)) drop-shadow(0 2px 6px rgba(0,0,0,.08));
+  position:relative;z-index:1;
+}
+/* corner SKU */
+.prod-visual-sku{
+  position:absolute;bottom:12px;right:14px;
+  font-size:9px;color:rgba(26,23,20,.3);letter-spacing:.08em;
+}
+/* NEW / HOT tags */
+.pvtag{
+  position:absolute;top:14px;left:14px;
+  border-radius:4px;padding:3px 9px;
+  font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+}
+.pvtag.new{background:rgba(26,170,80,.12);color:rgba(10,120,50,.9);}
+.pvtag.hot{background:rgba(200,60,20,.1);color:rgba(160,40,10,.9);}
+
+/* product info */
+.prod-info{
+  flex:1;
+  padding:20px 22px 0;
+  overflow:hidden;
+}
+.prod-cat-label{
+  font-size:9px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:8px;
+}
+.prod-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:600;color:var(--ink);
+  line-height:1.1;letter-spacing:-.01em;margin-bottom:12px;
+}
+.prod-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;}
+.prod-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:600;color:var(--ink);
+}
+.prod-mrp{font-size:14px;color:var(--ink4);text-decoration:line-through;}
+.prod-disc{
+  font-size:10px;font-weight:500;
+  background:rgba(26,160,70,.1);color:rgba(14,110,46,.9);
+  border-radius:4px;padding:2px 7px;
+}
+.prod-moq{font-size:11px;color:var(--ink3);font-weight:300;}
+.prod-specs{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--line);border-radius:10px;overflow:hidden;
+  margin-top:14px;
+}
+.spec-cell{background:var(--paper);padding:10px 12px;}
+.spec-k{font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink4);margin-bottom:3px;}
+.spec-v{font-size:13px;font-weight:500;color:var(--ink);}
+
+/* product bottom */
+.prod-bottom{
+  padding:14px 22px 28px;
+  padding-right:38px;
+  background:var(--paper);flex-shrink:0;
+  border-top:1px solid var(--line);
+}
+.prod-nav-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.prod-prev,.prod-next{
+  background:rgba(26,23,20,.06);border:none;border-radius:100px;
+  padding:8px 18px;font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:400;color:var(--ink2);cursor:pointer;
+}
+.prod-pos{font-size:11px;color:var(--ink3);}
+.prod-save{
+  width:100%;background:var(--ink);border:none;border-radius:12px;
+  padding:15px;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:400;color:var(--warm);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:.02em;
+}
+
+/* ── SECTION INDEX — the scrubber ── */
+.sec-index{
+  position:absolute;right:0;top:0;bottom:0;
+  width:28px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:10;padding:20px 0;
+}
+.sec-index-track{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  position:relative;
+}
+/* thin vertical line */
+.sec-index-track::before{
+  content:'';
+  position:absolute;left:50%;top:8px;bottom:8px;
+  width:1px;background:var(--ink4);transform:translateX(-50%);
+}
+.sec-item{
+  display:flex;align-items:center;justify-content:center;
+  width:20px;height:38px;cursor:pointer;position:relative;
+  z-index:1;
+}
+.sec-letter{
+  font-family:'Cormorant Garamond',serif;
+  font-size:10px;font-weight:400;color:var(--ink4);
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  letter-spacing:.04em;
+}
+.sec-item.on .sec-letter{
+  font-size:13px;font-weight:600;color:var(--ink);
+}
+.sec-item:hover .sec-letter{color:var(--ink2);}
+/* tooltip */
+.sec-tip{
+  position:absolute;right:28px;top:50%;transform:translateY(-50%);
+  background:var(--ink);color:var(--warm);
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;
+  padding:5px 12px;border-radius:100px;white-space:nowrap;
+  opacity:0;pointer-events:none;
+  transition:opacity .15s;
+  letter-spacing:.02em;
+}
+.sec-item.on .sec-tip,.sec-item:hover .sec-tip{opacity:1;}
+
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 4 — LIVE EVENT
+   The presenter's world on your phone.
+   Dark. Intimate. Alive.
+═══════════════════════════════════════════════════ */
+.live-screen{
+  background:#0D0D0E;
+  overflow:hidden;
+}
+
+/* live bar — minimal */
+.live-bar{
+  padding:52px 22px 14px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  flex-shrink:0;
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#E63030;flex-shrink:0;
+  animation:ld 2s ease-in-out infinite;
+}
+@keyframes ld{0%,100%{opacity:1;}50%{opacity:.25;}}
+.live-bar-text{flex:1;}
+.live-bar-label{
+  font-size:11px;font-weight:500;letter-spacing:.08em;
+  text-transform:uppercase;color:#E63030;
+}
+.live-bar-sub{font-size:11px;font-weight:300;color:rgba(255,255,255,.3);margin-top:1px;}
+.live-bar-count{
+  font-size:11px;color:rgba(255,255,255,.25);
+  display:flex;align-items:center;gap:4px;
+}
+
+/* spotlight — what's being presented NOW */
+.spotlight{
+  margin:16px 22px 0;
+  flex-shrink:0;
+}
+.spotlight-from{
+  font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+  color:#E63030;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.spotlight-from::before{content:'';width:16px;height:1px;background:#E63030;}
+.spotlight-card{
+  background:#161618;
+  border-radius:18px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+}
+.sp-visual{
+  height:170px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:80px;position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#1A1A1E,#131315);
+}
+.sp-visual::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 40% 50%,rgba(230,48,48,.06) 0%,transparent 65%);}
+.sp-body{padding:18px 18px 20px;}
+.sp-eyebrow{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:7px;}
+.sp-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:500;color:#F5F3EF;
+  line-height:1.15;margin-bottom:12px;
+}
+.sp-meta{display:flex;gap:8px;}
+.sp-meta-cell{
+  background:rgba(255,255,255,.05);border-radius:8px;
+  padding:8px 12px;flex:1;
+}
+.sp-meta-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;font-weight:500;color:#F5F3EF;
+}
+.sp-meta-l{font-size:9px;color:rgba(255,255,255,.25);margin-top:2px;letter-spacing:.05em;}
+.sp-actions{
+  display:flex;gap:8px;padding:0 18px 18px;
+  background:#161618;
+}
+.sp-save{
+  flex:1;background:#F5F3EF;border:none;border-radius:10px;
+  padding:13px;font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:500;color:#0D0D0E;cursor:pointer;
+}
+.sp-share{
+  background:rgba(255,255,255,.06);border:none;border-radius:10px;
+  padding:13px 16px;font-size:14px;cursor:pointer;
+}
+
+/* live scroll */
+.live-scroll{flex:1;overflow-y:auto;padding:18px 22px 0;}
+.live-scroll::-webkit-scrollbar{display:none;}
+
+/* timeline — what was shared before */
+.tl-head{
+  font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.2);margin-bottom:12px;
+}
+.tl-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding-bottom:14px;position:relative;
+  opacity:.4;
+}
+.tl-item::before{content:'';position:absolute;left:15px;top:32px;bottom:0;width:1px;background:rgba(255,255,255,.06);}
+.tl-item:last-child::before{display:none;}
+.tl-icon{
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+}
+.tl-text-wrap{flex:1;}
+.tl-n{font-size:12px;font-weight:400;color:rgba(255,255,255,.6);line-height:1.3;}
+.tl-t{font-size:10px;color:rgba(255,255,255,.2);margin-top:2px;}
+.tl-save-small{
+  font-size:10px;color:rgba(255,255,255,.25);
+  background:rgba(255,255,255,.05);border:none;border-radius:6px;
+  padding:4px 10px;cursor:pointer;white-space:nowrap;align-self:center;
+}
+
+/* live foot */
+.live-foot{
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:12px 22px 28px;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;
+}
+.lf-session{font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.04em;}
+.lf-all{
+  background:rgba(255,255,255,.06);border:none;border-radius:100px;
+  padding:8px 16px;font-family:'DM Sans',sans-serif;
+  font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;
+}
+
+
+/* ── info panel ── */
+.ip{width:210px;display:flex;flex-direction:column;gap:10px;padding-top:4px;}
+.ic{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;}
+.ic-t{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:7px;}
+.ic-b{font-size:12px;color:rgba(255,255,255,.4);line-height:1.65;font-weight:300;}
+.ic-b strong{color:rgba(255,255,255,.75);font-weight:500;}
+
+@media(max-width:680px){.ip{display:none;}.phone{transform:scale(.86);transform-origin:top center;margin-bottom:-100px;}}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-e">Spaces · Paper Formats</div>
+  <h1>Stripped to the content.</h1>
+  <p>Typography is the design. White space does the work.</p>
+</div>
+
+<div class="nav">
+  <button class="on" onclick="go('cs')">Business Card</button>
+  <button onclick="go('ms')">Menu</button>
+  <button onclick="go('ps')">Products</button>
+  <button onclick="go('ls')">Live Event</button>
+</div>
+
+<div class="stage">
+  <div class="pw">
+    <div class="phone" id="PH">
+      <div class="ps">
+
+        <!-- BUSINESS CARD -->
+        <div class="sc on card-screen" id="cs">
+          <div class="card-st"><span>9:41</span><span style="font-size:11px;color:rgba(255,255,255,.2)">●●● 5G</span></div>
+          <div class="card-scene" onclick="flipCard(this)">
+            <div class="card-body" id="cb">
+              <div class="face front">
+                <div class="front-top">
+                  <div class="front-mark">NG</div>
+                  <div class="front-verified">✓ GST Verified</div>
+                </div>
+                <div class="front-mid">
+                  <div class="front-name">Ananya Reddy</div>
+                  <div class="front-role">Chief Executive Officer</div>
+                </div>
+                <div class="front-bot">
+                  <div class="front-co">NextGen Ventures Pvt. Ltd.</div>
+                  <div class="front-flip-hint">Tap to flip →</div>
+                </div>
+              </div>
+              <div class="face back">
+                <div class="back-co">NextGen Ventures</div>
+                <div class="back-contacts">
+                  <div class="back-row"><div class="back-icon">📱</div><span class="back-val">+91 98765 43210</span></div>
+                  <div class="back-row"><div class="back-icon">✉</div><span class="back-val">ananya@nextgen.in</span></div>
+                  <div class="back-row"><div class="back-icon">💼</div><span class="back-val">linkedin.com/in/ananya-r</span></div>
+                  <div class="back-row"><div class="back-icon">💬</div><span class="back-val">WhatsApp available</span></div>
+                </div>
+                <div class="back-bot">
+                  <span class="back-gstin">GSTIN: 27AANCA1234M1Z5</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-save">Save to Contacts</button>
+            <div class="card-share">Share via…</div>
+          </div>
+          <div class="card-session">Session · 1h 42m remaining</div>
+        </div>
+
+        <!-- MENU -->
+        <div class="sc menu-screen" id="ms">
+          <div class="menu-header">
+            <div class="menu-name">Amara Kitchen</div>
+            <div class="menu-desc">Modern Indian · Fine Casual</div>
+            <div class="menu-date">26 January 2026</div>
+          </div>
+          <div class="menu-scroll">
+            <div class="menu-special">
+              <div class="menu-special-tag">Chef's Special Today</div>
+              <div class="menu-s-row">
+                <div class="menu-s-name">Lamb Raan with Saffron Rice</div>
+                <div class="menu-s-price">₹680</div>
+              </div>
+              <div class="menu-s-desc">Slow-braised for 8 hours. Served with roomali roti and mint raita.</div>
+            </div>
+            <div class="menu-cat">Starters</div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Pani Puri Shot</span><div class="menu-dots"></div><span class="menu-item-price">₹220</span></div>
+              <div class="menu-item-desc">Jaljeera water, tamarind chutney, potato masala</div>
+              <div class="menu-item-tags"><span class="mtag v">Veg</span></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Tandoori Prawns</span><div class="menu-dots"></div><span class="menu-item-price">₹480</span></div>
+              <div class="menu-item-desc">Jumbo king prawns, ajwain marinade, pickled onion</div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Dal Ke Kabab</span><div class="menu-dots"></div><span class="menu-item-price">₹280</span></div>
+              <div class="menu-item-desc">Chana dal, fresh herbs, smoked chutney</div>
+              <div class="menu-item-tags"><span class="mtag v">Veg</span><span class="mtag n">New</span></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Crispy Fish Tacos</span><div class="menu-dots"></div><span class="menu-item-price">₹360</span></div>
+              <div class="menu-item-desc">Spiced basa, chipotle mayo, mango salsa</div>
+              <div class="menu-item-tags"><span class="mtag s">Spicy</span></div>
+            </div>
+            <div class="menu-cat">Mains</div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Butter Chicken</span><div class="menu-dots"></div><span class="menu-item-price">₹420</span></div>
+              <div class="menu-item-desc">Old Delhi recipe, stone-ground spices, charcoal naan</div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Paneer Lababdar</span><div class="menu-dots"></div><span class="menu-item-price">₹360</span></div>
+              <div class="menu-item-desc">Fresh cottage cheese, rich tomato gravy, kasuri methi</div>
+              <div class="menu-item-tags"><span class="mtag v">Veg</span></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Hyderabadi Dum Biryani</span><div class="menu-dots"></div><span class="menu-item-price">₹520</span></div>
+              <div class="menu-item-desc">Slow-cooked, saffron kewra, served with raita</div>
+              <div class="menu-item-tags"><span class="mtag s">Spicy</span></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Lamb Raan with Naan</span><div class="menu-dots"></div><span class="menu-item-price">₹680</span></div>
+              <div class="menu-item-desc">Signature slow-braised, eight hours, charcoal naan</div>
+            </div>
+            <div class="menu-cat">Desserts</div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Gulab Jamun Cheesecake</span><div class="menu-dots"></div><span class="menu-item-price">₹240</span></div>
+              <div class="menu-item-desc">Indian fusion, rose water, pistachio</div>
+              <div class="menu-item-tags"><span class="mtag v">Veg</span><span class="mtag n">New</span></div>
+            </div>
+            <div class="menu-item">
+              <div class="menu-item-row"><span class="menu-item-name">Kulfi Falooda</span><div class="menu-dots"></div><span class="menu-item-price">₹180</span></div>
+              <div class="menu-item-desc">Malai kulfi, rose syrup, basil seeds, vermicelli</div>
+              <div class="menu-item-tags"><span class="mtag v">Veg</span></div>
+            </div>
+          </div>
+          <div class="menu-foot">
+            <span class="menu-foot-note">Prices include all taxes</span>
+            <button class="menu-save">Save Menu ↑</button>
+          </div>
+        </div>
+
+        <!-- PRODUCTS -->
+        <div class="sc prod-screen" id="ps">
+          <div class="prod-topbar">
+            <div class="prod-back">‹</div>
+            <div class="prod-co">
+              <div class="prod-co-name">Vega Electronics</div>
+              <div class="prod-co-sub">Cables & Charging · 6 products</div>
+            </div>
+            <div class="prod-count" id="pcount">1 / 6</div>
+          </div>
+          <div class="prod-stage">
+
+            <div class="prod-card on" id="pc1">
+              <div class="prod-visual pv-blue"><span class="prod-visual-emoji">🔌</span><span class="pvtag hot">Hot</span><span class="prod-visual-sku">VE-C01</span></div>
+              <div class="prod-info">
+                <div class="prod-cat-label">Cables</div>
+                <div class="prod-name">USB-C Braided Cable 1m</div>
+                <div class="prod-price-row"><span class="prod-price">₹149</span><span class="prod-mrp">₹180</span><span class="prod-disc">−18%</span></div>
+                <div class="prod-moq">MOQ: 50 units · Dealer margin: 42%</div>
+                <div class="prod-specs">
+                  <div class="spec-cell"><div class="spec-k">Power</div><div class="spec-v">100W PD</div></div>
+                  <div class="spec-cell"><div class="spec-k">Data</div><div class="spec-v">10 Gbps</div></div>
+                  <div class="spec-cell"><div class="spec-k">Material</div><div class="spec-v">Nylon Braid</div></div>
+                  <div class="spec-cell"><div class="spec-k">Stock</div><div class="spec-v">1,000 units</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prod-card" id="pc2">
+              <div class="prod-visual pv-green"><span class="prod-visual-emoji">🔌</span><span class="pvtag new">New</span><span class="prod-visual-sku">VE-C02</span></div>
+              <div class="prod-info">
+                <div class="prod-cat-label">Cables</div>
+                <div class="prod-name">USB-C Braided Cable 2m</div>
+                <div class="prod-price-row"><span class="prod-price">₹199</span><span class="prod-mrp">₹240</span><span class="prod-disc">−17%</span></div>
+                <div class="prod-moq">MOQ: 50 units · Dealer margin: 42%</div>
+                <div class="prod-specs">
+                  <div class="spec-cell"><div class="spec-k">Power</div><div class="spec-v">100W PD</div></div>
+                  <div class="spec-cell"><div class="spec-k">Length</div><div class="spec-v">2 Metres</div></div>
+                  <div class="spec-cell"><div class="spec-k">Material</div><div class="spec-v">Nylon Braid</div></div>
+                  <div class="spec-cell"><div class="spec-k">Stock</div><div class="spec-v">800 units</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prod-card" id="pc3">
+              <div class="prod-visual pv-amber"><span class="prod-visual-emoji">⚡</span><span class="pvtag hot">Hot</span><span class="prod-visual-sku">VE-CH03</span></div>
+              <div class="prod-info">
+                <div class="prod-cat-label">Charging</div>
+                <div class="prod-name">65W GaN Dual USB-C Charger</div>
+                <div class="prod-price-row"><span class="prod-price">₹899</span><span class="prod-mrp">₹1,199</span><span class="prod-disc">−25%</span></div>
+                <div class="prod-moq">MOQ: 25 units · Dealer margin: 44%</div>
+                <div class="prod-specs">
+                  <div class="spec-cell"><div class="spec-k">Output</div><div class="spec-v">65W GaN</div></div>
+                  <div class="spec-cell"><div class="spec-k">Ports</div><div class="spec-v">2× USB-C</div></div>
+                  <div class="spec-cell"><div class="spec-k">Protocol</div><div class="spec-v">PD 3.0</div></div>
+                  <div class="spec-cell"><div class="spec-k">Stock</div><div class="spec-v">500 units</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prod-card" id="pc4">
+              <div class="prod-visual pv-rose"><span class="prod-visual-emoji">🔋</span><span class="prod-visual-sku">VE-PB01</span></div>
+              <div class="prod-info">
+                <div class="prod-cat-label">Power Banks</div>
+                <div class="prod-name">10,000mAh Power Bank</div>
+                <div class="prod-price-row"><span class="prod-price">₹799</span><span class="prod-mrp">₹999</span><span class="prod-disc">−20%</span></div>
+                <div class="prod-moq">MOQ: 25 units · Dealer margin: 40%</div>
+                <div class="prod-specs">
+                  <div class="spec-cell"><div class="spec-k">Capacity</div><div class="spec-v">10,000mAh</div></div>
+                  <div class="spec-cell"><div class="spec-k">Output</div><div class="spec-v">22.5W</div></div>
+                  <div class="spec-cell"><div class="spec-k">Ports</div><div class="spec-v">USB-C + A</div></div>
+                  <div class="spec-cell"><div class="spec-k">Stock</div><div class="spec-v">750 units</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prod-card" id="pc5">
+              <div class="prod-visual pv-slate"><span class="prod-visual-emoji">🔋</span><span class="pvtag new">New</span><span class="prod-visual-sku">VE-PB02</span></div>
+              <div class="prod-info">
+                <div class="prod-cat-label">Power Banks</div>
+                <div class="prod-name">20,000mAh Power Bank</div>
+                <div class="prod-price-row"><span class="prod-price">₹1,299</span><span class="prod-mrp">₹1,699</span><span class="prod-disc">−24%</span></div>
+                <div class="prod-moq">MOQ: 20 units · Dealer margin: 43%</div>
+                <div class="prod-specs">
+                  <div class="spec-cell"><div class="spec-k">Capacity</div><div class="spec-v">20,000mAh</div></div>
+                  <div class="spec-cell"><div class="spec-k">Output</div><div class="spec-v">45W</div></div>
+                  <div class="spec-cell"><div class="spec-k">Ports</div><div class="spec-v">2× USB-C</div></div>
+                  <div class="spec-cell"><div class="spec-k">Stock</div><div class="spec-v">400 units</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="prod-card" id="pc6">
+              <div class="prod-visual pv-sage"><span class="prod-visual-emoji">🔌</span><span class="prod-visual-sku">VE-CH06</span></div>
+              <div class="prod-info">
+                <div class="prod-cat-label">Charging</div>
+                <div class="prod-name">Wireless Charging Pad 15W</div>
+                <div class="prod-price-row"><span class="prod-price">₹599</span><span class="prod-mrp">₹799</span><span class="prod-disc">−25%</span></div>
+                <div class="prod-moq">MOQ: 30 units · Dealer margin: 41%</div>
+                <div class="prod-specs">
+                  <div class="spec-cell"><div class="spec-k">Power</div><div class="spec-v">15W Qi</div></div>
+                  <div class="spec-cell"><div class="spec-k">Compat.</div><div class="spec-v">All Qi devices</div></div>
+                  <div class="spec-cell"><div class="spec-k">Cert.</div><div class="spec-v">BIS, CE</div></div>
+                  <div class="spec-cell"><div class="spec-k">Stock</div><div class="spec-v">600 units</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION INDEX -->
+            <div class="sec-index">
+              <div class="sec-index-track" id="secTrack">
+                <div class="sec-item on" onclick="secJump(0)"><span class="sec-letter">C</span><div class="sec-tip">Cables</div></div>
+                <div class="sec-item" onclick="secJump(1)"><span class="sec-letter">C</span><div class="sec-tip">Charging</div></div>
+                <div class="sec-item" onclick="secJump(2)"><span class="sec-letter">A</span><div class="sec-tip">Audio</div></div>
+                <div class="sec-item" onclick="secJump(3)"><span class="sec-letter">D</span><div class="sec-tip">Desk</div></div>
+                <div class="sec-item" onclick="secJump(4)"><span class="sec-letter">T</span><div class="sec-tip">Travel</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prod-bottom">
+            <div class="prod-nav-row">
+              <button class="prod-prev" onclick="moveProd(-1)">← Prev</button>
+              <span class="prod-pos" id="ppos">Cables · 1 of 6</span>
+              <button class="prod-next" onclick="moveProd(1)">Next →</button>
+            </div>
+            <button class="prod-save">Save Product Info ↑</button>
+          </div>
+        </div>
+
+        <!-- LIVE EVENT -->
+        <div class="sc live-screen" id="ls">
+          <div class="live-bar">
+            <div class="live-dot"></div>
+            <div class="live-bar-text">
+              <div class="live-bar-label">Live · Vega Dealer Day</div>
+              <div class="live-bar-sub">Ananya just shared this</div>
+            </div>
+            <div class="live-bar-count">👁 14 watching</div>
+          </div>
+
+          <div class="spotlight">
+            <div class="spotlight-from">Presented now</div>
+            <div class="spotlight-card">
+              <div class="sp-visual"><span style="font-size:80px">⚡</span></div>
+              <div class="sp-body">
+                <div class="sp-eyebrow">Featured Product</div>
+                <div class="sp-title">65W GaN Charger — Dealer Exclusive Price</div>
+                <div class="sp-meta">
+                  <div class="sp-meta-cell"><div class="sp-meta-n">₹899</div><div class="sp-meta-l">Dealer Price</div></div>
+                  <div class="sp-meta-cell"><div class="sp-meta-n">44%</div><div class="sp-meta-l">Margin</div></div>
+                  <div class="sp-meta-cell"><div class="sp-meta-n">500</div><div class="sp-meta-l">In Stock</div></div>
+                </div>
+              </div>
+              <div class="sp-actions">
+                <button class="sp-save">Save Product</button>
+                <button class="sp-share">⬆</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="live-scroll">
+            <div class="tl-head">Earlier in this session</div>
+            <div class="tl-item">
+              <div class="tl-icon">📋</div>
+              <div class="tl-text-wrap">
+                <div class="tl-n">Company Deck — FY2026</div>
+                <div class="tl-t">Shared 14 min ago</div>
+              </div>
+              <button class="tl-save-small">Save ↑</button>
+            </div>
+            <div class="tl-item">
+              <div class="tl-icon">🏷️</div>
+              <div class="tl-text-wrap">
+                <div class="tl-n">Volume Pricing — Up to 22% Off</div>
+                <div class="tl-t">Shared 29 min ago</div>
+              </div>
+              <button class="tl-save-small">Save ↑</button>
+            </div>
+            <div class="tl-item">
+              <div class="tl-icon">👥</div>
+              <div class="tl-text-wrap">
+                <div class="tl-n">Sales Team Contacts · 5 people</div>
+                <div class="tl-t">Shared at start</div>
+              </div>
+              <button class="tl-save-small">Save ↑</button>
+            </div>
+          </div>
+          <div class="live-foot">
+            <span class="lf-session">Session ends in 5h 12m</span>
+            <button class="lf-all">Save all ↑</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="pt">375 × 812 · PWA</div>
+  </div>
+
+  <div class="ip">
+    <div class="ic">
+      <div class="ic-t">The principle</div>
+      <div class="ic-b"><strong>Typography does the work.</strong> White space is the design. No decorative backgrounds. No glow effects. The content speaks for itself.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Business Card</div>
+      <div class="ic-b">Real paper texture. Real card proportions. <strong>Tap to flip</strong> — exactly like a physical card. Cream on dark felt.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Menu</div>
+      <div class="ic-b">Pure white. Cormorant Garamond. <strong>Dotted leaders</strong> like a real printed menu. Nothing else. No chrome.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Products</div>
+      <div class="ic-b"><strong>One product fills the screen.</strong> Flip through with Prev/Next. Right index — tap the letter to jump category. Images clean on white.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Live Event</div>
+      <div class="ic-b">The phone mirrors the presentation. <strong>What the host just shared fills the top.</strong> Timeline of earlier shares below. Nobody has built this.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// SCREEN NAV
+const bgs={cs:'#1A1714',ms:'#FAF8F3',ps:'#FAF8F3',ls:'#0D0D0E'};
+function go(id){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.querySelectorAll('.nav button').forEach((b,i)=>{
+    b.classList.toggle('on',['cs','ms','ps','ls'][i]===id);
+  });
+  document.getElementById('PH').style.background=bgs[id]||'#1A1714';
+  document.querySelector('.phone::before') && (document.querySelector('.phone').style.setProperty('--nb',bgs[id]||'#1A1714'));
+}
+
+// CARD FLIP
+function flipCard(el){
+  document.getElementById('cb').classList.toggle('flip');
+}
+
+// PRODUCTS
+const prods=[
+  {label:'Cables',pos:'Cables · 1 of 6'},
+  {label:'Cables',pos:'Cables · 2 of 6'},
+  {label:'Charging',pos:'Charging · 3 of 6'},
+  {label:'Charging',pos:'Charging · 4 of 6'},
+  {label:'Charging',pos:'Charging · 5 of 6'},
+  {label:'Charging',pos:'Charging · 6 of 6'},
+];
+const secMap=[0,0,1,1,1,1]; // which section each product belongs to
+let curP=0;
+const total=6;
+
+function moveProd(dir){
+  const next=Math.max(0,Math.min(total-1,curP+dir));
+  if(next===curP)return;
+  showProd(next,dir>0?'out-left':'out-right');
+}
+
+function showProd(idx,outClass){
+  document.getElementById('pc'+(curP+1)).classList.remove('on');
+  if(outClass)document.getElementById('pc'+(curP+1)).classList.add(outClass);
+  setTimeout(()=>{
+    if(outClass)document.getElementById('pc'+(curP+1)).classList.remove(outClass);
+  },320);
+  curP=idx;
+  const el=document.getElementById('pc'+(curP+1));
+  el.classList.add('on');
+  document.getElementById('pcount').textContent=(curP+1)+' / '+total;
+  document.getElementById('ppos').textContent=prods[curP].pos;
+  // update section index
+  const sec=secMap[curP];
+  document.querySelectorAll('.sec-item').forEach((s,i)=>s.classList.toggle('on',i===sec));
+}
+
+function secJump(secIdx){
+  const firstInSec=secMap.findIndex(s=>s===secIdx);
+  if(firstInSec>=0)showProd(firstInSec,firstInSec>curP?null:null);
+  document.querySelectorAll('.sec-item').forEach((s,i)=>s.classList.toggle('on',i===secIdx));
+}
+</script>
+</body>
+</html>
