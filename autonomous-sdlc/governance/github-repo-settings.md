@@ -21,6 +21,7 @@ Apply these settings once the remote repository exists.
 
 ## Recommended Checks
 - `Repository Checks / validate`
+- Add Playwright quality checks through the same workflow and mark them as required before merge.
 
 ## Ownership
 - Keep `.github/CODEOWNERS` in sync with the actual maintainers.
@@ -31,4 +32,3 @@ Apply these settings once the remote repository exists.
 
 ## Optional Agentic Automation
 - Use the `.github/workflows/*.md` files as the starting point for GitHub Agentic Workflows if `gh aw` is enabled on the repo.
-

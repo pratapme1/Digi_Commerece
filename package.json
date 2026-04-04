@@ -1,0 +1,15 @@
+{
+  "name": "digi-commerece",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Prototype repository with autonomous SDLC guardrails and Playwright smoke tests.",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "verify": "bash autonomous-sdlc/scripts/run_quality_gates.sh",
+    "hooks:install": "bash autonomous-sdlc/scripts/install_hooks.sh",
+    "session:start": "bash autonomous-sdlc/scripts/start_session.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

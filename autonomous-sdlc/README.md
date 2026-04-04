@@ -69,9 +69,26 @@ Connect a GitHub remote once the repo exists on GitHub:
 bash autonomous-sdlc/scripts/connect_github_remote.sh Digi_Commerece
 ```
 
+Install local hooks:
+
+```bash
+npm run hooks:install
+```
+
+Start a later session with the right context:
+
+```bash
+npm run session:start
+```
+
 ## How To Use This System
 1. Create a feature folder with `new_feature.sh`.
 2. Fill in `spec.md`, then `plan.md`, then `tasks.md`.
 3. Implement from the task list and keep tasks current.
 4. Record evidence in `qa-report.md`.
 5. Prepare `release-notes.md` and `retro.md` before closing the work.
+
+## Guardrails
+- `pre-commit` blocks commits that change repo content without also updating a feature workspace.
+- `pre-push` blocks direct pushes to `main` and runs the quality gates.
+- Quality gates currently include repository validation plus Playwright smoke tests against both HTML prototypes.

@@ -10,6 +10,8 @@ dist/
 build/
 coverage/
 .playwright-mcp/
+playwright-report/
+test-results/
 
 # Python cache
 __pycache__/

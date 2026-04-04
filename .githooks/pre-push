@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+bash autonomous-sdlc/scripts/pre_push_guard.sh
