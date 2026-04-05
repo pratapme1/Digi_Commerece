@@ -12,6 +12,7 @@ import {
   applyDemoCreateBrandProfile,
   applyDemoCreateSpace,
   applyDemoDeleteSpace,
+  isDemoBridgeMessage,
   applyDemoImportJob,
   applyDemoInviteTeamMember,
   applyDemoRemoveTeamAccess,
@@ -26,6 +27,7 @@ import {
   type AnalyticsRange,
   type CreateBrandProfileInput,
   type CreateSpaceInput,
+  type DemoRoomState,
   type HostSetupDraft,
   type HostSetupSnapshot,
   type InviteTeamMemberInput,
@@ -52,6 +54,8 @@ import {
 import { hostAppConfig } from "./lib/config";
 import { clearBrowserRoomState, loadBrowserRoomState, persistBrowserRoomState } from "./lib/live-room-bridge";
 import {
+  applyDemoAttendeeEvent,
+  applyDemoAttendeePresence,
   applyDemoEndLiveSession,
   applyDemoGoLive,
   applyDemoPinLiveContent,
@@ -258,6 +262,75 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!demoMode || typeof window === "undefined") {
+      return;
+    }
+
+    const handleMessage = (event: MessageEvent) => {
+      if (!isDemoBridgeMessage(event.data)) {
+        return;
+      }
+
+      const primarySpace = getPrimaryHostSpace(setup);
+
+      if (!primarySpace || event.data.room !== primarySpace.qrSlug) {
+        return;
+      }
+
+      const respond = (roomState: DemoRoomState | null) => {
+        if (!event.source) {
+          return;
+        }
+
+        (event.source as WindowProxy).postMessage(
+          {
+            type: "digi-demo-room-state",
+            room: primarySpace.qrSlug,
+            roomState,
+          },
+          event.origin === "null" ? "*" : event.origin,
+        );
+      };
+
+      void (async () => {
+        const roomState = loadBrowserRoomState(primarySpace.qrSlug) ?? (await loadPreferredDemoRoom(setup));
+
+        if (event.data.type === "digi-demo-room-request") {
+          respond(roomState);
+          return;
+        }
+
+        if (!roomState) {
+          respond(null);
+          return;
+        }
+
+        const nextRoomState =
+          event.data.type === "digi-demo-attendee-presence"
+            ? applyDemoAttendeePresence(roomState, event.data.presence)
+            : applyDemoAttendeeEvent(roomState, {
+                attendeeRef: event.data.attendeeRef,
+                attendeeName: event.data.attendeeName ?? null,
+                contentId: event.data.contentId ?? null,
+                contentTitle: event.data.contentTitle ?? null,
+                eventName: event.data.eventName,
+              });
+
+        setLivePanel(getDemoLivePanel(nextRoomState));
+        await persistDemoRoom(nextRoomState);
+        persistBrowserRoomState(nextRoomState);
+        respond(nextRoomState);
+      })();
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [demoMode, setup]);
 
   async function requestOtp(phone: string) {
     const client = getSupabaseClient();

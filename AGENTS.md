@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-The root contains the HTML prototypes `spaces_final.html` and `spaces_host.html`, product docs, and the active TypeScript workspace config. Real app code lives in `apps/host-mobile/` for the Expo host app, shared contracts live in `packages/`, and tracked database work lives in `supabase/migrations/`. The `autonomous-sdlc/` folder holds the workflow: `product/` for milestones, discovery, and architecture; `features/` for numbered workspaces; `scripts/` for validation helpers; and `process.md`, `lessons.md`, and `github-repo-settings.md` for operating rules.
+The root contains the HTML prototypes `spaces_final.html` and `spaces_host.html`, product docs, and the active TypeScript workspace config. Real app code lives in `apps/attendee-web/` for the Next.js attendee surface and `apps/host-mobile/` for the Expo host app. Shared contracts live in `packages/`, and tracked database work lives in `supabase/migrations/`. The `autonomous-sdlc/` folder holds the workflow: `product/` for milestones, discovery, and architecture; `features/` for numbered workspaces; `scripts/` for validation helpers; and `process.md`, `lessons.md`, and `github-repo-settings.md` for operating rules.
 
 ## Build, Test, and Development Commands
 Use these commands from the repo root:
@@ -9,6 +9,8 @@ Use these commands from the repo root:
 ```bash
 corepack pnpm install
 python3 -m http.server 8000
+npm run attendee:dev
+npm run attendee:build
 npm run host:dev
 npm run host:web:export
 bash autonomous-sdlc/scripts/new_feature.sh booking-flow "Booking Flow"
@@ -17,7 +19,7 @@ bash autonomous-sdlc/scripts/validate_repo.sh
 npm run verify
 ```
 
-`corepack pnpm install` installs the workspace. `python3 -m http.server 8000` serves the prototypes. `npm run host:dev` starts the Expo host app, and `npm run host:web:export` builds its web export. The SDLC scripts create and validate feature workspaces. `npm run verify` runs repo validation, unit tests, typecheck, Supabase schema checks, and Playwright smoke tests.
+`corepack pnpm install` installs the workspace. `python3 -m http.server 8000` serves the prototypes. `npm run attendee:dev` starts the real attendee web app, `npm run attendee:build` builds it for production, `npm run host:dev` starts the Expo host app, and `npm run host:web:export` builds the browser-tested host export. The SDLC scripts create and validate feature workspaces. `npm run verify` runs repo validation, unit tests, typecheck, the attendee build, the host export, Supabase schema checks, and Playwright smoke tests.
 
 ## Coding Style & Naming Conventions
 Use 2-space indentation in HTML, CSS, JavaScript, TypeScript, Markdown, and shell scripts. Keep filenames lowercase; root prototypes use underscores, and feature workspaces use a three-digit prefix plus slug such as `010-host-go-live`. Prefer semantic names, keep shared contracts in `packages/`, and avoid duplicating domain logic inside UI screens.

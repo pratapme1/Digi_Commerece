@@ -9,27 +9,29 @@ import { formatTimeRemaining, getLiveContentLibrary, getPrimaryHostSpace, type L
 import { AppButton } from "../src/components/app-button";
 import { PageShell } from "../src/components/page-shell";
 import { useHostApp } from "../src/host-app-context";
-
-function buildAttendeeDemoUrl(input: { qrSlug: string; space: string; mode: string }) {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const url = new URL("/attendee-demo.html", window.location.origin);
-  url.searchParams.set("room", input.qrSlug);
-  url.searchParams.set("space", input.space);
-  url.searchParams.set("mode", input.mode);
-  url.searchParams.set("session", "live");
-  return url.toString();
-}
+import { buildHostAttendeeUrl } from "../src/lib/attendee-link";
+import { hostAppConfig } from "../src/lib/config";
 
 export default function LivePanelScreen() {
   const { busy, demoMode, endCurrentSession, error, livePanel, pinCurrentItem, refreshLivePanel, setup } = useHostApp();
 
   const space = getPrimaryHostSpace(setup);
   const contentLibrary = space ? getLiveContentLibrary(space.spaceType) : [];
-  const attendeeDemoUrl =
-    livePanel && space ? buildAttendeeDemoUrl({ qrSlug: livePanel.qrSlug, space: space.spaceType, mode: space.mode }) : null;
+  const attendeeUrl =
+    livePanel && space
+      ? buildHostAttendeeUrl({
+          attendeeCount: livePanel.metrics.attendeeCount,
+          baseUrl: hostAppConfig.attendeeBaseUrl,
+          brandName: setup?.brandProfiles[0]?.name,
+          demoMode,
+          mode: space.mode,
+          pinnedItem: livePanel.pinnedItem,
+          qrSlug: livePanel.qrSlug,
+          spaceName: space.name,
+          spaceType: space.spaceType,
+          status: livePanel.status,
+        })
+      : null;
 
   useEffect(() => {
     void refreshLivePanel();
@@ -49,11 +51,11 @@ export default function LivePanelScreen() {
   }
 
   async function handleOpenAttendeeDemo() {
-    if (!attendeeDemoUrl) {
+    if (!attendeeUrl) {
       return;
     }
 
-    await Linking.openURL(attendeeDemoUrl);
+    await Linking.openURL(attendeeUrl);
   }
 
   if (!livePanel || !space) {
@@ -75,7 +77,7 @@ export default function LivePanelScreen() {
       eyebrow={demoMode ? "M3 Live Panel · Demo" : "M3 Live Panel"}
       footer={
         <View style={{ gap: 12 }}>
-          {attendeeDemoUrl ? <AppButton label="Open attendee demo" onPress={() => void handleOpenAttendeeDemo()} /> : null}
+          {attendeeUrl ? <AppButton label="Open attendee space" onPress={() => void handleOpenAttendeeDemo()} /> : null}
           <AppButton label="Refresh live panel" onPress={() => void refreshLivePanel()} variant="secondary" />
           <AppButton
             disabled={busy}
@@ -132,7 +134,7 @@ export default function LivePanelScreen() {
             ))}
           </View>
         ) : (
-          <Text style={styles.sectionCopy}>Open the attendee demo to populate presence and activity in this room.</Text>
+          <Text style={styles.sectionCopy}>Open the attendee space to populate presence and activity in this room.</Text>
         )}
       </View>
 

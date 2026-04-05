@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { Share, StyleSheet, Text, View } from "react-native";
 
-import { buildAttendeeShareUrl, getPrimaryHostSpace } from "@digi/domain";
+import { getPrimaryHostSpace } from "@digi/domain";
 import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";
 
@@ -11,15 +11,29 @@ import { hostTheme } from "@digi/design-tokens";
 import { AppButton } from "../src/components/app-button";
 import { PageShell } from "../src/components/page-shell";
 import { useHostApp } from "../src/host-app-context";
+import { buildHostAttendeeUrl } from "../src/lib/attendee-link";
 import { hostAppConfig } from "../src/lib/config";
 
 export default function QrScreen() {
-  const { setup } = useHostApp();
+  const { demoMode, livePanel, setup } = useHostApp();
   const [message, setMessage] = useState<string | null>(null);
   const qrRef = useRef<QRCode>(null);
 
   const space = getPrimaryHostSpace(setup);
-  const attendeeUrl = space ? buildAttendeeShareUrl(hostAppConfig.attendeeBaseUrl, space.qrSlug) : "";
+  const attendeeUrl = space
+    ? buildHostAttendeeUrl({
+        attendeeCount: livePanel?.metrics.attendeeCount,
+        baseUrl: hostAppConfig.attendeeBaseUrl,
+        brandName: setup?.brandProfiles[0]?.name,
+        demoMode,
+        mode: space.mode,
+        pinnedItem: livePanel?.pinnedItem,
+        qrSlug: space.qrSlug,
+        spaceName: space.name,
+        spaceType: space.spaceType,
+        status: livePanel?.status ?? setup?.liveSession?.status ?? "inactive",
+      })
+    : "";
 
   async function handleCopy() {
     await Clipboard.setStringAsync(attendeeUrl);

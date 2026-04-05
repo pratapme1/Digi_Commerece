@@ -57,7 +57,9 @@ where pronamespace = 'public'::regnamespace
     'digi_invite_team_member',
     'digi_remove_team_access',
     'digi_record_catalog_import',
-    'digi_get_operations_snapshot'
+    'digi_get_operations_snapshot',
+    'digi_get_attendee_room',
+    'digi_get_attendee_live_state'
   )
 order by 1;
 SQL
@@ -92,6 +94,8 @@ required_lines=(
   "function:digi_remove_team_access"
   "function:digi_record_catalog_import"
   "function:digi_get_operations_snapshot"
+  "function:digi_get_attendee_room"
+  "function:digi_get_attendee_live_state"
 )
 
 for expected in "${required_lines[@]}"; do

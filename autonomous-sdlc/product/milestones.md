@@ -144,3 +144,25 @@ Turn the product from a working build into a pilot-ready system.
 - Critical journeys are covered by repeatable checks
 - Known launch risks are documented with owners
 - The release package is ready for a real pilot
+
+## M6 Attendee Web Production App And Host Integration
+### Objective
+Replace the attendee HTML prototype with the approved Next.js web app and connect it to the real host and Supabase session state.
+
+### Discovery Focus
+- Which attendee behaviors already exist in the prototype and must survive the migration without scope drift
+- How attendee bootstrap, live-state refresh, pinning, save handoff, and session-end behavior should read from the real host session model
+- Which demo-mode hooks must remain so local verification stays repeatable without live OTP setup
+
+### Delivery Scope
+- Next.js attendee app under the approved app-router stack
+- Shared attendee contracts and preset content model in the monorepo
+- Public attendee bootstrap and live-state RPCs backed by schema `Digi`
+- Host link integration so QR, go-live, and live-panel flows open the real attendee app
+- Automated coverage for the real attendee path plus host-to-attendee integration
+
+### Exit Criteria
+- The canonical attendee route is the real Next.js app, not `spaces_final.html`
+- Host-generated attendee links resolve into the production attendee surface
+- Attendee events update host live metrics and pin state through the real backend path
+- Local and CI verification prove both the standalone attendee flow and host integration

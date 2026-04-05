@@ -28,6 +28,21 @@ async function bootstrapDemoWorkspace(page: Page, businessName = "Vega Auto") {
   await expect(page.getByText(businessName)).toBeVisible();
 }
 
+async function openDemoAttendeeFromHost(page: Page) {
+  const attendeeUrl =
+    "http://127.0.0.1:4100/s/dealer-day-demo?demo=1&room=dealer-day-demo&spaceType=store&mode=identified&spaceName=Dealer%20Day&brandName=Vega%20Prime";
+  const nextPagePromise = page.context().waitForEvent("page");
+
+  await page.evaluate((url) => {
+    window.open(url, "_blank");
+  }, attendeeUrl);
+
+  const attendeePage = await nextPagePromise;
+  await attendeePage.waitForLoadState("load");
+  await attendeePage.waitForTimeout(750);
+  return attendeePage;
+}
+
 test.describe("Digi host mobile web export", () => {
   test("runs a live room with attendee sync and session summary", async ({ page }) => {
     test.setTimeout(45_000);
@@ -44,18 +59,17 @@ test.describe("Digi host mobile web export", () => {
     await expect(page.getByText("M3 Live Panel")).toBeVisible();
     await expect(page.getByText("Nothing pinned yet")).toBeVisible();
 
-    const attendeePage = await page.context().newPage();
+    const attendeePage = await openDemoAttendeeFromHost(page);
     const attendeeErrors: Error[] = [];
     attendeePage.on("pageerror", (error) => attendeeErrors.push(error));
 
-    await attendeePage.goto("http://127.0.0.1:4184/attendee-demo.html?space=store&session=live&mode=identified&room=dealer-day-demo");
     await expect(attendeePage.getByRole("button", { name: "Enter Space" })).toBeVisible();
     await attendeePage.getByRole("button", { name: "Enter Space" }).click();
     await attendeePage.getByLabel("Name").fill("Aarav Shah");
     await attendeePage.getByRole("button", { name: "Continue" }).click();
 
-    await expect(attendeePage.locator("#bootstrapShell")).toHaveClass(/done/);
-    await expect(attendeePage.locator("#overviewTitle")).toHaveText("Vega Dealer Day");
+    await expect(attendeePage.getByText("Dealer Day")).toBeVisible();
+    await expect(attendeePage.getByText("Dealer products")).toBeVisible();
 
     await page.getByRole("button", { name: "Refresh live panel" }).click();
     await expect(page.locator("body")).toContainText("Aarav Shah", { timeout: 8000 });
@@ -63,19 +77,19 @@ test.describe("Digi host mobile web export", () => {
     await page.getByRole("button", { name: "Pin" }).first().click();
 
     await expect(page.getByRole("button", { name: "Pinned" })).toBeVisible();
-    await expect(attendeePage.locator("#pinNotice")).toHaveClass(/on/, { timeout: 5000 });
-    await expect(attendeePage.locator("#pinTitle")).toHaveText("65W GaN charger dealer pricing");
+    await expect(attendeePage.getByText("Host pin received")).toBeVisible({ timeout: 6000 });
+    await expect(attendeePage.getByText("65W GaN charger dealer pricing").first()).toBeVisible();
 
-    await attendeePage.getByRole("button", { name: "Open pinned item" }).click();
-    await expect(attendeePage.locator("#ps")).toHaveClass(/on/);
-    await attendeePage.getByRole("button", { name: "Save Product Info ↑" }).click();
+    await attendeePage.getByRole("button", { name: "Open pinned item" }).first().click();
+    await expect(attendeePage.getByRole("heading", { name: "65W GaN Dual USB-C Charger" })).toBeVisible();
+    await attendeePage.getByRole("button", { name: "Save Product Info" }).click();
 
     await page.getByRole("button", { name: "End live session" }).click();
     await expect(page.getByText("Session summary", { exact: true })).toBeVisible();
     await expect(page.getByText("1 attendees", { exact: true })).toBeVisible();
     await expect(page.locator("body")).toContainText("65W GaN charger dealer pricing");
 
-    await expect(attendeePage.locator("#endedOverlay")).toHaveClass(/on/, { timeout: 5000 });
+    await expect(attendeePage.getByText("This live room just closed.")).toBeVisible({ timeout: 6000 });
     await expect(attendeePage.getByText("This live room just closed.")).toBeVisible();
 
     expect(hostErrors, `Unexpected host page errors: ${hostErrors.map((error) => error.message).join("; ")}`).toHaveLength(0);

@@ -1,0 +1,634 @@
+.shell {
+  --brand-primary: #1a1714;
+  --brand-paper: #f8f6f1;
+  --brand-serif: "Cormorant Garamond";
+  align-items: center;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--brand-primary) 20%, #6f5a44) 0%, rgba(17, 17, 17, 0) 42%),
+    linear-gradient(180deg, #14110e 0%, #0a0908 100%);
+  display: grid;
+  min-height: 100vh;
+  padding: 28px 16px 44px;
+}
+
+.loadingCard,
+.entryCard,
+.roomFrame {
+  backdrop-filter: blur(20px);
+  background: rgba(248, 246, 241, 0.08);
+  border: 1px solid rgba(248, 246, 241, 0.12);
+  border-radius: 36px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28);
+  max-width: 430px;
+  width: min(100%, 430px);
+}
+
+.loadingCard,
+.entryCard {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.loadingChip,
+.entryChip,
+.verifiedPill,
+.stateBadge,
+.counterPill,
+.pinChip {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 10px 14px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.loadingChip,
+.entryChip,
+.stateBadge,
+.counterPill {
+  background: rgba(248, 246, 241, 0.12);
+  color: rgba(248, 246, 241, 0.72);
+}
+
+.loadingHero,
+.loadingLine,
+.loadingTile {
+  animation: shimmer 1.2s infinite ease-in-out alternate;
+  background: linear-gradient(90deg, rgba(248, 246, 241, 0.08), rgba(248, 246, 241, 0.2), rgba(248, 246, 241, 0.08));
+  border-radius: 24px;
+}
+
+.loadingHero {
+  height: 140px;
+}
+
+.loadingLine {
+  height: 16px;
+}
+
+.loadingLineShort {
+  width: 65%;
+}
+
+.loadingGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.loadingTile {
+  height: 120px;
+}
+
+.brandMark,
+.featureMark {
+  align-items: center;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand-primary) 82%, #ffffff 18%), color-mix(in srgb, var(--brand-primary) 50%, #f2c07a 50%));
+  border-radius: 24px;
+  color: var(--brand-paper);
+  display: inline-flex;
+  font-family: var(--brand-serif), Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  justify-content: center;
+  min-width: 64px;
+  padding: 16px;
+}
+
+.entryTop,
+.pinTop,
+.featureTop,
+.detailHeader,
+.navRow,
+.footerRow,
+.featureActions,
+.entryActions,
+.pinActions,
+.liveRow,
+.kickerRow,
+.productTop,
+.featureMeta,
+.productMeta,
+.liveMeta {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.entryTitle,
+.sectionTitle,
+.overlayTitle,
+.featureTitle,
+.collectionTitle,
+.productTitle,
+.menuSpecialTitle {
+  color: #fdfaf3;
+  font-family: var(--brand-serif), Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 0.96;
+  margin: 0;
+}
+
+.entryCopy,
+.sectionCopy,
+.noteCopy,
+.collectionCopy,
+.emptyCopy,
+.searchResultMeta,
+.timelineTime,
+.menuItemCopy {
+  color: rgba(248, 246, 241, 0.74);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.livePill,
+.noteCard,
+.collectionCard,
+.searchGroup,
+.featureCard,
+.detailView,
+.productCard,
+.contactCard,
+.menuCard,
+.specialCard,
+.timelineCard,
+.liveCard {
+  background: rgba(248, 246, 241, 0.08);
+  border: 1px solid rgba(248, 246, 241, 0.12);
+  border-radius: 28px;
+}
+
+.livePill,
+.signalBanner,
+.warningBanner,
+.toast,
+.noteCard {
+  padding: 14px 16px;
+}
+
+.livePill {
+  color: rgba(248, 246, 241, 0.82);
+  font-size: 13px;
+}
+
+.noteCard {
+  display: grid;
+  gap: 8px;
+}
+
+.noteLabel,
+.sectionEyebrow,
+.collectionLabel,
+.searchGroupLabel,
+.pinLabel,
+.productCategory,
+.menuSectionTitle,
+.specLabel {
+  color: rgba(248, 246, 241, 0.58);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fieldWrap,
+.searchWrap {
+  display: grid;
+  gap: 10px;
+}
+
+.fieldLabel,
+.searchLabel {
+  color: rgba(248, 246, 241, 0.74);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fieldInput,
+.searchInput {
+  background: rgba(248, 246, 241, 0.06);
+  border: 1px solid rgba(248, 246, 241, 0.14);
+  border-radius: 18px;
+  color: #fdfaf3;
+  padding: 16px 18px;
+}
+
+.searchMeta {
+  color: rgba(248, 246, 241, 0.54);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.primaryButton,
+.secondaryButton,
+.inlineAction,
+.collectionCard,
+.searchResult {
+  cursor: pointer;
+}
+
+.primaryButton,
+.secondaryButton,
+.inlineAction,
+.searchResult,
+.collectionCard,
+.backButton {
+  border: 0;
+}
+
+.primaryButton,
+.secondaryButton,
+.backButton,
+.inlineAction,
+.searchResultAction {
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 14px 18px;
+}
+
+.primaryButton {
+  background: linear-gradient(135deg, #f8f6f1 0%, #edd3ad 100%);
+  color: #1a1714;
+}
+
+.secondaryButton,
+.backButton,
+.inlineAction {
+  background: rgba(248, 246, 241, 0.12);
+  color: #f8f6f1;
+}
+
+.secondaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.roomFrame {
+  display: grid;
+  gap: 16px;
+  overflow: hidden;
+  padding: 16px;
+  position: relative;
+}
+
+.overview,
+.detailView {
+  display: grid;
+  gap: 16px;
+}
+
+.collectionGrid,
+.searchGroups,
+.contactRows,
+.specGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.featureCard,
+.detailView,
+.productCard,
+.contactCard,
+.menuCard,
+.specialCard,
+.timelineCard,
+.liveCard,
+.searchGroup {
+  padding: 18px;
+}
+
+.featureMeta,
+.productMeta,
+.menuItemMeta,
+.contactRows div,
+.collectionMeta {
+  color: rgba(248, 246, 241, 0.6);
+  font-size: 12px;
+}
+
+.featureMeta span,
+.productMeta span,
+.collectionMeta span {
+  background: rgba(248, 246, 241, 0.08);
+  border-radius: 999px;
+  padding: 8px 12px;
+}
+
+.featureTitle,
+.productTitle,
+.collectionTitle,
+.pinTitle,
+.contactName {
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.featureCopy {
+  color: rgba(248, 246, 241, 0.72);
+  line-height: 1.55;
+  margin: 10px 0 0;
+}
+
+.collectionCard {
+  align-items: flex-start;
+  background: rgba(248, 246, 241, 0.08);
+  border: 1px solid rgba(248, 246, 241, 0.1);
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  text-align: left;
+}
+
+.collectionIcon,
+.timelineIcon {
+  align-items: center;
+  background: rgba(248, 246, 241, 0.1);
+  border-radius: 20px;
+  display: inline-flex;
+  font-size: 22px;
+  justify-content: center;
+  min-width: 48px;
+  padding: 10px;
+}
+
+.collectionBody {
+  display: grid;
+  gap: 8px;
+}
+
+.searchResult {
+  align-items: center;
+  background: rgba(248, 246, 241, 0.04);
+  border-radius: 22px;
+  color: inherit;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  text-align: left;
+  width: 100%;
+}
+
+.searchResultTitle,
+.timelineTitle,
+.menuItemTitle,
+.contactRole,
+.contactCompany,
+.menuSpecialMeta,
+.liveMetaValue,
+.productPrice {
+  color: #fdfaf3;
+}
+
+.searchResultAction {
+  background: rgba(248, 246, 241, 0.12);
+  color: rgba(248, 246, 241, 0.82);
+  display: inline-flex;
+  font-size: 12px;
+}
+
+.productPrice span,
+.productPrice strong {
+  font-size: 0.9rem;
+  margin-left: 8px;
+}
+
+.productPrice span {
+  color: rgba(248, 246, 241, 0.44);
+  text-decoration: line-through;
+}
+
+.productPrice strong {
+  color: #f4d9ad;
+}
+
+.specGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.specCell,
+.liveMetaCell {
+  background: rgba(248, 246, 241, 0.06);
+  border-radius: 18px;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.specValue {
+  color: #fdfaf3;
+}
+
+.contactCard,
+.menuCard {
+  display: grid;
+  gap: 16px;
+}
+
+.contactName {
+  margin-top: 8px;
+}
+
+.contactRole {
+  font-size: 1rem;
+  margin-top: 4px;
+}
+
+.contactCompany {
+  color: rgba(248, 246, 241, 0.72);
+}
+
+.contactRows div {
+  background: rgba(248, 246, 241, 0.05);
+  border-radius: 18px;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+}
+
+.contactRows strong {
+  color: rgba(248, 246, 241, 0.46);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.specialCard,
+.timelineCard,
+.liveCard {
+  display: grid;
+  gap: 14px;
+}
+
+.menuSection {
+  display: grid;
+  gap: 10px;
+}
+
+.menuItem,
+.timelineItem {
+  align-items: center;
+  background: rgba(248, 246, 241, 0.05);
+  border-radius: 18px;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.menuItemMeta {
+  display: grid;
+  gap: 6px;
+  text-align: right;
+}
+
+.signalBanner,
+.warningBanner,
+.toast {
+  border-radius: 18px;
+  font-size: 13px;
+}
+
+.signalBanner {
+  background: rgba(250, 204, 21, 0.14);
+  border: 1px solid rgba(250, 204, 21, 0.22);
+  color: #fde68a;
+}
+
+.warningBanner {
+  background: rgba(249, 115, 22, 0.14);
+  border: 1px solid rgba(249, 115, 22, 0.22);
+  color: #fdba74;
+}
+
+.pinNotice {
+  background: rgba(248, 246, 241, 0.1);
+  border: 1px solid rgba(248, 246, 241, 0.16);
+  border-radius: 28px;
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+
+.pinChip {
+  background: rgba(248, 246, 241, 0.14);
+  color: rgba(248, 246, 241, 0.9);
+}
+
+.pinCopy {
+  color: rgba(248, 246, 241, 0.72);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.emptyState {
+  background: rgba(248, 246, 241, 0.08);
+  border: 1px dashed rgba(248, 246, 241, 0.18);
+  border-radius: 28px;
+  display: grid;
+  gap: 8px;
+  padding: 22px;
+}
+
+.emptyTitle {
+  color: #fdfaf3;
+  font-family: var(--brand-serif), Georgia, serif;
+  font-size: 1.7rem;
+}
+
+.footerRow {
+  color: rgba(248, 246, 241, 0.56);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.overlay {
+  align-items: center;
+  backdrop-filter: blur(18px);
+  background: rgba(10, 9, 8, 0.66);
+  display: grid;
+  inset: 0;
+  position: absolute;
+}
+
+.overlayCard {
+  background: rgba(248, 246, 241, 0.12);
+  border: 1px solid rgba(248, 246, 241, 0.18);
+  border-radius: 30px;
+  display: grid;
+  gap: 12px;
+  margin: 24px;
+  padding: 24px;
+}
+
+.overlayTitle {
+  font-size: 2rem;
+}
+
+.toast {
+  background: rgba(248, 246, 241, 0.92);
+  bottom: 16px;
+  color: #1a1714;
+  left: 16px;
+  position: sticky;
+}
+
+.errorText {
+  color: #fca5a5;
+  margin: 0;
+}
+
+@keyframes shimmer {
+  from {
+    opacity: 0.42;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0.82;
+    transform: translateY(-2px);
+  }
+}
+
+@media (max-width: 480px) {
+  .shell {
+    padding: 12px 12px 32px;
+  }
+
+  .loadingCard,
+  .entryCard,
+  .roomFrame {
+    border-radius: 28px;
+  }
+
+  .featureActions,
+  .entryActions,
+  .pinActions,
+  .liveRow,
+  .detailHeader,
+  .navRow,
+  .footerRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .specGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .timelineItem,
+  .menuItem,
+  .pinTop,
+  .featureTop,
+  .productTop {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

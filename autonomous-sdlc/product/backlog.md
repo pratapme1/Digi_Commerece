@@ -60,3 +60,12 @@ Use this backlog with the milestone order in `milestones.md`. Discovery items co
 - [P0][Build] Add performance checks for QR entry, first render, and live session transitions.
 - [P1][Build] Create pilot launch checklists, rollback notes, and support runbooks.
 - [P1][Build] Review backlog after pilot feedback and reprioritize milestone follow-up work.
+
+## M6 Attendee Web Production App And Host Integration
+- [P0][Discovery] Compare the HTML attendee prototype with the approved stack and list every behavior that must survive the migration.
+- [P0][Build] Add shared attendee contracts for bootstrap, featured content, collections, search, live-state, and save handoff.
+- [P0][Build] Add public Supabase RPCs for attendee bootstrap and live-state refresh using `qr_slug`.
+- [P0][Build] Build the Next.js attendee route for QR entry, identified or anonymous bootstrap, overview, search, collection views, pin notice, offline handling, and session-end overlay.
+- [P0][Build] Integrate host QR and live-panel links with the real attendee app in both real and local-demo flows.
+- [P0][Build] Replace attendee-demo Playwright coverage with the production attendee route while keeping local verification repeatable.
+- [P1][Build] Leave the HTML prototype as a design reference only, not the canonical attendee runtime.

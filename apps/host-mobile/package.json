@@ -8,7 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "export:web": "sh -c 'expo export --platform web --output-dir ../../dist/host-mobile-web && cp ../../spaces_final.html ../../dist/host-mobile-web/attendee-demo.html'",
+    "export:web": "sh -c 'EXPO_PUBLIC_ATTENDEE_BASE_URL=\"${EXPO_PUBLIC_ATTENDEE_BASE_URL:-http://127.0.0.1:4100/s}\" expo export --platform web --output-dir ../../dist/host-mobile-web'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

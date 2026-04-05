@@ -1,4 +1,6 @@
 import type {
+  AttendeeRoomBootstrap,
+  AttendeeRoomStatus,
   AnalyticsRange,
   CatalogImportJob,
   CreateBrandProfileInput,
@@ -76,10 +78,12 @@ export interface AttendeeRoomEventInput {
 
 export interface AttendeeRoomEventResult {
   sessionId: string | null;
-  status: string;
+  status: AttendeeRoomStatus;
   attendeeCount: number;
   recentAttendees: LivePresenceEntry[];
 }
+
+export interface AttendeeBootstrapResponse extends AttendeeRoomBootstrap {}
 
 export interface HostSetupResponse extends HostSetupSnapshot {}
 
@@ -136,6 +140,7 @@ export interface FetchOperationsSnapshotInput {
 
 export type {
   AnalyticsRange,
+  AttendeeRoomBootstrap,
   CatalogImportJob,
   CreateBrandProfileInput,
   CreateSpaceInput,

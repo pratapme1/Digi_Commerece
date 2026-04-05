@@ -83,4 +83,4 @@ npm run session:start
 ## Guardrails
 - `pre-commit` blocks commits that change repo content without also updating a feature workspace.
 - `pre-push` blocks direct pushes to `main` and runs the quality gates.
-- Quality gates currently include repository validation, unit tests, typecheck, Expo host web export, Supabase schema verification, and Playwright smoke tests across the prototypes and exported host app.
+- Quality gates currently include repository validation, unit tests, typecheck, the Next.js attendee build, Expo host web export, Supabase schema verification, and Playwright smoke tests across the real attendee app, the exported host app, and the retained prototypes.

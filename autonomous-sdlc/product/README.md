@@ -24,4 +24,4 @@ Use this folder before starting any major product phase.
 - `spaces_host.html`
 
 ## Rule
-Every milestone starts with discovery. No milestone should move into implementation until the discovery brief, spec, and plan all agree on scope, dependencies, and success criteria. No production-oriented milestone should move forward until the architecture gate is complete.
+Every milestone starts with discovery. No milestone should move into implementation until the discovery brief, spec, and plan all agree on scope, dependencies, and success criteria. No production-oriented milestone should move forward until the architecture gate is complete. After `M5`, any attendee work must target the real Next.js app instead of extending `spaces_final.html`.
