@@ -3,7 +3,11 @@ import { loadEnvFile } from "node:process";
 
 import type { ExpoConfig } from "expo/config";
 
-loadEnvFile(path.resolve(__dirname, "../../.env"));
+try {
+  loadEnvFile(path.resolve(__dirname, "../../.env"));
+} catch (e) {
+  // Ignore in production environments (like Vercel) where .env is not committed
+}
 
 const config: ExpoConfig = {
   name: "Digi Host",
