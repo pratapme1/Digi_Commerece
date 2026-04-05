@@ -15,6 +15,7 @@ Use this folder before starting any major product phase.
 - `discovery/`: completed milestone discovery briefs
 - `foundation/`: shared product contracts produced by `M0`
 - `architecture/`: required stack, system design, security, infrastructure, and deployment decisions before production-oriented milestones
+- `pilot/`: launch checklist, support, rollback, and pilot metrics artifacts produced by `M5`
 
 ## Source Documents
 - `spaces_prd.docx`

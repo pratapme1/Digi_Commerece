@@ -36,6 +36,7 @@ export interface HostSpace {
   qrSlug: string;
   defaultSessionDurationMinutes: number;
   isDefault: boolean;
+  archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -114,6 +115,15 @@ export function buildAttendeeShareUrl(baseUrl: string, qrSlug: string): string {
   return `${trimmedBase}/${trimmedSlug}`;
 }
 
+export function getActiveSpaces(snapshot: HostSetupSnapshot | null): HostSpace[] {
+  return snapshot?.spaces.filter((space) => !space.archivedAt) ?? [];
+}
+
+export function getPrimaryHostSpace(snapshot: HostSetupSnapshot | null): HostSpace | null {
+  const activeSpaces = getActiveSpaces(snapshot);
+  return activeSpaces.find((space) => space.isDefault) ?? activeSpaces[0] ?? null;
+}
+
 export function resolveHostRoute(authenticated: boolean, setup: HostSetupSnapshot | null): string {
   if (!authenticated) {
     return "/(auth)/phone";
@@ -127,7 +137,7 @@ export function resolveHostRoute(authenticated: boolean, setup: HostSetupSnapsho
     return "/(setup)/brand";
   }
 
-  if (!setup.spaces.length) {
+  if (!getActiveSpaces(setup).length) {
     return "/(setup)/space";
   }
 

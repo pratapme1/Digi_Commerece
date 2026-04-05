@@ -1,13 +1,30 @@
 import type {
+  ArchiveSpaceInput,
+  ArchiveSpaceResult,
+  AssignSpaceBrandInput,
+  AssignSpaceBrandResult,
+  CreateBrandProfileInput,
+  CreateBrandProfileResult,
+  CreateSpaceInput,
+  CreateSpaceResult,
+  DeleteSpaceInput,
+  DeleteSpaceResult,
   EndLiveSessionInput,
   EndLiveSessionResult,
+  FetchOperationsSnapshotInput,
   GoLiveInput,
   GoLiveResult,
   HostSetupResponse,
+  InviteTeamMemberInput,
+  InviteTeamMemberResult,
   LivePanelResponse,
+  OperationsSnapshotResponse,
   PinLiveContentInput,
   PinLiveContentResult,
+  RemoveTeamAccessInput,
+  RemoveTeamAccessResult,
   SaveHostSetupInput,
+  SubmitCatalogImportResult,
 } from "@digi/api-contracts";
 import {
   appendDemoEvent,
@@ -16,10 +33,10 @@ import {
   buildSessionSummary,
   createDemoRoomState,
   createHostSetupDraft,
+  getPrimaryHostSpace,
   getLiveContentLibrary,
   toLivePanelSnapshot,
   type HostSetupSnapshot,
-  type HostSpace,
   type DemoRoomState,
   type LiveActivityEvent,
   type LivePresenceEntry,
@@ -34,10 +51,6 @@ function createId(prefix: string): string {
 
 function createQrSlug(spaceName: string): string {
   return `${spaceName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "space"}-demo`;
-}
-
-function getPrimarySpace(snapshot: HostSetupSnapshot): HostSpace | undefined {
-  return snapshot.spaces.find((space) => space.isDefault) ?? snapshot.spaces[0];
 }
 
 function createLiveEvent(
@@ -97,12 +110,13 @@ export function createDemoSnapshot(input: SaveHostSetupInput): HostSetupSnapshot
         name: input.spaceName || input.businessName,
         spaceType: input.spaceType,
         mode: input.mode,
-        qrSlug,
-        defaultSessionDurationMinutes: input.defaultSessionDurationMinutes,
-        isDefault: true,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      },
+      qrSlug,
+      defaultSessionDurationMinutes: input.defaultSessionDurationMinutes,
+      isDefault: true,
+      archivedAt: null,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    },
     ],
     liveSession: null,
   };
@@ -114,7 +128,7 @@ export function applyDemoGoLive(snapshot: HostSetupSnapshot, input: GoLiveInput)
   roomState: DemoRoomState;
 } {
   const { startsAt, endsAt } = buildGoLiveWindow(input.durationMinutes);
-  const space = snapshot.spaces.find((item) => item.id === input.spaceId) ?? getPrimarySpace(snapshot);
+  const space = snapshot.spaces.find((item) => item.id === input.spaceId) ?? getPrimaryHostSpace(snapshot);
 
   if (!space) {
     throw new Error("No space is available to go live.");
@@ -270,7 +284,7 @@ export function applyDemoEndLiveSession(
 }
 
 export function getDefaultPinnedContent(snapshot: HostSetupSnapshot): ReturnType<typeof getLiveContentLibrary>[number] | null {
-  const space = getPrimarySpace(snapshot);
+  const space = getPrimaryHostSpace(snapshot);
   if (!space) {
     return null;
   }
@@ -291,6 +305,21 @@ export async function fetchHostSetup(client: SupabaseClient): Promise<HostSetupS
     spaces: [],
     liveSession: null,
   }) as HostSetupResponse;
+}
+
+export async function fetchOperationsSnapshot(
+  client: SupabaseClient,
+  input: FetchOperationsSnapshotInput,
+): Promise<OperationsSnapshotResponse> {
+  const { data, error } = await client.rpc("digi_get_operations_snapshot", {
+    p_range: input.range,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as OperationsSnapshotResponse;
 }
 
 export async function saveHostSetup(
@@ -385,6 +414,152 @@ export async function endLiveSession(
   }
 
   return data as EndLiveSessionResult;
+}
+
+export async function createBrandProfile(
+  client: SupabaseClient,
+  input: CreateBrandProfileInput,
+): Promise<CreateBrandProfileResult> {
+  const { data, error } = await client.rpc("digi_create_brand_profile", {
+    p_name: input.name,
+    p_primary_color: input.primaryColor,
+    p_secondary_color: input.secondaryColor,
+    p_font_family: input.fontFamily,
+    p_make_default: input.makeDefault,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as CreateBrandProfileResult;
+}
+
+export async function createSpace(
+  client: SupabaseClient,
+  input: CreateSpaceInput,
+): Promise<CreateSpaceResult> {
+  const { data, error } = await client.rpc("digi_create_space", {
+    p_name: input.name,
+    p_brand_profile_id: input.brandProfileId,
+    p_space_type: input.spaceType,
+    p_mode: input.mode,
+    p_default_session_duration_minutes: input.defaultSessionDurationMinutes,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as CreateSpaceResult;
+}
+
+export async function assignSpaceBrand(
+  client: SupabaseClient,
+  input: AssignSpaceBrandInput,
+): Promise<AssignSpaceBrandResult> {
+  const { data, error } = await client.rpc("digi_assign_space_brand", {
+    p_space_id: input.spaceId,
+    p_brand_profile_id: input.brandProfileId,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as AssignSpaceBrandResult;
+}
+
+export async function archiveSpace(
+  client: SupabaseClient,
+  input: ArchiveSpaceInput,
+): Promise<ArchiveSpaceResult> {
+  const { data, error } = await client.rpc("digi_archive_space", {
+    p_space_id: input.spaceId,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as ArchiveSpaceResult;
+}
+
+export async function deleteSpace(
+  client: SupabaseClient,
+  input: DeleteSpaceInput,
+): Promise<DeleteSpaceResult> {
+  const { data, error } = await client.rpc("digi_delete_space", {
+    p_space_id: input.spaceId,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as DeleteSpaceResult;
+}
+
+export async function inviteTeamMember(
+  client: SupabaseClient,
+  input: InviteTeamMemberInput,
+): Promise<InviteTeamMemberResult> {
+  const { data, error } = await client.rpc("digi_invite_team_member", {
+    p_display_name: input.displayName,
+    p_phone: input.phone,
+    p_role: input.role,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as InviteTeamMemberResult;
+}
+
+export async function removeTeamAccess(
+  client: SupabaseClient,
+  input: RemoveTeamAccessInput,
+): Promise<RemoveTeamAccessResult> {
+  const { data, error } = await client.rpc("digi_remove_team_access", {
+    p_member_id: input.memberId ?? null,
+    p_invite_id: input.inviteId ?? null,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as RemoveTeamAccessResult;
+}
+
+export async function recordCatalogImport(
+  client: SupabaseClient,
+  input: {
+    fileName: string;
+    spaceId: string | null;
+    processedRows: number;
+    acceptedRows: number;
+    rejectedRows: number;
+    status: "validated" | "partial" | "failed";
+    rows: unknown[];
+  },
+): Promise<SubmitCatalogImportResult> {
+  const { data, error } = await client.rpc("digi_record_catalog_import", {
+    p_space_id: input.spaceId,
+    p_file_name: input.fileName,
+    p_processed_rows: input.processedRows,
+    p_accepted_rows: input.acceptedRows,
+    p_rejected_rows: input.rejectedRows,
+    p_status: input.status,
+    p_rows: input.rows,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as SubmitCatalogImportResult;
 }
 
 export function createEmptyDraft() {

@@ -1,11 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import type { DemoRoomState, HostSetupSnapshot } from "@digi/domain";
+import type { DemoOperationsState, DemoRoomState, HostSetupSnapshot } from "@digi/domain";
 
 const DEMO_AUTH_KEY = "digi:host:demo-authenticated";
 const DEMO_PHONE_KEY = "digi:host:demo-phone";
 const DEMO_SETUP_KEY = "digi:host:demo-setup";
 const DEMO_ROOM_KEY = "digi:host:demo-room";
+const DEMO_OPERATIONS_KEY = "digi:host:demo-operations";
 
 export async function loadDemoAuthenticated(): Promise<boolean> {
   return (await AsyncStorage.getItem(DEMO_AUTH_KEY)) === "true";
@@ -51,11 +52,26 @@ export async function persistDemoRoom(room: DemoRoomState | null): Promise<void>
   await AsyncStorage.setItem(DEMO_ROOM_KEY, JSON.stringify(room));
 }
 
+export async function loadDemoOperations(): Promise<DemoOperationsState | null> {
+  const raw = await AsyncStorage.getItem(DEMO_OPERATIONS_KEY);
+  return raw ? (JSON.parse(raw) as DemoOperationsState) : null;
+}
+
+export async function persistDemoOperations(state: DemoOperationsState | null): Promise<void> {
+  if (!state) {
+    await AsyncStorage.removeItem(DEMO_OPERATIONS_KEY);
+    return;
+  }
+
+  await AsyncStorage.setItem(DEMO_OPERATIONS_KEY, JSON.stringify(state));
+}
+
 export async function clearDemoState(): Promise<void> {
   await Promise.all([
     AsyncStorage.removeItem(DEMO_AUTH_KEY),
     AsyncStorage.removeItem(DEMO_PHONE_KEY),
     AsyncStorage.removeItem(DEMO_SETUP_KEY),
     AsyncStorage.removeItem(DEMO_ROOM_KEY),
+    AsyncStorage.removeItem(DEMO_OPERATIONS_KEY),
   ]);
 }

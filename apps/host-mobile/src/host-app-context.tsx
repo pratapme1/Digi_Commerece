@@ -7,20 +7,44 @@ import type {
   SaveHostSetupInput,
 } from "@digi/api-contracts";
 import {
+  applyDemoArchiveSpace,
+  applyDemoAssignSpaceBrand,
+  applyDemoCreateBrandProfile,
+  applyDemoCreateSpace,
+  applyDemoDeleteSpace,
+  applyDemoImportJob,
+  applyDemoInviteTeamMember,
+  applyDemoRemoveTeamAccess,
+  buildOperationsSnapshot,
+  createDemoOperationsState,
+  createEmptyOperationsSnapshot,
   createHostSetupDraft,
+  getPrimaryHostSpace,
+  recordDemoSessionSummary,
+  validateBrandProfileInput,
+  validateCatalogImportCsv,
+  type AnalyticsRange,
+  type CreateBrandProfileInput,
+  type CreateSpaceInput,
   type HostSetupDraft,
   type HostSetupSnapshot,
+  type InviteTeamMemberInput,
   type LiveContentItem,
+  type OperationsSnapshot,
+  type RemoveTeamAccessInput,
   type SessionSummarySnapshot,
+  type SubmitCatalogImportInput,
 } from "@digi/domain";
 
 import {
   clearDemoState,
   loadDemoAuthenticated,
+  loadDemoOperations,
   loadDemoPhone,
   loadDemoRoom,
   loadDemoSetup,
   persistDemoAuthenticated,
+  persistDemoOperations,
   persistDemoPhone,
   persistDemoRoom,
   persistDemoSetup,
@@ -31,14 +55,23 @@ import {
   applyDemoEndLiveSession,
   applyDemoGoLive,
   applyDemoPinLiveContent,
+  archiveSpace,
+  assignSpaceBrand,
+  createBrandProfile,
   createDemoSnapshot,
   createEmptyDraft,
+  createSpace,
+  deleteSpace,
   endLiveSession,
   fetchHostSetup,
   fetchLivePanel,
+  fetchOperationsSnapshot,
   getDemoLivePanel,
   goLive,
+  inviteTeamMember,
   pinLiveContent,
+  recordCatalogImport,
+  removeTeamAccess,
   saveHostSetup,
 } from "./lib/host-service";
 import { getSupabaseClient } from "./lib/supabase";
@@ -54,6 +87,8 @@ interface HostAppContextValue {
   setup: HostSetupSnapshot | null;
   livePanel: LivePanelResponse | null;
   sessionSummary: SessionSummarySnapshot | null;
+  operations: OperationsSnapshot | null;
+  operationsRange: AnalyticsRange;
   requestOtp: (phone: string) => Promise<void>;
   verifyOtp: (phone: string, code: string) => Promise<void>;
   startDemoMode: () => Promise<void>;
@@ -62,8 +97,17 @@ interface HostAppContextValue {
   goLiveNow: (durationMinutes: number) => Promise<GoLiveResult>;
   refreshSetup: () => Promise<void>;
   refreshLivePanel: () => Promise<void>;
+  refreshOperations: (range?: AnalyticsRange) => Promise<void>;
   pinCurrentItem: (content: LiveContentItem) => Promise<void>;
   endCurrentSession: () => Promise<EndLiveSessionResult>;
+  createBrand: (input: CreateBrandProfileInput) => Promise<void>;
+  createNewSpace: (input: CreateSpaceInput) => Promise<void>;
+  assignBrandToSpace: (spaceId: string, brandProfileId: string) => Promise<void>;
+  inviteTeamAccess: (input: InviteTeamMemberInput) => Promise<void>;
+  removeTeamAccessEntry: (input: RemoveTeamAccessInput) => Promise<void>;
+  submitCatalogImport: (input: SubmitCatalogImportInput) => Promise<void>;
+  archiveSpaceById: (spaceId: string) => Promise<void>;
+  deleteSpaceById: (spaceId: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -77,13 +121,21 @@ function parseError(error: unknown): string {
   return "Something went wrong.";
 }
 
-function getPrimarySpace(snapshot: HostSetupSnapshot | null) {
-  return snapshot?.spaces.find((item) => item.isDefault) ?? snapshot?.spaces[0] ?? null;
+async function loadPreferredDemoRoom(snapshot: HostSetupSnapshot | null) {
+  const primarySpace = getPrimaryHostSpace(snapshot);
+  return (primarySpace ? loadBrowserRoomState(primarySpace.qrSlug) : null) ?? (await loadDemoRoom());
 }
 
-async function loadPreferredDemoRoom(snapshot: HostSetupSnapshot | null) {
-  const primarySpace = getPrimarySpace(snapshot);
-  return (primarySpace ? loadBrowserRoomState(primarySpace.qrSlug) : null) ?? (await loadDemoRoom());
+async function loadPreferredDemoOperations(snapshot: HostSetupSnapshot | null) {
+  const stored = await loadDemoOperations();
+
+  if (stored) {
+    return stored;
+  }
+
+  const seeded = createDemoOperationsState(snapshot);
+  await persistDemoOperations(seeded);
+  return seeded;
 }
 
 export function HostAppProvider({ children }: PropsWithChildren) {
@@ -97,6 +149,8 @@ export function HostAppProvider({ children }: PropsWithChildren) {
   const [setup, setSetup] = useState<HostSetupSnapshot | null>(null);
   const [livePanel, setLivePanel] = useState<LivePanelResponse | null>(null);
   const [sessionSummary, setSessionSummary] = useState<SessionSummarySnapshot | null>(null);
+  const [operations, setOperations] = useState<OperationsSnapshot | null>(null);
+  const [operationsRange, setOperationsRange] = useState<AnalyticsRange>("30d");
 
   useEffect(() => {
     let isMounted = true;
@@ -112,14 +166,19 @@ export function HostAppProvider({ children }: PropsWithChildren) {
           ]);
 
           if (isMounted && demoAuthenticated) {
-            const demoRoom = await loadPreferredDemoRoom(demoSetup ?? null);
+            const [demoRoom, demoOperations] = await Promise.all([
+              loadPreferredDemoRoom(demoSetup ?? null),
+              loadPreferredDemoOperations(demoSetup ?? null),
+            ]);
             const nextLivePanel = getDemoLivePanel(demoRoom);
+
             setDemoMode(true);
             setAuthenticated(true);
             setPendingPhone(demoPhone);
             setSetup(demoSetup);
             setLivePanel(nextLivePanel);
             setSessionSummary(nextLivePanel?.summary ?? null);
+            setOperations(buildOperationsSnapshot(demoOperations, demoSetup?.spaces ?? [], operationsRange));
           }
         }
 
@@ -130,11 +189,16 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
           if (isMounted && session) {
             const nextSetup = await fetchHostSetup(client);
-            const primarySpace = getPrimarySpace(nextSetup);
+            const primarySpace = getPrimaryHostSpace(nextSetup);
+            const nextOperations = nextSetup.account
+              ? await fetchOperationsSnapshot(client, { range: operationsRange })
+              : createEmptyOperationsSnapshot(operationsRange);
+
             setAuthenticated(true);
             setPendingPhone(session.user.phone ?? "+91 ");
             setSetup(nextSetup);
             setLivePanel(await fetchLivePanel(client, primarySpace?.id));
+            setOperations(nextOperations);
           }
         }
       } catch (nextError) {
@@ -167,6 +231,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         setSetup(null);
         setLivePanel(null);
         setSessionSummary(null);
+        setOperations(null);
       } else {
         void refreshSetupFromClient(client);
       }
@@ -175,9 +240,14 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     async function refreshSetupFromClient(supabaseClient: NonNullable<ReturnType<typeof getSupabaseClient>>) {
       try {
         const nextSetup = await fetchHostSetup(supabaseClient);
-        const primarySpace = getPrimarySpace(nextSetup);
+        const primarySpace = getPrimaryHostSpace(nextSetup);
+        const nextOperations = nextSetup.account
+          ? await fetchOperationsSnapshot(supabaseClient, { range: operationsRange })
+          : createEmptyOperationsSnapshot(operationsRange);
+
         setSetup(nextSetup);
         setLivePanel(await fetchLivePanel(supabaseClient, primarySpace?.id));
+        setOperations(nextOperations);
       } catch (nextError) {
         setError(parseError(nextError));
       }
@@ -232,11 +302,16 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       }
 
       const nextSetup = await fetchHostSetup(client);
-      const primarySpace = getPrimarySpace(nextSetup);
+      const primarySpace = getPrimaryHostSpace(nextSetup);
+      const nextOperations = nextSetup.account
+        ? await fetchOperationsSnapshot(client, { range: operationsRange })
+        : createEmptyOperationsSnapshot(operationsRange);
+
       setPendingPhone(phone);
       setAuthenticated(true);
       setSetup(nextSetup);
       setLivePanel(await fetchLivePanel(client, primarySpace?.id));
+      setOperations(nextOperations);
     } catch (nextError) {
       setError(parseError(nextError));
       throw nextError;
@@ -251,7 +326,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     try {
       const demoSetup = await loadDemoSetup();
-      const demoRoom = await loadPreferredDemoRoom(demoSetup ?? null);
+      const [demoRoom, demoOperations] = await Promise.all([
+        loadPreferredDemoRoom(demoSetup ?? null),
+        loadPreferredDemoOperations(demoSetup ?? null),
+      ]);
       const nextLivePanel = getDemoLivePanel(demoRoom);
 
       setDemoMode(true);
@@ -260,6 +338,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       setSetup(demoSetup ?? null);
       setLivePanel(nextLivePanel);
       setSessionSummary(nextLivePanel?.summary ?? null);
+      setOperations(buildOperationsSnapshot(demoOperations, demoSetup?.spaces ?? [], operationsRange));
       await Promise.all([
         persistDemoAuthenticated(true),
         persistDemoPhone("+91 99999 99999"),
@@ -292,8 +371,14 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     try {
       if (demoMode) {
         const nextSetup = createDemoSnapshot(input);
+        const nextOperationsState = createDemoOperationsState(nextSetup);
+
         setSetup(nextSetup);
-        await persistDemoSetup(nextSetup);
+        setOperations(buildOperationsSnapshot(nextOperationsState, nextSetup.spaces, operationsRange));
+        await Promise.all([
+          persistDemoSetup(nextSetup),
+          persistDemoOperations(nextOperationsState),
+        ]);
         return nextSetup;
       }
 
@@ -306,6 +391,11 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       const nextSetup = await saveHostSetup(client, input);
       setSetup(nextSetup);
       setDraft(createEmptyDraft());
+      setOperations(
+        nextSetup.account
+          ? await fetchOperationsSnapshot(client, { range: operationsRange })
+          : createEmptyOperationsSnapshot(operationsRange),
+      );
       return nextSetup;
     } catch (nextError) {
       setError(parseError(nextError));
@@ -321,7 +411,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     try {
       const currentSetup = setup;
-      const space = getPrimarySpace(currentSetup);
+      const space = getPrimaryHostSpace(currentSetup);
 
       if (!currentSetup || !space) {
         throw new Error("Finish setup before going live.");
@@ -359,6 +449,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       setSetup(nextSetup);
       setSessionSummary(null);
       setLivePanel(await fetchLivePanel(client, space.id));
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
       return result;
     } catch (nextError) {
       setError(parseError(nextError));
@@ -373,11 +464,16 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     if (demoMode) {
       const demoSetup = await loadDemoSetup();
-      const demoRoom = await loadPreferredDemoRoom(demoSetup ?? null);
+      const [demoRoom, demoOperationsState] = await Promise.all([
+        loadPreferredDemoRoom(demoSetup ?? null),
+        loadPreferredDemoOperations(demoSetup ?? null),
+      ]);
       const nextLivePanel = getDemoLivePanel(demoRoom);
+
       setSetup(demoSetup ?? null);
       setLivePanel(nextLivePanel);
       setSessionSummary(nextLivePanel?.summary ?? null);
+      setOperations(buildOperationsSnapshot(demoOperationsState, demoSetup?.spaces ?? [], operationsRange));
       return;
     }
 
@@ -388,9 +484,14 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     }
 
     const nextSetup = await fetchHostSetup(client);
-    const primarySpace = getPrimarySpace(nextSetup);
+    const primarySpace = getPrimaryHostSpace(nextSetup);
+    const nextOperations = nextSetup.account
+      ? await fetchOperationsSnapshot(client, { range: operationsRange })
+      : createEmptyOperationsSnapshot(operationsRange);
+
     setSetup(nextSetup);
     setLivePanel(await fetchLivePanel(client, primarySpace?.id));
+    setOperations(nextOperations);
   }
 
   async function refreshLivePanel() {
@@ -410,10 +511,34 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const primarySpace = getPrimarySpace(setup);
+    const primarySpace = getPrimaryHostSpace(setup);
     const nextLivePanel = await fetchLivePanel(client, primarySpace?.id);
     setLivePanel(nextLivePanel);
     setSessionSummary(nextLivePanel?.summary ?? null);
+  }
+
+  async function refreshOperations(range = operationsRange) {
+    setError(null);
+    setOperationsRange(range);
+
+    if (demoMode) {
+      const demoOperationsState = await loadPreferredDemoOperations(setup);
+      setOperations(buildOperationsSnapshot(demoOperationsState, setup?.spaces ?? [], range));
+      return;
+    }
+
+    const client = getSupabaseClient();
+
+    if (!client || !authenticated) {
+      return;
+    }
+
+    if (!setup?.account) {
+      setOperations(createEmptyOperationsSnapshot(range));
+      return;
+    }
+
+    setOperations(await fetchOperationsSnapshot(client, { range }));
   }
 
   async function pinCurrentItem(content: LiveContentItem) {
@@ -454,8 +579,9 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         sessionId: livePanel.sessionId,
         content,
       });
-      const primarySpace = getPrimarySpace(setup);
+      const primarySpace = getPrimaryHostSpace(setup);
       setLivePanel(await fetchLivePanel(client, primarySpace?.id));
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
     } catch (nextError) {
       setError(parseError(nextError));
       throw nextError;
@@ -489,13 +615,20 @@ export function HostAppProvider({ children }: PropsWithChildren) {
               liveSession: null,
             }
           : currentSetup;
+        const nextOperationsState = recordDemoSessionSummary(
+          await loadPreferredDemoOperations(currentSetup),
+          nextSetup,
+          next.result.summary,
+        );
 
         setLivePanel(nextLivePanel);
         setSessionSummary(next.result.summary);
         setSetup(nextSetup);
+        setOperations(buildOperationsSnapshot(nextOperationsState, nextSetup?.spaces ?? [], operationsRange));
         await Promise.all([
           persistDemoRoom(next.roomState),
           persistDemoSetup(nextSetup),
+          persistDemoOperations(nextOperationsState),
         ]);
         persistBrowserRoomState(next.roomState);
         return next.result;
@@ -511,10 +644,292 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         sessionId: livePanel.sessionId,
       });
       const nextSetup = await fetchHostSetup(client);
+
       setSessionSummary(result.summary);
       setSetup(nextSetup);
       setLivePanel(null);
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
       return result;
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function createBrand(input: CreateBrandProfileInput) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      const validationError = validateBrandProfileInput(input);
+      if (validationError) {
+        throw new Error(validationError);
+      }
+
+      if (!setup) {
+        throw new Error("Finish setup before creating more brands.");
+      }
+
+      if (demoMode) {
+        const nextSetup = applyDemoCreateBrandProfile(setup, input);
+        setSetup(nextSetup);
+        await persistDemoSetup(nextSetup);
+        await refreshOperations();
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await createBrandProfile(client, input);
+      const nextSetup = await fetchHostSetup(client);
+
+      setSetup(nextSetup);
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function createNewSpace(input: CreateSpaceInput) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (!setup) {
+        throw new Error("Finish setup before creating more spaces.");
+      }
+
+      if (demoMode) {
+        const nextSetup = applyDemoCreateSpace(setup, input);
+        setSetup(nextSetup);
+        await persistDemoSetup(nextSetup);
+        await refreshOperations();
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await createSpace(client, input);
+      const nextSetup = await fetchHostSetup(client);
+
+      setSetup(nextSetup);
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function assignBrandToSpace(spaceId: string, brandProfileId: string) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (!setup) {
+        throw new Error("Finish setup before editing spaces.");
+      }
+
+      if (demoMode) {
+        const nextSetup = applyDemoAssignSpaceBrand(setup, { spaceId, brandProfileId });
+        setSetup(nextSetup);
+        await persistDemoSetup(nextSetup);
+        await refreshOperations();
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await assignSpaceBrand(client, { spaceId, brandProfileId });
+      const nextSetup = await fetchHostSetup(client);
+
+      setSetup(nextSetup);
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function inviteTeamAccess(input: InviteTeamMemberInput) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (demoMode) {
+        const nextState = applyDemoInviteTeamMember(await loadPreferredDemoOperations(setup), input);
+        setOperations(buildOperationsSnapshot(nextState, setup?.spaces ?? [], operationsRange));
+        await persistDemoOperations(nextState);
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await inviteTeamMember(client, input);
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeTeamAccessEntry(input: RemoveTeamAccessInput) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (demoMode) {
+        const nextState = applyDemoRemoveTeamAccess(await loadPreferredDemoOperations(setup), input);
+        setOperations(buildOperationsSnapshot(nextState, setup?.spaces ?? [], operationsRange));
+        await persistDemoOperations(nextState);
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await removeTeamAccess(client, input);
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitCatalogImport(input: SubmitCatalogImportInput) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      const validation = validateCatalogImportCsv(input.csvText, setup);
+
+      if (demoMode) {
+        const nextState = applyDemoImportJob(await loadPreferredDemoOperations(setup), validation, input);
+        setOperations(buildOperationsSnapshot(nextState, setup?.spaces ?? [], operationsRange));
+        await persistDemoOperations(nextState);
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await recordCatalogImport(client, {
+        fileName: input.fileName,
+        spaceId: input.spaceId,
+        processedRows: validation.processedRows,
+        acceptedRows: validation.acceptedRows,
+        rejectedRows: validation.rejectedRows,
+        status: validation.status,
+        rows: validation.rows,
+      });
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function archiveSpaceById(spaceId: string) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (!setup) {
+        throw new Error("Finish setup before archiving spaces.");
+      }
+
+      if (demoMode) {
+        const nextSetup = applyDemoArchiveSpace(setup, spaceId);
+        setSetup(nextSetup);
+        await persistDemoSetup(nextSetup);
+        await refreshOperations();
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await archiveSpace(client, { spaceId });
+      const nextSetup = await fetchHostSetup(client);
+
+      setSetup(nextSetup);
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteSpaceById(spaceId: string) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (!setup) {
+        throw new Error("Finish setup before deleting spaces.");
+      }
+
+      if (demoMode) {
+        const nextSetup = applyDemoDeleteSpace(setup, spaceId);
+
+        setSetup(nextSetup);
+        await persistDemoSetup(nextSetup);
+        await refreshOperations();
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await deleteSpace(client, { spaceId });
+      const nextSetup = await fetchHostSetup(client);
+
+      setSetup(nextSetup);
+      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
     } catch (nextError) {
       setError(parseError(nextError));
       throw nextError;
@@ -529,15 +944,19 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     try {
       if (demoMode) {
-        if (setup?.spaces[0]?.qrSlug) {
-          clearBrowserRoomState(setup.spaces[0].qrSlug);
+        const primarySpace = getPrimaryHostSpace(setup);
+
+        if (primarySpace?.qrSlug) {
+          clearBrowserRoomState(primarySpace.qrSlug);
         }
+
         await clearDemoState();
         setDemoMode(false);
         setAuthenticated(false);
         setSetup(null);
         setLivePanel(null);
         setSessionSummary(null);
+        setOperations(createEmptyOperationsSnapshot());
         setDraft(createHostSetupDraft());
         return;
       }
@@ -552,6 +971,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       setSetup(null);
       setLivePanel(null);
       setSessionSummary(null);
+      setOperations(null);
       setDraft(createHostSetupDraft());
     } catch (nextError) {
       setError(parseError(nextError));
@@ -572,6 +992,8 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     setup,
     livePanel,
     sessionSummary,
+    operations,
+    operationsRange,
     requestOtp,
     verifyOtp,
     startDemoMode,
@@ -580,8 +1002,17 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     goLiveNow,
     refreshSetup,
     refreshLivePanel,
+    refreshOperations,
     pinCurrentItem,
     endCurrentSession,
+    createBrand,
+    createNewSpace,
+    assignBrandToSpace,
+    inviteTeamAccess,
+    removeTeamAccessEntry,
+    submitCatalogImport,
+    archiveSpaceById,
+    deleteSpaceById,
     signOut,
   };
 

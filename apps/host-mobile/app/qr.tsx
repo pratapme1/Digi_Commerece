@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { Share, StyleSheet, Text, View } from "react-native";
 
-import { buildAttendeeShareUrl } from "@digi/domain";
+import { buildAttendeeShareUrl, getPrimaryHostSpace } from "@digi/domain";
 import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";
 
@@ -18,9 +18,7 @@ export default function QrScreen() {
   const [message, setMessage] = useState<string | null>(null);
   const qrRef = useRef<QRCode>(null);
 
-  const space =
-    setup?.spaces.find((item: NonNullable<typeof setup>["spaces"][number]) => item.isDefault) ??
-    setup?.spaces[0];
+  const space = getPrimaryHostSpace(setup);
   const attendeeUrl = space ? buildAttendeeShareUrl(hostAppConfig.attendeeBaseUrl, space.qrSlug) : "";
 
   async function handleCopy() {

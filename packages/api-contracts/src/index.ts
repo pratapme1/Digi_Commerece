@@ -1,11 +1,20 @@
 import type {
+  AnalyticsRange,
+  CatalogImportJob,
+  CreateBrandProfileInput,
+  CreateSpaceInput,
+  InviteTeamMemberInput,
   HostSetupSnapshot,
   LivePanelSnapshot,
   LivePresenceEntry,
   LiveContentItem,
+  OperationsSnapshot,
+  RemoveTeamAccessInput,
+  SubmitCatalogImportInput,
   SessionSummarySnapshot,
   SpaceMode,
   SpaceType,
+  TeamInvite,
 } from "@digi/domain";
 
 export interface SaveHostSetupInput {
@@ -73,3 +82,65 @@ export interface AttendeeRoomEventResult {
 }
 
 export interface HostSetupResponse extends HostSetupSnapshot {}
+
+export interface OperationsSnapshotResponse extends OperationsSnapshot {}
+
+export interface CreateBrandProfileResult {
+  brandId: string;
+}
+
+export interface CreateSpaceResult {
+  spaceId: string;
+}
+
+export interface AssignSpaceBrandInput {
+  spaceId: string;
+  brandProfileId: string;
+}
+
+export interface AssignSpaceBrandResult {
+  spaceId: string;
+  brandProfileId: string;
+}
+
+export interface ArchiveSpaceInput {
+  spaceId: string;
+}
+
+export interface ArchiveSpaceResult {
+  spaceId: string;
+  archivedAt: string;
+}
+
+export interface DeleteSpaceInput {
+  spaceId: string;
+}
+
+export interface DeleteSpaceResult {
+  spaceId: string;
+  deleted: true;
+}
+
+export interface InviteTeamMemberResult extends TeamInvite {}
+
+export interface RemoveTeamAccessResult {
+  memberId: string | null;
+  inviteId: string | null;
+}
+
+export interface SubmitCatalogImportResult extends CatalogImportJob {}
+
+export interface FetchOperationsSnapshotInput {
+  range: AnalyticsRange;
+}
+
+export type {
+  AnalyticsRange,
+  CatalogImportJob,
+  CreateBrandProfileInput,
+  CreateSpaceInput,
+  InviteTeamMemberInput,
+  OperationsSnapshot,
+  RemoveTeamAccessInput,
+  SubmitCatalogImportInput,
+};

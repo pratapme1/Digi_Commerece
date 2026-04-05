@@ -1,4 +1,32 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+async function bootstrapDemoWorkspace(page: Page, businessName = "Vega Auto") {
+  await page.goto("http://127.0.0.1:4184/");
+
+  await expect(page).toHaveTitle("Digi Host");
+  await expect(page.getByText("Create your host account")).toBeVisible();
+
+  await page.getByRole("button", { name: "Continue with demo workspace" }).click();
+  await expect(page.getByText("Name the business")).toBeVisible();
+
+  await page.getByLabel("Business name").fill(businessName);
+  await page.getByRole("button", { name: "Store" }).click();
+  await page.getByRole("button", { name: "Continue to brand setup" }).click();
+
+  await expect(page.getByText("Shape the brand")).toBeVisible();
+  await page.getByLabel("Brand label").fill("Vega Prime");
+  await page.getByRole("button", { name: "#2563EB" }).click();
+  await page.getByRole("button", { name: "Continue to space settings" }).click();
+
+  await expect(page.getByText("Configure the first space")).toBeVisible();
+  await page.getByLabel("Space name").fill("Dealer Day");
+  await page.getByRole("button", { name: "Save and generate QR" }).click();
+
+  await expect(page.getByText("Space QR")).toBeVisible();
+  await expect(page.getByText("dealer-day-demo", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Open dashboard" }).click();
+  await expect(page.getByText(businessName)).toBeVisible();
+}
 
 test.describe("Digi host mobile web export", () => {
   test("runs a live room with attendee sync and session summary", async ({ page }) => {
@@ -6,31 +34,7 @@ test.describe("Digi host mobile web export", () => {
     const hostErrors: Error[] = [];
     page.on("pageerror", (error) => hostErrors.push(error));
 
-    await page.goto("http://127.0.0.1:4184/");
-
-    await expect(page).toHaveTitle("Digi Host");
-    await expect(page.getByText("Create your host account")).toBeVisible();
-
-    await page.getByRole("button", { name: "Continue with demo workspace" }).click();
-    await expect(page.getByText("Name the business")).toBeVisible();
-
-    await page.getByLabel("Business name").fill("Vega Auto");
-    await page.getByRole("button", { name: "Store" }).click();
-    await page.getByRole("button", { name: "Continue to brand setup" }).click();
-
-    await expect(page.getByText("Shape the brand")).toBeVisible();
-    await page.getByLabel("Brand label").fill("Vega Prime");
-    await page.getByRole("button", { name: "#2563EB" }).click();
-    await page.getByRole("button", { name: "Continue to space settings" }).click();
-
-    await expect(page.getByText("Configure the first space")).toBeVisible();
-    await page.getByLabel("Space name").fill("Dealer Day");
-    await page.getByRole("button", { name: "Save and generate QR" }).click();
-
-    await expect(page.getByText("Space QR")).toBeVisible();
-    await expect(page.getByText("dealer-day-demo", { exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "Open dashboard" }).click();
-    await expect(page.getByText("Vega Auto")).toBeVisible();
+    await bootstrapDemoWorkspace(page);
     await page.getByRole("button", { name: "Go Live" }).click();
 
     await expect(page.getByText("Go live", { exact: true })).toBeVisible();
@@ -76,5 +80,58 @@ test.describe("Digi host mobile web export", () => {
 
     expect(hostErrors, `Unexpected host page errors: ${hostErrors.map((error) => error.message).join("; ")}`).toHaveLength(0);
     expect(attendeeErrors, `Unexpected attendee page errors: ${attendeeErrors.map((error) => error.message).join("; ")}`).toHaveLength(0);
+  });
+
+  test("manages operations for analytics, imports, team invites, brands, and spaces", async ({ page }) => {
+    test.setTimeout(45_000);
+    const pageErrors: Error[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error));
+
+    await bootstrapDemoWorkspace(page, "Atlas Retail");
+    await page.getByRole("button", { name: "Open operations" }).click();
+
+    await expect(page.getByText("Operations", { exact: true })).toBeVisible();
+    await expect(page.getByText("Pilot health")).toBeVisible();
+
+    await page.getByRole("button", { name: "7 days" }).click();
+    await expect(page.getByText("Top spaces")).toBeVisible();
+
+    await page.getByLabel("File name").fill("pilot-import.csv");
+    await page
+      .getByLabel("CSV payload")
+      .fill(
+        [
+          "space_name,brand_name,content_type,title,subtitle,sku",
+          "Dealer Day,Vega Prime,product,65W GaN charger,Dealer offer,VE-CH03",
+          "Dealer Day,Unknown Brand,contact,Ananya Reddy,Sales contact,",
+        ].join("\n"),
+      );
+    await page.getByRole("button", { name: "Validate and record import" }).click();
+    await expect(page.getByText("pilot-import.csv · Partial")).toBeVisible();
+    await expect(page.getByText("brand_name does not match an existing brand")).toBeVisible();
+
+    await page.getByLabel("Invite name").fill("Rhea Sen");
+    await page.getByLabel("Invite phone").fill("+91 91111 11111");
+    await page.getByRole("button", { name: "Admin" }).click();
+    await page.getByRole("button", { name: "Send invite" }).click();
+    await expect(page.getByText("Rhea Sen")).toBeVisible();
+
+    await page.getByLabel("Brand name").fill("Sunrise Brand");
+    await page.getByRole("button", { name: "Create brand profile" }).click();
+    await expect(page.getByRole("button", { name: "Sunrise Brand" }).first()).toBeVisible();
+
+    await page.getByLabel("Space name").fill("South Zone Meet-Up");
+    await page.getByRole("button", { name: "Sunrise Brand" }).last().click();
+    await page.getByRole("button", { name: "Meeting" }).click();
+    await page.getByLabel("Default session minutes").fill("45");
+    await page.getByRole("button", { name: "Create space" }).click();
+    await expect(page.getByText("South Zone Meet-Up")).toBeVisible();
+
+    await page.getByRole("button", { name: "Archive" }).last().click();
+    await expect(page.getByText("Archived", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Delete" }).last().click();
+    await expect(page.getByText("South Zone Meet-Up")).toHaveCount(0);
+
+    expect(pageErrors, `Unexpected operations page errors: ${pageErrors.map((error) => error.message).join("; ")}`).toHaveLength(0);
   });
 });

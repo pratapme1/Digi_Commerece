@@ -2,7 +2,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native";
 
-import { durationOptions } from "@digi/domain";
+import { durationOptions, getPrimaryHostSpace } from "@digi/domain";
 
 import { AppButton } from "../src/components/app-button";
 import { ChoiceChip } from "../src/components/choice-chip";
@@ -11,11 +11,7 @@ import { useHostApp } from "../src/host-app-context";
 
 export default function GoLiveScreen() {
   const { busy, error, goLiveNow, setup } = useHostApp();
-  const defaultDuration =
-    setup?.spaces.find((item: NonNullable<typeof setup>["spaces"][number]) => item.isDefault)
-      ?.defaultSessionDurationMinutes ??
-    setup?.spaces[0]?.defaultSessionDurationMinutes ??
-    60;
+  const defaultDuration = getPrimaryHostSpace(setup)?.defaultSessionDurationMinutes ?? 60;
   const [duration, setDuration] = useState(defaultDuration);
 
   async function handleGoLive() {

@@ -10,6 +10,8 @@ interface TextFieldProps {
   keyboardType?: "default" | "phone-pad" | "numeric";
   autoCapitalize?: "none" | "sentences" | "words";
   secureTextEntry?: boolean;
+  multiline?: boolean;
+  numberOfLines?: number;
 }
 
 export function TextField({
@@ -20,6 +22,8 @@ export function TextField({
   keyboardType = "default",
   autoCapitalize = "sentences",
   secureTextEntry = false,
+  multiline = false,
+  numberOfLines = 1,
 }: TextFieldProps) {
   return (
     <View style={styles.field}>
@@ -28,11 +32,13 @@ export function TextField({
         accessibilityLabel={label}
         autoCapitalize={autoCapitalize}
         keyboardType={keyboardType}
+        multiline={multiline}
+        numberOfLines={numberOfLines}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={hostTheme.colors.inkSubtle}
         secureTextEntry={secureTextEntry}
-        style={styles.input}
+        style={[styles.input, multiline ? styles.inputMultiline : null]}
         value={value}
       />
     </View>
@@ -55,5 +61,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
     paddingHorizontal: 16,
     paddingVertical: 15,
+  },
+  inputMultiline: {
+    minHeight: 132,
+    textAlignVertical: "top",
   },
 });

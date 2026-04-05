@@ -23,7 +23,18 @@ union all
 select 'table:' || tablename
 from pg_tables
 where schemaname = 'Digi'
-  and tablename in ('accounts', 'brand_profiles', 'spaces', 'sessions', 'session_live_state', 'session_activity_events')
+  and tablename in (
+    'accounts',
+    'brand_profiles',
+    'spaces',
+    'sessions',
+    'session_live_state',
+    'session_activity_events',
+    'team_members',
+    'team_invites',
+    'catalog_import_jobs',
+    'catalog_import_rows'
+  )
 union all
 select 'function:' || proname
 from pg_proc
@@ -36,7 +47,17 @@ where pronamespace = 'public'::regnamespace
     'digi_pin_live_content',
     'digi_end_live_session',
     'digi_get_session_summary',
-    'digi_record_attendee_event'
+    'digi_record_attendee_event',
+    'digi_get_current_account_id',
+    'digi_create_brand_profile',
+    'digi_create_space',
+    'digi_assign_space_brand',
+    'digi_archive_space',
+    'digi_delete_space',
+    'digi_invite_team_member',
+    'digi_remove_team_access',
+    'digi_record_catalog_import',
+    'digi_get_operations_snapshot'
   )
 order by 1;
 SQL
@@ -49,6 +70,10 @@ required_lines=(
   "table:sessions"
   "table:session_live_state"
   "table:session_activity_events"
+  "table:team_members"
+  "table:team_invites"
+  "table:catalog_import_jobs"
+  "table:catalog_import_rows"
   "function:digi_get_host_setup"
   "function:digi_save_host_setup"
   "function:digi_go_live"
@@ -57,6 +82,16 @@ required_lines=(
   "function:digi_end_live_session"
   "function:digi_get_session_summary"
   "function:digi_record_attendee_event"
+  "function:digi_get_current_account_id"
+  "function:digi_create_brand_profile"
+  "function:digi_create_space"
+  "function:digi_assign_space_brand"
+  "function:digi_archive_space"
+  "function:digi_delete_space"
+  "function:digi_invite_team_member"
+  "function:digi_remove_team_access"
+  "function:digi_record_catalog_import"
+  "function:digi_get_operations_snapshot"
 )
 
 for expected in "${required_lines[@]}"; do

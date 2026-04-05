@@ -2,19 +2,17 @@ import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 import { hostTheme } from "@digi/design-tokens";
-import { formatTimeRemaining } from "@digi/domain";
+import { formatTimeRemaining, getPrimaryHostSpace } from "@digi/domain";
 
 import { AppButton } from "../src/components/app-button";
 import { PageShell } from "../src/components/page-shell";
 import { useHostApp } from "../src/host-app-context";
 
 export default function DashboardScreen() {
-  const { demoMode, error, livePanel, sessionSummary, setup, signOut } = useHostApp();
+  const { demoMode, error, livePanel, operations, sessionSummary, setup, signOut } = useHostApp();
 
   const account = setup?.account;
-  const space =
-    setup?.spaces.find((item: NonNullable<typeof setup>["spaces"][number]) => item.isDefault) ??
-    setup?.spaces[0];
+  const space = getPrimaryHostSpace(setup);
   const liveSession = livePanel ?? setup?.liveSession;
 
   return (
@@ -24,6 +22,7 @@ export default function DashboardScreen() {
       footer={
         <View style={{ gap: 12 }}>
           <AppButton label="Show QR" onPress={() => router.push("/qr")} />
+          <AppButton label="Open operations" onPress={() => router.push("/operations")} variant="secondary" />
           {livePanel ? (
             <AppButton label="Open live panel" onPress={() => router.push("/live-panel")} variant="secondary" />
           ) : (
@@ -53,6 +52,18 @@ export default function DashboardScreen() {
             {space.spaceType} · {space.mode} · {space.defaultSessionDurationMinutes} min
           </Text>
           <Text style={styles.cardBody}>QR slug: {space.qrSlug}</Text>
+        </View>
+      ) : null}
+
+      {operations ? (
+        <View style={styles.card}>
+          <Text style={styles.cardEyebrow}>Operations snapshot</Text>
+          <Text style={styles.cardTitle}>
+            {operations.analytics.sessionCount} sessions · {operations.analytics.activeSpaces} active spaces
+          </Text>
+          <Text style={styles.cardBody}>
+            {operations.analytics.totalViews} views · {operations.analytics.totalSaves} saves · {operations.teamMembers.length} team members
+          </Text>
         </View>
       ) : null}
 

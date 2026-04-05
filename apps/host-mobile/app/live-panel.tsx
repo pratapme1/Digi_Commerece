@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { hostTheme } from "@digi/design-tokens";
-import { formatTimeRemaining, getLiveContentLibrary, type LiveContentItem } from "@digi/domain";
+import { formatTimeRemaining, getLiveContentLibrary, getPrimaryHostSpace, type LiveContentItem } from "@digi/domain";
 
 import { AppButton } from "../src/components/app-button";
 import { PageShell } from "../src/components/page-shell";
@@ -26,9 +26,7 @@ function buildAttendeeDemoUrl(input: { qrSlug: string; space: string; mode: stri
 export default function LivePanelScreen() {
   const { busy, demoMode, endCurrentSession, error, livePanel, pinCurrentItem, refreshLivePanel, setup } = useHostApp();
 
-  const space =
-    setup?.spaces.find((item: NonNullable<typeof setup>["spaces"][number]) => item.isDefault) ??
-    setup?.spaces[0];
+  const space = getPrimaryHostSpace(setup);
   const contentLibrary = space ? getLiveContentLibrary(space.spaceType) : [];
   const attendeeDemoUrl =
     livePanel && space ? buildAttendeeDemoUrl({ qrSlug: livePanel.qrSlug, space: space.spaceType, mode: space.mode }) : null;
