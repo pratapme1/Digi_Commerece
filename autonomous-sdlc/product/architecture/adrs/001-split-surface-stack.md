@@ -15,12 +15,12 @@ The repo started as static prototypes, but real implementation now needs a durab
 ## Decision
 - Use a Node and TypeScript monorepo.
 - Build the attendee surface in Next.js App Router.
-- Build the host surface in Expo SDK 55 on React Native New Architecture with Expo Router.
+- Build the host surface in Flutter.
 - Use Supabase for Postgres, Auth, Storage, Edge Functions, and Realtime.
 
 ## Why
 - This matches the locked product shape instead of forcing one UI technology across fundamentally different surfaces.
-- Expo is the lowest-friction credible path to a native host app with internal distribution, store builds, and OTA updates.
+- Flutter matches the requirement for one native host codebase that targets both Android and iOS without relying on a web-export fallback.
 - Next.js is the strongest web-first choice for the attendee PWA and fits QR-driven web deployment cleanly.
 - Supabase minimizes custom backend overhead while still supporting the data and live-session model.
 
@@ -31,5 +31,5 @@ The repo started as static prototypes, but real implementation now needs a durab
 
 ## Alternatives Considered
 - One universal Expo app for both host and attendee
-- Bare React Native without Expo services
+- React Native or Expo for the host app
 - Custom backend before proving the v1 product

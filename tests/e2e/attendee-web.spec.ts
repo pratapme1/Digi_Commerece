@@ -31,7 +31,7 @@ test.describe("Digi attendee web app", () => {
     await page.goto("http://127.0.0.1:4100/s/demo-room?demo=1&spaceType=restaurant&mode=anonymous&session=inactive&spaceName=Amara%20Kitchen");
     await expect(page.getByText("This space is not live right now.")).toBeVisible();
 
-    await page.goto("http://127.0.0.1:4100/s/demo-room?demo=1&spaceType=event&mode=anonymous&session=ended&spaceName=Spaces%20Summit%20Live%20Session");
+    await page.goto("http://127.0.0.1:4100/s/demo-room?demo=1&spaceType=business_card&mode=anonymous&session=ended&spaceName=Ananya%20Reddy");
     await expect(page.getByText("This live room just closed.")).toBeVisible();
   });
 });

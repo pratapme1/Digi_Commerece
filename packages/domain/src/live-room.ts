@@ -119,8 +119,9 @@ const STORE_LIVE_CONTENT: LiveContentItem[] = [
   createContent("dealer-contact", "Ananya Reddy", "Verified sales contact", "contacts", "cs", "host-contact"),
 ];
 
-const MEETING_LIVE_CONTENT: LiveContentItem[] = [
-  createContent("meeting-host-card", "Host contact card", "Verified meeting host", "contacts", "cs", "host-contact"),
+const BUSINESS_CARD_LIVE_CONTENT: LiveContentItem[] = [
+  createContent("business-card-contact", "Host contact card", "Verified business card", "contacts", "cs", "host-contact"),
+  createContent("business-card-booking", "Book a product walkthrough", "Host spotlight", "live", "ls", "walkthrough-offer"),
 ];
 
 const RESTAURANT_LIVE_CONTENT: LiveContentItem[] = [
@@ -128,28 +129,14 @@ const RESTAURANT_LIVE_CONTENT: LiveContentItem[] = [
   createContent("service-menu", "Tonight’s service menu", "Menu collection", "menu", "ms", "menu"),
 ];
 
-const EVENT_LIVE_CONTENT: LiveContentItem[] = [
-  createContent("event-spotlight", "Current live spotlight", "Keynote spotlight", "live", "ls", "live-spotlight"),
-  createContent("event-deck", "Company deck — FY2026", "Earlier session share", "live", "ls", "deck"),
-  createContent("event-contacts", "Sales Team Contacts · 5 people", "Earlier session share", "live", "ls", "contacts"),
-];
-
-const OTHER_LIVE_CONTENT: LiveContentItem[] = [
-  createContent("generic-spotlight", "Current live spotlight", "Session highlight", "live", "ls", "live-spotlight"),
-];
-
 export function getLiveContentLibrary(spaceType: SpaceType): LiveContentItem[] {
   switch (spaceType) {
     case "store":
       return STORE_LIVE_CONTENT;
-    case "meeting":
-      return MEETING_LIVE_CONTENT;
+    case "business_card":
+      return BUSINESS_CARD_LIVE_CONTENT;
     case "restaurant":
       return RESTAURANT_LIVE_CONTENT;
-    case "event":
-      return EVENT_LIVE_CONTENT;
-    default:
-      return OTHER_LIVE_CONTENT;
   }
 }
 

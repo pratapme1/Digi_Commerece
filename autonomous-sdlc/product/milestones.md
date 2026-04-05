@@ -188,3 +188,24 @@ Replace preset-only attendee content with canonical host-managed content that bo
 - Host live controls and attendee rendering use the same content contract
 - Imports can be proven in browser E2E to affect the attendee experience
 - Preset content remains only as seed or fallback scaffolding, not the primary real-data path
+
+## M8 Flutter Host Replatform And Scope Reduction
+### Objective
+Replace the Expo host implementation with a Flutter host app and reduce the supported product scope to business cards, store offers, and restaurant flows only.
+
+### Discovery Focus
+- Which current host flows are already required and must survive the replatform without behavioral loss
+- Which space types, collections, and host actions should be removed because they are outside the approved business scope
+- How the Flutter host should talk to the existing Supabase and attendee stack without introducing a parallel backend path
+
+### Delivery Scope
+- Flutter host app scaffold for Android and iOS
+- Flutter implementations of auth, onboarding, brand setup, QR, go-live, live panel, operations, and session summary
+- removal of unsupported host and attendee surface types from the active shared contracts
+- Flutter widget and integration coverage for every primary host button and end-to-end host flow
+
+### Exit Criteria
+- the active host implementation is Flutter-based
+- the supported space types are limited to business cards, store offers, and restaurant
+- host flows are covered by repeatable Flutter tests and verified against the attendee app
+- the Expo host path is no longer the active implementation target

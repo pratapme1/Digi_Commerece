@@ -364,11 +364,11 @@ const STORE_LIVE: AttendeeLiveContent = {
   timelineLabel: "Earlier in this session",
   timeline: [
     {
-      id: "deck",
+      id: "launch-sheet",
       icon: "📋",
-      title: "Company deck — FY2026",
+      title: "Retail launch sheet",
       timestamp: "Shared 14 min ago",
-      saveTitle: "Company deck",
+      saveTitle: "Retail launch sheet",
     },
     {
       id: "pricing",
@@ -383,62 +383,6 @@ const STORE_LIVE: AttendeeLiveContent = {
       title: "Sales team contacts · 5 people",
       timestamp: "Shared at start",
       saveTitle: "Sales team contacts",
-    },
-  ],
-};
-
-const EVENT_LIVE: AttendeeLiveContent = {
-  presenterLabel: "Live · Spaces Summit Session",
-  spotlightEyebrow: "Presented now",
-  spotlightTitle: "Current live spotlight",
-  spotlightMeta: [
-    { label: "Watching", value: "180" },
-    { label: "Saved", value: "42" },
-    { label: "Session", value: "Keynote" },
-  ],
-  timelineLabel: "Earlier in this session",
-  timeline: [
-    {
-      id: "live-spotlight",
-      icon: "●",
-      title: "Current keynote spotlight",
-      timestamp: "Shared just now",
-      saveTitle: "Live spotlight item",
-    },
-    {
-      id: "deck",
-      icon: "📋",
-      title: "Company deck — FY2026",
-      timestamp: "Shared 14 min ago",
-      saveTitle: "Company deck",
-    },
-    {
-      id: "contacts",
-      icon: "👥",
-      title: "Sales team contacts · 5 people",
-      timestamp: "Shared at start",
-      saveTitle: "Sales team contacts",
-    },
-  ],
-};
-
-const OTHER_LIVE: AttendeeLiveContent = {
-  presenterLabel: "Live session",
-  spotlightEyebrow: "Presented now",
-  spotlightTitle: "Current live spotlight",
-  spotlightMeta: [
-    { label: "Session", value: "Live" },
-    { label: "State", value: "Synced" },
-    { label: "Surface", value: "Attendee" },
-  ],
-  timelineLabel: "Shared in this session",
-  timeline: [
-    {
-      id: "generic-spotlight",
-      icon: "●",
-      title: "Current live spotlight",
-      timestamp: "Shared just now",
-      saveTitle: "Live spotlight item",
     },
   ],
 };
@@ -546,11 +490,11 @@ const ATTENDEE_PRESETS: Record<SpaceType, AttendeeSpacePreset> = {
       },
       {
         group: "Live session",
-        title: "Company deck — FY2026",
+        title: "Retail launch sheet",
         meta: "Pinned 14 minutes ago",
         screen: "ls",
         collectionId: "live",
-        cardId: "deck",
+        cardId: "pricing",
       },
       {
         group: "Sales contact",
@@ -567,18 +511,18 @@ const ATTENDEE_PRESETS: Record<SpaceType, AttendeeSpacePreset> = {
       live: STORE_LIVE,
     },
   },
-  meeting: {
-    typeLabel: "Meeting space",
+  business_card: {
+    typeLabel: "Business card space",
     bootSubtitle:
-      "Enter the live meeting room for this session. Open only the contact and documents the host chose to share.",
-    overviewSubtitle: "This meeting stays lightweight: one featured host card plus the live items attached to the room.",
-    searchPlaceholder: "Search host cards or meeting shares",
+      "Enter the live business-card room for this host. Open the verified contact card first, then follow the current host spotlight if you need a next step.",
+    overviewSubtitle: "This room stays lightweight: one contact card plus a narrow live handoff from the current host.",
+    searchPlaceholder: "Search the host card or current handoff",
     searchMeta: "Search uses the room cache immediately after entry. No new loading state is introduced while typing.",
-    collectionSectionCopy: "Only the approved meeting items appear here. The room stays intentionally narrow.",
+    collectionSectionCopy: "Only the approved business-card items appear here. The room stays intentionally narrow.",
     footNote:
-      "Spaces does not keep a meeting inbox. Saved items are handed off to your phone and disappear from the room when the session ends.",
-    emptySearchCopy: "Try the host name, company name, or the live deck title.",
-    emptyStateCopy: "The meeting is live, but the host has not shared attendee-facing material yet.",
+      "Spaces does not keep a contact inbox. Saved items are handed off to your phone and disappear from the room when the session ends.",
+    emptySearchCopy: "Try the host name, company name, or the current live handoff.",
+    emptyStateCopy: "The room is live, but the host has not shared attendee-facing material yet.",
     feature: {
       screen: "cs",
       collectionId: "contacts",
@@ -599,7 +543,7 @@ const ATTENDEE_PRESETS: Record<SpaceType, AttendeeSpacePreset> = {
         cardId: "host-contact",
         label: "Contact",
         title: "Host card",
-        description: "A single verified contact card for the person presenting in this meeting.",
+        description: "A single verified contact card for the person running this business-card room.",
         count: "1 card",
         icon: "✦",
         openLabel: "Open card",
@@ -608,13 +552,13 @@ const ATTENDEE_PRESETS: Record<SpaceType, AttendeeSpacePreset> = {
       {
         screen: "ls",
         collectionId: "live",
-        cardId: "deck",
-        label: "Live share",
-        title: "Meeting timeline",
-        description: "A narrow stream of deck shares and key handoff moments from the current meeting.",
-        count: "2 shares",
+        cardId: "walkthrough",
+        label: "Live handoff",
+        title: "Current next step",
+        description: "A narrow stream of host handoff moments from the current room.",
+        count: "2 handoffs",
         icon: "●",
-        openLabel: "Open timeline",
+        openLabel: "Open handoff",
         note: "Use this when the room is actively presenting.",
       },
     ],
@@ -622,7 +566,7 @@ const ATTENDEE_PRESETS: Record<SpaceType, AttendeeSpacePreset> = {
       {
         group: "Host card",
         title: "Ananya Reddy",
-        meta: "CEO · Verified meeting host",
+        meta: "Founder · Verified host",
         screen: "cs",
         collectionId: "contacts",
         cardId: "host-contact",
@@ -636,26 +580,41 @@ const ATTENDEE_PRESETS: Record<SpaceType, AttendeeSpacePreset> = {
         cardId: "host-contact",
       },
       {
-        group: "Meeting timeline",
-        title: "Company deck — FY2026",
+        group: "Live handoff",
+        title: "Book a product walkthrough",
         meta: "Shared 14 minutes ago",
         screen: "ls",
         collectionId: "live",
-        cardId: "deck",
+        cardId: "walkthrough",
       },
     ],
     content: {
       contact: HOST_CONTACT,
       live: {
         ...STORE_LIVE,
-        presenterLabel: "Live · Weekly investor meeting",
-        spotlightTitle: "Current meeting share",
+        presenterLabel: "Live · Business card handoff",
+        spotlightTitle: "Current business-card handoff",
         spotlightMeta: [
-          { label: "Room", value: "Investor sync" },
+          { label: "Room", value: "Founder handoff" },
           { label: "Watching", value: "8" },
           { label: "Mode", value: "Identified" },
         ],
-        timeline: STORE_LIVE.timeline.slice(0, 2),
+        timeline: [
+          {
+            id: "walkthrough",
+            icon: "✦",
+            title: "Book a product walkthrough",
+            timestamp: "Shared 14 min ago",
+            saveTitle: "Product walkthrough",
+          },
+          {
+            id: "host-contact",
+            icon: "👥",
+            title: "Primary host contact",
+            timestamp: "Shared at start",
+            saveTitle: "Host contact card",
+          },
+        ],
       },
     },
   },
@@ -727,125 +686,6 @@ const ATTENDEE_PRESETS: Record<SpaceType, AttendeeSpacePreset> = {
       menu: RESTAURANT_MENU,
     },
   },
-  event: {
-    typeLabel: "Event space",
-    bootSubtitle:
-      "Enter the live keynote room. The attendee surface mirrors only the current spotlight and earlier session shares.",
-    overviewSubtitle: "Use the spotlight to follow the room in real time, then save only the items you need after the event.",
-    searchPlaceholder: "Search spotlight items or earlier shares",
-    searchMeta: "Search works against the session cache so it feels immediate even during a live presentation.",
-    collectionSectionCopy: "The keynote room keeps the attendee path focused on the current presentation state.",
-    footNote: "Saved event items go to your own apps. Anything left unsaved disappears when the keynote session ends.",
-    emptySearchCopy: "Try deck, pricing, or contacts from the live session timeline.",
-    emptyStateCopy: "The keynote room is live, but the presenter has not pushed attendee content yet.",
-    feature: {
-      screen: "ls",
-      collectionId: "live",
-      cardId: "live-spotlight",
-      eyebrow: "Presented now",
-      title: "Current live spotlight",
-      copy: "Follow what the speaker pinned most recently, then browse the earlier session timeline if needed.",
-      metaOne: "Live spotlight",
-      metaTwo: "3 earlier shares",
-      openLabel: "Open spotlight",
-      saveLabel: "Save spotlight",
-      saveTitle: "Live spotlight item",
-    },
-    collections: [
-      {
-        screen: "ls",
-        collectionId: "live",
-        cardId: "live-spotlight",
-        label: "Live",
-        title: "Spotlight timeline",
-        description: "The presenter’s current pin at the top, followed by the earlier items from the same session.",
-        count: "3 items",
-        icon: "●",
-        openLabel: "Open timeline",
-        note: "Designed for active rooms, not for browsing everything at once.",
-      },
-    ],
-    searchIndex: [
-      {
-        group: "Spotlight timeline",
-        title: "65W GaN Charger — Dealer Exclusive Price",
-        meta: "Current spotlight",
-        screen: "ls",
-        collectionId: "live",
-        cardId: "live-spotlight",
-      },
-      {
-        group: "Spotlight timeline",
-        title: "Company deck — FY2026",
-        meta: "Shared 14 min ago",
-        screen: "ls",
-        collectionId: "live",
-        cardId: "deck",
-      },
-      {
-        group: "Spotlight timeline",
-        title: "Sales team contacts · 5 people",
-        meta: "Shared at start",
-        screen: "ls",
-        collectionId: "live",
-        cardId: "contacts",
-      },
-    ],
-    content: {
-      live: EVENT_LIVE,
-    },
-  },
-  other: {
-    typeLabel: "Live space",
-    bootSubtitle: "Enter the current live room. The attendee path stays focused on the one active spotlight the host is sharing.",
-    overviewSubtitle: "This room stays narrow and should degrade cleanly even when only one live item is active.",
-    searchPlaceholder: "Search the current live spotlight",
-    searchMeta: "Search is instant once the room payload is loaded.",
-    collectionSectionCopy: "Only the live spotlight for this room appears here.",
-    footNote: "Saved items leave through your own device. Anything unsaved disappears when the session ends.",
-    emptySearchCopy: "Search becomes useful once the host pushes attendee-facing content.",
-    emptyStateCopy: "The room is live, but the host has not published attendee content yet.",
-    feature: {
-      screen: "ls",
-      collectionId: "live",
-      cardId: "generic-spotlight",
-      eyebrow: "Presented now",
-      title: "Current live spotlight",
-      copy: "Follow the live item first. The room keeps the rest of the experience intentionally light.",
-      metaOne: "Live spotlight",
-      metaTwo: "Single collection",
-      openLabel: "Open spotlight",
-      saveLabel: "Save spotlight",
-      saveTitle: "Live spotlight item",
-    },
-    collections: [
-      {
-        screen: "ls",
-        collectionId: "live",
-        cardId: "generic-spotlight",
-        label: "Live",
-        title: "Current spotlight",
-        description: "One live item at a time, synced from the host room state.",
-        count: "1 item",
-        icon: "●",
-        openLabel: "Open spotlight",
-        note: "Use this for custom or mixed-format spaces.",
-      },
-    ],
-    searchIndex: [
-      {
-        group: "Current spotlight",
-        title: "Current live spotlight",
-        meta: "Shared just now",
-        screen: "ls",
-        collectionId: "live",
-        cardId: "generic-spotlight",
-      },
-    ],
-    content: {
-      live: OTHER_LIVE,
-    },
-  },
 };
 
 export function createBrandMark(name: string): string {
@@ -890,7 +730,7 @@ export function createAttendeeBrandTheme(input?: Partial<AttendeeBrandTheme>): A
 }
 
 export function getAttendeeSpacePreset(spaceType: SpaceType): AttendeeSpacePreset {
-  return ATTENDEE_PRESETS[spaceType] ?? ATTENDEE_PRESETS.other;
+  return ATTENDEE_PRESETS[spaceType] ?? ATTENDEE_PRESETS.business_card;
 }
 
 export function searchAttendeePreset(preset: AttendeeSpacePreset, query: string): AttendeeSearchResult[] {

@@ -58,6 +58,7 @@ describe("live room domain helpers", () => {
   it("returns the expected live content library for a space type", () => {
     expect(getLiveContentLibrary("store")[0]?.id).toBe("dealer-charger");
     expect(getLiveContentLibrary("restaurant")[0]?.id).toBe("chef-special");
+    expect(getLiveContentLibrary("business_card")[0]?.id).toBe("business-card-contact");
   });
 
   it("formats time remaining in a human-readable way", () => {

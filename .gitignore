@@ -25,3 +25,7 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+# Local toolchains and app runtime output
+.tooling/
+apps/host-mobile/.expo/

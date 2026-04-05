@@ -7,8 +7,8 @@
 ## Runtime Components
 - `attendee-web`
   - Next.js PWA for QR entry, bootstrap, overview, search, save handoff, and live session states
-- `host-mobile`
-  - Expo mobile app for onboarding, brand setup, space editing, go-live controls, and later analytics
+- `host-flutter`
+  - Flutter mobile app for onboarding, brand setup, scoped space editing, go-live controls, and later analytics
 - `supabase-db`
   - source of truth for spaces, sessions, content cards, attendee records, and analytics events
 - `supabase-auth`
@@ -36,7 +36,7 @@
 ```text
 apps/
   attendee-web/
-  host-mobile/
+  host-flutter/
 packages/
   domain/
   api-contracts/
@@ -52,7 +52,7 @@ supabase/
 - `identity`
   - host auth, host profile, role membership, OTP state
 - `spaces`
-  - brand profile, space type, mode, QR identity, space settings
+  - brand profile, scoped space type, mode, QR identity, space settings
 - `sessions`
   - live status, timers, active room metadata, attendee presence counts
 - `content`
@@ -69,6 +69,10 @@ supabase/
 4. Privileged room commands such as `go_live`, `pin_item`, `hide_item`, `extend_session`, and `end_session` execute through Edge Functions or secured server paths and persist canonical state in Postgres.
 5. Realtime channels broadcast low-latency room signals to subscribed attendees and host clients.
 6. Analytics events write to Postgres as session-scoped events and are rolled up later for summaries and dashboards.
+
+## Scope Rules
+- Supported space types are `store`, `restaurant`, and `business_card`.
+- Event, meeting, and generic catch-all types are removed from active product work and should not receive new UI or backend investment.
 
 ## Source Of Truth Rules
 - Postgres is the source of truth for spaces, sessions, content, and analytics.

@@ -18,7 +18,7 @@ import { getAttendeeSupabaseClient } from "./supabase-browser";
 type SearchParamMap = Record<string, string | string[] | undefined>;
 
 function parseSpaceType(value: string | null | undefined): SpaceType {
-  if (value === "meeting" || value === "event" || value === "store" || value === "restaurant" || value === "other") {
+  if (value === "business_card" || value === "store" || value === "restaurant") {
     return value;
   }
 

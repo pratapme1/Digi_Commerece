@@ -7,8 +7,9 @@
 
 ## Product Shape
 - Attendee surface: QR-triggered PWA with zero install, no required account, and identified or anonymous entry depending on host settings.
-- Host surface: native mobile app for onboarding, brand setup, space editing, live control, and post-session operations.
+- Host surface: Flutter-native mobile app for onboarding, brand setup, space editing, live control, and post-session operations on both Android and iOS.
 - Shared system layer: spaces, sessions, structured content cards, brand profiles, attendee presence, saves, and analytics events.
+- Supported v1 business shapes: business cards, store offers, and restaurant service flows only.
 
 ## Experience Principles
 - Zero receiver friction: scanning a QR must feel faster than receiving paper.
@@ -29,10 +30,11 @@
 - Product foundation: information architecture, content model, session lifecycle, event contracts, and analytics dictionary.
 - Attendee PWA: entry, identification, overview, search, save flow, and end-of-session behavior.
 - Architecture and delivery baseline: stack decisions, system boundaries, environments, security, CI/CD, and deployment model.
-- Host app: onboarding, brand setup, space editor, QR distribution, and go-live controls.
+- Host app: Flutter onboarding, brand setup, scoped space editor, QR distribution, and go-live controls.
 - Live operations: presence, pinning, notifications, session state, and session summary.
 - Operations and scale: bulk import, analytics, team roles, settings, verification, and archive flows.
 - Launch hardening: automated testing, performance checks, release readiness, and pilot support.
+- Scope reduction: remove event, meeting, and catch-all space types from active product work and keep only the three approved business shapes.
 
 ## Discovery Gate For Major Phases
 Before a milestone starts, create a discovery brief from `discovery-template.md` that captures:

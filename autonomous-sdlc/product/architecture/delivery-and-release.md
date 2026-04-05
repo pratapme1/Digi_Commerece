@@ -7,7 +7,7 @@
 ## CI/CD Decisions To Lock
 - build pipeline per surface:
   - attendee web checks and deploys through GitHub Actions plus Vercel
-  - host mobile builds through EAS Build and store submission through EAS Submit
+  - host mobile builds through GitHub Actions running Flutter checks and platform release commands
   - backend migrations and function deployment through GitHub Actions plus Supabase CLI
 - test gates by branch and environment:
   - PRs must pass repository checks, type checks, tests, and Playwright attendee or host flows
@@ -16,7 +16,6 @@
   - web deployments are created from Git commits
   - mobile preview builds are installable binaries
   - mobile production binaries are store submissions
-  - JS-compatible mobile fixes use EAS Update channels
 - release approval model:
   - protected `main`
   - human approval for staging and production environments
@@ -42,9 +41,9 @@
 - Production incidents can be reversed through Vercel rollback to a prior deployment.
 
 ### Host Mobile Release
-- Internal QA builds use EAS Build with internal distribution.
-- Production app-store submissions use EAS Build plus EAS Submit.
-- JavaScript-only fixes use `expo-updates` through channel-based rollout, with staging and production channels separated.
+- Internal QA builds use Flutter Android and iOS build jobs with installable artifacts.
+- Production app-store submissions use `flutter build appbundle` for Android and `flutter build ipa` for iOS from a macOS runner.
+- Mobile fixes always ship through a fresh binary or approved platform release path; there is no Expo OTA layer.
 
 ### Database And Functions
 - Schema changes are versioned in the repository.
@@ -56,7 +55,6 @@
   - one monorepo, multiple deployables: attendee web, host mobile, database migrations, edge functions
 - How are mobile builds versioned?
   - native binaries by semantic app version and build number
-  - OTA updates by EAS channel plus runtime version compatibility
 - How is the attendee PWA promoted between environments?
   - preview from PRs, staging from protected deploy job, production from protected `main`
 - What is the minimum release checklist for pilot readiness?

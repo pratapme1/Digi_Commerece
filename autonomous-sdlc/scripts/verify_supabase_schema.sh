@@ -37,6 +37,10 @@ where schemaname = 'Digi'
     'space_content_entries'
   )
 union all
+select 'enum:space_type:' || enumlabel
+from pg_enum
+where enumtypid = '"Digi".space_type'::regtype
+union all
 select 'function:' || proname
 from pg_proc
 where pronamespace = 'public'::regnamespace
@@ -79,6 +83,9 @@ required_lines=(
   "table:catalog_import_jobs"
   "table:catalog_import_rows"
   "table:space_content_entries"
+  "enum:space_type:business_card"
+  "enum:space_type:store"
+  "enum:space_type:restaurant"
   "function:digi_get_host_setup"
   "function:digi_save_host_setup"
   "function:digi_go_live"

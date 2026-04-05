@@ -1,5 +1,5 @@
 export type VerificationTier = "phone_verified" | "business_verified";
-export type SpaceType = "meeting" | "event" | "store" | "restaurant" | "other";
+export type SpaceType = "business_card" | "store" | "restaurant";
 export type SpaceMode = "identified" | "anonymous";
 export type SessionStatus = "draft" | "scheduled" | "live" | "ending" | "ended";
 
@@ -76,9 +76,7 @@ export interface HostSetupDraft {
 export const spaceTypeOptions: { label: string; value: SpaceType }[] = [
   { label: "Store", value: "store" },
   { label: "Restaurant", value: "restaurant" },
-  { label: "Meeting", value: "meeting" },
-  { label: "Event", value: "event" },
-  { label: "Other", value: "other" },
+  { label: "Business Card", value: "business_card" },
 ];
 
 export const spaceModeOptions: { label: string; value: SpaceMode }[] = [

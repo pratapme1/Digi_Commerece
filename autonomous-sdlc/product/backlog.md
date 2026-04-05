@@ -78,3 +78,13 @@ Use this backlog with the milestone order in `milestones.md`. Discovery items co
 - [P0][Build] Update the host live panel to use canonical content for pin controls.
 - [P0][Build] Update the attendee app to render canonical content with fallback only when no stored content exists.
 - [P1][Build] Add browser E2E that proves host-managed content appears in the attendee app.
+
+## M8 Flutter Host Replatform And Scope Reduction
+- [P0][Discovery] Compare the current Expo host app with the required Flutter-native host product and list all parity gaps.
+- [P0][Discovery] Reduce the supported business scope to business cards, store offers, and restaurant and remove event, meeting, and other flows from active work.
+- [P0][Build] Lock Flutter as the host stack in the architecture docs and release model.
+- [P0][Build] Scaffold the Flutter host app with Android and iOS targets plus local test support.
+- [P0][Build] Implement host onboarding, QR, go-live, live panel, operations, and session summary in Flutter.
+- [P0][Build] Update shared contracts and attendee behavior so only the approved three business shapes remain active.
+- [P0][Build] Add Flutter widget and integration coverage for primary host journeys and controls.
+- [P1][Build] Retire the Expo host app from active delivery and testing paths.
