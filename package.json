@@ -1,0 +1,30 @@
+{
+  "name": "digi-commerece",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.7.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "description": "Spaces product repo with autonomous SDLC guardrails, Expo host app scaffolding, and Playwright smoke tests.",
+  "scripts": {
+    "test:unit": "corepack pnpm exec vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "corepack pnpm exec tsc -p tsconfig.json --noEmit && corepack pnpm --filter @digi/host-mobile exec tsc --noEmit && corepack pnpm --filter @digi/attendee-web exec tsc --noEmit",
+    "host:dev": "corepack pnpm --filter @digi/host-mobile run start",
+    "attendee:dev": "corepack pnpm --filter @digi/attendee-web run dev",
+    "host:web:export": "corepack pnpm --filter @digi/host-mobile run export:web",
+    "attendee:build": "corepack pnpm --filter @digi/attendee-web run build",
+    "verify:supabase": "bash autonomous-sdlc/scripts/verify_supabase_schema.sh",
+    "verify": "bash autonomous-sdlc/scripts/run_quality_gates.sh",
+    "hooks:install": "bash autonomous-sdlc/scripts/install_hooks.sh",
+    "session:start": "bash autonomous-sdlc/scripts/start_session.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

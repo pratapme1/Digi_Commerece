@@ -14,7 +14,11 @@
   --ink3:   #9A9490;
   --ink4:   #C8C4C0;
   --paper:  #FAF8F3;
+  --paper2: #F2EFE9;
   --warm:   #F5F0E6;
+  --amber-bg:#FFF8EE;
+  --green:  #16A34A;
+  --red:    #DC2626;
   --line:   rgba(26,23,20,.09);
 }
 
@@ -55,6 +59,625 @@ body{
 .ps{position:absolute;inset:0;overflow:hidden;border-radius:54px;}
 .sc{display:none;width:100%;height:100%;}
 .sc.on{display:flex;flex-direction:column;}
+
+/* bootstrap flow */
+.bootstrap-shell{
+  position:absolute;inset:0;z-index:30;
+  transition:opacity .35s ease,visibility .35s ease;
+}
+.bootstrap-shell.done{
+  opacity:0;visibility:hidden;pointer-events:none;
+}
+.boot-screen{
+  display:none;flex-direction:column;
+  width:100%;height:100%;
+}
+.boot-screen.on{display:flex;}
+.boot-loading{
+  background:var(--paper);
+  padding:52px 24px 28px;
+}
+.boot-load-top{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:28px;
+}
+.boot-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  width:max-content;border-radius:100px;
+  padding:6px 12px;
+  background:rgba(26,23,20,.05);
+  font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);
+}
+.boot-chip.live{
+  background:rgba(22,163,74,.1);
+  color:rgba(12,110,48,.9);
+}
+.boot-chip.ended{
+  background:rgba(215,119,6,.1);
+  color:rgba(150,90,0,.95);
+}
+.boot-chip.offline{
+  background:rgba(26,23,20,.06);
+  color:var(--ink2);
+}
+.boot-time{
+  font-size:12px;font-weight:400;color:var(--ink3);
+}
+.boot-skeleton-hero,
+.boot-skeleton-line,
+.boot-skeleton-card,
+.boot-skeleton-button{
+  background:linear-gradient(90deg,#E5E7EB 0%,#F3F4F6 50%,#E5E7EB 100%);
+  background-size:200% 100%;
+  animation:boot-shimmer 1.4s linear infinite;
+}
+@keyframes boot-shimmer{
+  0%{background-position:200% 0;}
+  100%{background-position:-200% 0;}
+}
+.boot-skeleton-hero{
+  height:220px;border-radius:24px;margin-bottom:18px;
+}
+.boot-skeleton-line{height:12px;border-radius:100px;margin-bottom:10px;}
+.boot-skeleton-line.long{width:72%;}
+.boot-skeleton-line.mid{width:54%;}
+.boot-skeleton-line.short{width:36%;}
+.boot-skeleton-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin-top:18px;
+}
+.boot-skeleton-card{
+  height:84px;border-radius:16px;
+}
+.boot-skeleton-button{
+  margin-top:auto;height:52px;border-radius:100px;
+}
+.boot-entry,
+.boot-name,
+.boot-status{
+  padding:52px 24px 30px;
+  position:relative;overflow:hidden;
+}
+.boot-entry::before,
+.boot-name::before,
+.boot-status::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at top left,rgba(195,165,120,.16),transparent 42%),
+    linear-gradient(180deg,rgba(245,240,230,.9),var(--paper));
+  pointer-events:none;
+}
+.boot-entry-body,
+.boot-name-body,
+.boot-status-body{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;height:100%;
+}
+.boot-brand{
+  width:58px;height:58px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ink);color:var(--warm);
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;
+  margin-bottom:20px;
+  box-shadow:0 18px 40px rgba(26,23,20,.12);
+}
+.boot-verified{
+  display:inline-flex;align-items:center;gap:6px;
+  width:max-content;border-radius:100px;
+  padding:7px 12px;
+  background:rgba(22,163,74,.1);
+  color:rgba(12,110,48,.92);
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:18px;
+}
+.boot-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px;font-weight:600;line-height:1.02;
+  color:var(--ink);letter-spacing:-.02em;
+  margin-bottom:10px;
+}
+.boot-subtitle{
+  font-size:13px;line-height:1.65;font-weight:300;color:var(--ink2);
+  margin-bottom:20px;
+  max-width:280px;
+}
+.boot-live-row{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-bottom:18px;
+}
+.boot-live-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  border-radius:100px;padding:7px 12px;
+  background:rgba(26,23,20,.05);
+  color:var(--ink2);font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+}
+.boot-live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--red);
+  animation:ld 1.8s ease-in-out infinite;
+}
+.boot-note{
+  margin-top:auto;margin-bottom:18px;
+  padding:14px 16px;border-radius:18px;
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(26,23,20,.06);
+  box-shadow:0 12px 30px rgba(26,23,20,.06);
+}
+.boot-note-label{
+  font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:6px;
+}
+.boot-note-copy{
+  font-size:12px;line-height:1.65;font-weight:300;color:var(--ink2);
+}
+.boot-primary,
+.boot-secondary{
+  border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
+.boot-primary{
+  width:100%;border-radius:100px;
+  padding:16px 22px;background:var(--ink);color:var(--paper);
+  font-size:13px;font-weight:500;letter-spacing:.04em;
+  box-shadow:0 18px 38px rgba(26,23,20,.14);
+}
+.boot-secondary{
+  background:none;color:var(--ink3);
+  font-size:12px;font-weight:400;letter-spacing:.04em;
+  padding:10px 12px;margin-top:10px;
+}
+.boot-field{
+  border:1px solid rgba(26,23,20,.09);
+  border-radius:16px;background:rgba(255,255,255,.86);
+  padding:16px 16px 14px;margin-top:8px;
+  box-shadow:0 14px 32px rgba(26,23,20,.06);
+}
+.boot-label{
+  font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:8px;
+}
+.boot-input{
+  width:100%;border:none;outline:none;background:transparent;
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;
+  color:var(--ink);line-height:1.1;
+}
+.boot-input::placeholder{color:var(--ink4);}
+.boot-privacy{
+  margin-top:12px;font-size:12px;line-height:1.55;color:var(--ink3);font-weight:300;
+}
+.boot-actions{
+  margin-top:auto;
+}
+.boot-status-card{
+  margin-top:auto;
+  padding:22px 18px;border-radius:24px;
+  background:rgba(255,255,255,.74);
+  border:1px solid rgba(26,23,20,.06);
+  box-shadow:0 18px 36px rgba(26,23,20,.07);
+}
+.boot-status-card .boot-title{font-size:28px;margin-bottom:12px;}
+.boot-status-copy{
+  font-size:13px;line-height:1.7;font-weight:300;color:var(--ink2);
+}
+.boot-status-help{
+  margin-top:18px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:11px;color:var(--ink3);line-height:1.65;
+}
+.demo-links{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;
+}
+.demo-link{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:7px 11px;border-radius:100px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.58);text-decoration:none;
+  font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  font-family:'DM Sans',sans-serif;cursor:pointer;
+}
+.demo-link:hover{color:rgba(255,255,255,.86);border-color:rgba(255,255,255,.18);}
+
+
+/* ═══════════════════════════════════════════════════
+   SCREEN 0 — SPACE OVERVIEW
+   One live space. Only its own collections.
+═══════════════════════════════════════════════════ */
+.overview-screen{
+  background:linear-gradient(180deg,var(--paper) 0%,var(--paper2) 100%);
+  position:relative;
+}
+.overview-screen [hidden]{display:none !important;}
+.overview-shell{
+  display:flex;flex-direction:column;height:100%;
+}
+.overview-top{
+  padding:52px 22px 18px;
+}
+.overview-kicker{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:16px;
+}
+.overview-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  border-radius:100px;padding:7px 12px;
+  background:rgba(26,23,20,.06);
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink2);
+}
+.overview-badge::before{
+  content:'';width:7px;height:7px;border-radius:50%;
+  background:var(--green);
+}
+.overview-kicker-copy{
+  font-size:11px;color:var(--ink3);text-align:right;line-height:1.5;
+}
+.overview-label{
+  font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:10px;
+}
+.overview-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:34px;font-weight:600;line-height:1.02;letter-spacing:-.02em;
+  color:var(--ink);margin-bottom:12px;
+}
+.overview-subtitle{
+  font-size:13px;line-height:1.7;color:var(--ink2);font-weight:300;
+  max-width:300px;
+}
+.overview-search-wrap{
+  padding:0 22px 16px;
+}
+.overview-search-label{
+  display:block;
+  font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:10px;
+}
+.overview-search-field{
+  width:100%;border:none;outline:none;
+  border-radius:18px;padding:15px 18px;
+  background:rgba(255,255,255,.82);
+  box-shadow:0 14px 34px rgba(26,23,20,.06);
+  border:1px solid rgba(26,23,20,.06);
+  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);
+}
+.overview-search-field::placeholder{color:var(--ink4);}
+.overview-search-meta{
+  font-size:12px;line-height:1.55;color:var(--ink3);
+  margin-top:10px;
+}
+.overview-scroll{
+  flex:1;overflow-y:auto;padding:0 22px 22px;
+}
+.overview-scroll::-webkit-scrollbar{display:none;}
+.overview-feature{
+  padding:20px 18px 18px;border-radius:26px;
+  background:linear-gradient(145deg,#1A1714 0%,#2A241F 100%);
+  color:var(--paper);
+  box-shadow:0 24px 60px rgba(26,23,20,.18);
+  margin-bottom:18px;
+}
+.overview-feature-label{
+  font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.42);margin-bottom:14px;
+}
+.overview-feature-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+}
+.overview-feature-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:600;line-height:1.05;
+  color:var(--paper);margin-bottom:10px;
+}
+.overview-feature-copy{
+  font-size:13px;line-height:1.65;font-weight:300;color:rgba(245,240,230,.74);
+}
+.overview-feature-mark{
+  width:48px;height:48px;border-radius:16px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.08);
+  color:var(--paper);
+  font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;
+}
+.overview-feature-meta{
+  display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 16px;
+}
+.overview-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  border-radius:100px;padding:8px 12px;
+  background:rgba(255,255,255,.08);
+  color:rgba(245,240,230,.8);
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+}
+.overview-feature-actions{
+  display:flex;flex-wrap:wrap;gap:10px;
+}
+.overview-primary,
+.overview-secondary,
+.collection-open,
+.search-open,
+.collection-back{
+  border:none;cursor:pointer;font-family:'DM Sans',sans-serif;
+}
+.overview-primary{
+  flex:1 1 180px;border-radius:100px;padding:14px 18px;
+  background:var(--paper);color:var(--ink);
+  font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+}
+.overview-secondary{
+  flex:1 1 140px;border-radius:100px;padding:14px 18px;
+  background:rgba(255,255,255,.08);color:var(--paper);
+  font-size:12px;font-weight:500;letter-spacing:.03em;
+}
+.overview-section{
+  margin-bottom:18px;
+}
+.overview-section-head{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:12px;
+  margin-bottom:12px;
+}
+.overview-section-label{
+  font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:4px;
+}
+.overview-section-copy{
+  font-size:12px;line-height:1.55;color:var(--ink2);
+}
+.overview-collections,
+.search-groups{
+  display:flex;flex-direction:column;gap:12px;
+}
+.collection-card{
+  background:rgba(255,255,255,.82);
+  border:1px solid rgba(26,23,20,.06);
+  border-radius:22px;padding:16px 16px 15px;
+  box-shadow:0 14px 32px rgba(26,23,20,.05);
+}
+.collection-card.topline{
+  border-color:rgba(26,23,20,.12);
+  box-shadow:0 18px 38px rgba(26,23,20,.08);
+}
+.collection-meta{
+  display:flex;justify-content:space-between;gap:14px;align-items:flex-start;
+}
+.collection-copy{
+  display:flex;gap:12px;align-items:flex-start;min-width:0;
+}
+.collection-icon{
+  width:42px;height:42px;border-radius:14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(26,23,20,.05);
+  font-size:18px;
+}
+.collection-label{
+  font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:6px;
+}
+.collection-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:24px;font-weight:600;line-height:1.02;color:var(--ink);
+  margin-bottom:6px;
+}
+.collection-description{
+  font-size:12px;line-height:1.6;color:var(--ink2);
+}
+.collection-count{
+  flex-shrink:0;
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);background:rgba(26,23,20,.05);
+  padding:8px 10px;border-radius:100px;
+}
+.collection-actions{
+  margin-top:14px;display:flex;gap:10px;align-items:center;
+}
+.collection-open,
+.search-open{
+  border-radius:100px;padding:11px 16px;
+  background:var(--ink);color:var(--paper);
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+}
+.collection-note{
+  font-size:11px;color:var(--ink3);line-height:1.55;
+}
+.search-group{
+  background:rgba(255,255,255,.78);
+  border-radius:22px;padding:14px 16px 16px;
+  border:1px solid rgba(26,23,20,.05);
+}
+.search-group-label{
+  font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:10px;
+}
+.search-result{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 0;border-top:1px solid rgba(26,23,20,.06);
+}
+.search-result:first-of-type{border-top:none;padding-top:0;}
+.search-result:last-of-type{padding-bottom:0;}
+.search-result-copy{
+  min-width:0;
+}
+.search-result-title{
+  font-size:14px;font-weight:500;color:var(--ink);margin-bottom:4px;
+}
+.search-result-meta{
+  font-size:12px;line-height:1.55;color:var(--ink3);
+}
+.search-empty,
+.overview-empty{
+  padding:24px 18px;border-radius:24px;
+  background:rgba(255,255,255,.74);
+  border:1px solid rgba(26,23,20,.06);
+  box-shadow:0 16px 36px rgba(26,23,20,.05);
+}
+.search-empty-title,
+.overview-empty-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:600;color:var(--ink);margin-bottom:10px;
+}
+.search-empty-copy,
+.overview-empty-copy{
+  font-size:13px;line-height:1.7;color:var(--ink2);font-weight:300;
+}
+.overview-foot{
+  border-top:1px solid rgba(26,23,20,.08);
+  padding:14px 22px 28px;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  background:rgba(250,248,243,.88);backdrop-filter:blur(16px);
+}
+.overview-foot-note{
+  font-size:11px;line-height:1.6;color:var(--ink3);max-width:220px;
+}
+.overview-foot-timer{
+  font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink2);text-align:right;
+}
+.collection-back{
+  position:absolute;top:52px;left:18px;z-index:12;
+  display:none;align-items:center;gap:6px;
+  border-radius:100px;padding:10px 14px;
+  background:rgba(255,255,255,.86);color:var(--ink);
+  box-shadow:0 16px 32px rgba(26,23,20,.1);
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+}
+.collection-back.on{display:inline-flex;}
+.save-toast{
+  position:absolute;left:18px;right:18px;bottom:26px;z-index:14;
+  padding:12px 16px;border-radius:16px;
+  background:rgba(26,23,20,.94);color:var(--paper);
+  box-shadow:0 18px 40px rgba(0,0,0,.22);
+  font-size:12px;line-height:1.5;
+  opacity:0;transform:translateY(14px);pointer-events:none;
+  transition:opacity .24s ease,transform .24s ease;
+}
+.save-toast.on{
+  opacity:1;transform:translateY(0);
+}
+.signal-layer{
+  position:absolute;inset:0;z-index:18;pointer-events:none;
+}
+.signal-banner{
+  position:absolute;left:16px;right:16px;top:54px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding:12px 14px;border-radius:18px;
+  box-shadow:0 16px 38px rgba(26,23,20,.1);
+  border:1px solid rgba(26,23,20,.08);
+  backdrop-filter:blur(14px);
+  opacity:0;transform:translateY(-12px);
+  transition:opacity .22s ease,transform .22s ease;
+}
+.signal-banner.on{
+  opacity:1;transform:translateY(0);pointer-events:auto;
+}
+.signal-banner.warning{
+  background:rgba(255,248,238,.96);
+}
+.signal-banner.offline{
+  background:rgba(26,23,20,.92);
+  border-color:rgba(255,255,255,.08);
+}
+.signal-banner-copy{
+  min-width:0;
+}
+.signal-banner-label{
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:5px;
+}
+.signal-banner.warning .signal-banner-label{color:rgba(150,90,0,.92);}
+.signal-banner.offline .signal-banner-label{color:rgba(245,240,230,.76);}
+.signal-banner-text{
+  font-size:12px;line-height:1.55;font-weight:400;color:var(--ink2);
+}
+.signal-banner.offline .signal-banner-text{color:rgba(245,240,230,.84);}
+.signal-pill{
+  flex-shrink:0;
+  border-radius:100px;padding:8px 10px;
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+}
+.signal-banner.warning .signal-pill{
+  background:rgba(215,119,6,.1);color:rgba(150,90,0,.92);
+}
+.signal-banner.offline .signal-pill{
+  background:rgba(255,255,255,.08);color:rgba(245,240,230,.84);
+}
+.pin-notice{
+  position:absolute;top:118px;left:16px;right:16px;
+  padding:16px;border-radius:22px;
+  background:rgba(255,255,255,.95);
+  border:1px solid rgba(26,23,20,.08);
+  box-shadow:0 18px 44px rgba(26,23,20,.14);
+  opacity:0;transform:translateY(-16px);
+  transition:opacity .24s ease,transform .24s ease;
+}
+.pin-notice.on{
+  opacity:1;transform:translateY(0);pointer-events:auto;
+}
+.pin-kicker{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:10px;
+}
+.pin-label{
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(200,60,20,.9);
+}
+.pin-chip{
+  border-radius:100px;padding:7px 10px;
+  background:rgba(200,60,20,.08);color:rgba(160,40,10,.9);
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+}
+.pin-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;font-weight:600;line-height:1.03;color:var(--ink);
+  margin-bottom:8px;
+}
+.pin-copy{
+  font-size:13px;line-height:1.65;color:var(--ink2);font-weight:300;
+}
+.pin-actions{
+  display:flex;gap:10px;margin-top:14px;
+}
+.signal-action,
+.signal-dismiss{
+  border:none;cursor:pointer;font-family:'DM Sans',sans-serif;
+}
+.signal-action{
+  flex:1;border-radius:100px;padding:12px 16px;
+  background:var(--ink);color:var(--paper);
+  font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+}
+.signal-dismiss{
+  border-radius:100px;padding:12px 14px;
+  background:rgba(26,23,20,.06);color:var(--ink2);
+  font-size:11px;font-weight:600;
+}
+.ended-overlay{
+  position:absolute;inset:0;padding:24px;
+  display:flex;align-items:flex-end;
+  background:linear-gradient(180deg,rgba(26,23,20,.18),rgba(26,23,20,.74));
+  opacity:0;visibility:hidden;
+  transition:opacity .28s ease,visibility .28s ease;
+}
+.ended-overlay.on{
+  opacity:1;visibility:visible;pointer-events:auto;
+}
+.ended-card{
+  width:100%;padding:24px 20px 20px;border-radius:30px;
+  background:rgba(250,248,243,.98);
+  box-shadow:0 24px 60px rgba(0,0,0,.24);
+}
+.ended-label{
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(150,90,0,.92);margin-bottom:10px;
+}
+.ended-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:34px;font-weight:600;line-height:1;color:var(--ink);
+  margin-bottom:12px;
+}
+.ended-copy{
+  font-size:13px;line-height:1.7;color:var(--ink2);font-weight:300;
+}
+.ended-actions{
+  display:flex;gap:10px;margin-top:18px;
+}
 
 
 /* ═══════════════════════════════════════════════════
@@ -318,6 +941,7 @@ body{
   background:rgba(26,23,20,.07);
   display:flex;align-items:center;justify-content:center;
   font-size:16px;color:var(--ink);cursor:pointer;flex-shrink:0;
+  border:none;font-family:inherit;
 }
 .prod-co{flex:1;}
 .prod-co-name{font-size:13px;font-weight:500;color:var(--ink);}
@@ -628,25 +1252,208 @@ body{
 <body>
 
 <div class="hd">
-  <div class="hd-e">Spaces · Paper Formats</div>
-  <h1>Stripped to the content.</h1>
-  <p>Typography is the design. White space does the work.</p>
+  <div class="hd-e">Spaces · Attendee Journey</div>
+  <h1>One live space at a time.</h1>
+  <p>Review the QR flow, overview, and collection states by space type.</p>
 </div>
 
-<div class="nav">
-  <button class="on" onclick="go('cs')">Business Card</button>
-  <button onclick="go('ms')">Menu</button>
-  <button onclick="go('ps')">Products</button>
-  <button onclick="go('ls')">Live Event</button>
+<div class="nav" aria-label="Prototype space presets">
+  <button class="on" data-space="store" type="button">Store</button>
+  <button data-space="meeting" type="button">Meeting</button>
+  <button data-space="restaurant" type="button">Restaurant</button>
+  <button data-space="event" type="button">Event</button>
+  <button data-space="empty" type="button">Empty</button>
 </div>
 
 <div class="stage">
   <div class="pw">
     <div class="phone" id="PH">
       <div class="ps">
+        <div class="save-toast" id="saveToast" role="status" aria-live="polite"></div>
+        <button class="collection-back" id="collectionBackButton" type="button">← Space Overview</button>
+        <div class="signal-layer" id="signalLayer" aria-live="polite">
+          <div class="signal-banner warning" id="expiryBanner">
+            <div class="signal-banner-copy">
+              <div class="signal-banner-label">Session ending soon</div>
+              <div class="signal-banner-text">Five minutes remain in this live space. Save anything important before the room closes.</div>
+            </div>
+            <div class="signal-pill">5 min</div>
+          </div>
+          <div class="signal-banner offline" id="offlineBanner">
+            <div class="signal-banner-copy">
+              <div class="signal-banner-label">Offline mode</div>
+              <div class="signal-banner-text">The connection dropped. Browsing can continue from cache, and save actions will queue until the network returns.</div>
+            </div>
+            <div class="signal-pill">Cached</div>
+          </div>
+          <div class="pin-notice" id="pinNotice">
+            <div class="pin-kicker">
+              <div class="pin-label">Host pin received</div>
+              <div class="pin-chip" id="pinChip">Pinned now</div>
+            </div>
+            <div class="pin-title" id="pinTitle">Live spotlight</div>
+            <div class="pin-copy" id="pinCopy">The host highlighted a new item for this room. Open it directly or dismiss the pin and keep browsing.</div>
+            <div class="pin-actions">
+              <button class="signal-action" id="pinOpenButton" type="button">Open pinned item</button>
+              <button class="signal-dismiss" id="pinDismissButton" type="button">Dismiss</button>
+            </div>
+          </div>
+          <div class="ended-overlay" id="endedOverlay">
+            <div class="ended-card">
+              <div class="ended-label">Session ended</div>
+              <div class="ended-title">This live room just closed.</div>
+              <div class="ended-copy">Your saved items remain in your own apps. Unsaved live content from this session is no longer available.</div>
+              <div class="ended-actions">
+                <button class="signal-action" id="endedRefreshButton" type="button">Refresh space</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bootstrap-shell" id="bootstrapShell" aria-live="polite">
+          <div class="boot-screen boot-loading on" id="bootLoading">
+            <div class="boot-load-top">
+              <span class="boot-chip">PWA Loading</span>
+              <span class="boot-time">9:41</span>
+            </div>
+            <div class="boot-skeleton-hero"></div>
+            <div class="boot-skeleton-line long"></div>
+            <div class="boot-skeleton-line mid"></div>
+            <div class="boot-skeleton-line short"></div>
+            <div class="boot-skeleton-grid">
+              <div class="boot-skeleton-card"></div>
+              <div class="boot-skeleton-card"></div>
+            </div>
+            <div class="boot-skeleton-button"></div>
+          </div>
+
+          <div class="boot-screen boot-entry" id="bootEntry">
+            <div class="boot-entry-body">
+              <div class="boot-brand" id="bootBrandMark">NG</div>
+              <div class="boot-verified">✓ <span id="bootVerifiedLabel">GST Verified</span></div>
+              <h2 class="boot-title" id="bootSpaceName">Weekly Investor Meeting</h2>
+              <p class="boot-subtitle" id="bootSubtitle">Enter a live, host-controlled space built for this moment. No app. No account. Just the information you need right now.</p>
+              <div class="boot-live-row">
+                <div class="boot-live-pill"><span class="boot-live-dot"></span><span id="bootLiveMeta">14 attendees · 1h 42m remaining</span></div>
+                <div class="boot-live-pill" id="bootModePill">Identified space</div>
+              </div>
+              <div class="boot-note">
+                <div class="boot-note-label">What Happens Next</div>
+                <div class="boot-note-copy" id="bootEntryNote">You’ll enter the live space and can save anything important directly into your own apps.</div>
+              </div>
+              <button class="boot-primary" id="bootEnterButton" type="button">Enter Space</button>
+            </div>
+          </div>
+
+          <div class="boot-screen boot-name" id="bootName">
+            <div class="boot-name-body">
+              <div class="boot-brand" id="bootNameBrand">NG</div>
+              <div class="boot-chip live">Identified Entry</div>
+              <h2 class="boot-title">Your name</h2>
+              <p class="boot-subtitle">Only visible to the host of this space. No account. No phone number unless you later choose to save a contact.</p>
+              <form id="bootNameForm" class="boot-field">
+                <label class="boot-label" for="bootNameInput">Name</label>
+                <input class="boot-input" id="bootNameInput" name="attendee_name" type="text" autocomplete="name" placeholder="Type your name" />
+              </form>
+              <div class="boot-privacy">Privacy note: your name appears on the host live panel within this active session only.</div>
+              <div class="boot-actions">
+                <button class="boot-primary" id="bootContinueButton" type="submit" form="bootNameForm">Continue</button>
+                <button class="boot-secondary" id="bootSkipButton" type="button">Skip for now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="boot-screen boot-status" id="bootStatus">
+            <div class="boot-status-body">
+              <div class="boot-brand" id="bootStatusBrand">NG</div>
+              <div class="boot-chip ended" id="bootStatusChip">Session ended</div>
+              <div class="boot-status-card">
+                <h2 class="boot-title" id="bootStatusTitle">This session has ended.</h2>
+                <div class="boot-status-copy" id="bootStatusCopy">Your saved items remain in your chosen app. Unsaved live content is no longer available.</div>
+                <div class="boot-status-help" id="bootStatusHelp">This space link stays valid. If the host starts a new session, refreshing will take you back into the live experience.</div>
+              </div>
+              <button class="boot-secondary" id="bootStatusRefresh" type="button">Refresh space</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc overview-screen" id="ov">
+          <div class="overview-shell">
+            <div class="overview-top">
+              <div class="overview-kicker">
+                <span class="overview-badge" id="overviewStateBadge">Live space</span>
+                <span class="overview-kicker-copy" id="overviewKickerCopy">Store space · Anonymous entry</span>
+              </div>
+              <div class="overview-label">Space overview</div>
+              <h2 class="overview-title" id="overviewTitle">Vega Dealer Day</h2>
+              <p class="overview-subtitle" id="overviewSubtitle">Open the featured item or browse only the collections shared in this space.</p>
+            </div>
+
+            <div class="overview-search-wrap">
+              <label class="overview-search-label" for="spaceSearchInput">Search this space</label>
+              <input class="overview-search-field" id="spaceSearchInput" type="search" placeholder="Search products, cards, or live shares" autocomplete="off" />
+              <div class="overview-search-meta" id="searchMeta">Search is instant from the current session cache. No loading state once the attendee enters.</div>
+            </div>
+
+            <div class="overview-scroll">
+              <div class="overview-feature" id="overviewFeatureCard">
+                <div class="overview-feature-label" id="featureEyebrow">Featured now</div>
+                <div class="overview-feature-head">
+                  <div>
+                    <h3 class="overview-feature-title" id="featureTitle">65W GaN charger dealer pricing</h3>
+                    <p class="overview-feature-copy" id="featureCopy">Open the live offer first, then move into the catalog or host contacts without leaving this session.</p>
+                  </div>
+                  <div class="overview-feature-mark" id="featureMark">VE</div>
+                </div>
+                <div class="overview-feature-meta">
+                  <span class="overview-pill" id="featureMetaOne">Live offer</span>
+                  <span class="overview-pill" id="featureMetaTwo">6 items ready</span>
+                </div>
+                <div class="overview-feature-actions">
+                  <button class="overview-primary" id="featureOpenButton" type="button">Open featured item</button>
+                  <button class="overview-secondary" id="featureSaveButton" type="button">Save featured item ↑</button>
+                </div>
+              </div>
+
+              <div class="overview-section" id="overviewCollectionsSection">
+                <div class="overview-section-head">
+                  <div>
+                    <div class="overview-section-label">Collections</div>
+                    <div class="overview-section-copy" id="collectionSectionCopy">Only the content assigned to this live space appears here.</div>
+                  </div>
+                </div>
+                <div class="overview-collections" id="overviewCollections"></div>
+              </div>
+
+              <div class="overview-section" id="searchResultsSection" hidden>
+                <div class="overview-section-head">
+                  <div>
+                    <div class="overview-section-label">Search results</div>
+                    <div class="overview-section-copy" id="searchResultsCopy">Grouped instantly from the current session cache.</div>
+                  </div>
+                </div>
+                <div class="search-groups" id="searchGroups"></div>
+                <div class="search-empty" id="searchEmpty" hidden>
+                  <div class="search-empty-title">No matching results.</div>
+                  <div class="search-empty-copy" id="searchEmptyCopy">Try a product name, menu item, or host contact that belongs to this live space.</div>
+                </div>
+              </div>
+
+              <div class="overview-empty" id="overviewEmpty" hidden>
+                <div class="overview-empty-title">This space is live, but empty.</div>
+                <div class="overview-empty-copy" id="overviewEmptyCopy">The host has not shared any attendee-facing content yet. Keep this page open and refresh later if the session changes.</div>
+              </div>
+            </div>
+
+            <div class="overview-foot">
+              <div class="overview-foot-note" id="overviewFootNote">Saving always leaves Spaces through your own device flow. Unsaved live content disappears when the session ends.</div>
+              <div class="overview-foot-timer" id="overviewFootTimer">1h 42m remaining</div>
+            </div>
+          </div>
+        </div>
 
         <!-- BUSINESS CARD -->
-        <div class="sc on card-screen" id="cs">
+        <div class="sc card-screen" id="cs">
           <div class="card-st"><span>9:41</span><span style="font-size:11px;color:rgba(255,255,255,.2)">●●● 5G</span></div>
           <div class="card-scene" onclick="flipCard(this)">
             <div class="card-body" id="cb">
@@ -679,7 +1486,7 @@ body{
             </div>
           </div>
           <div class="card-actions">
-            <button class="card-save">Save to Contacts</button>
+            <button class="card-save" data-save-title="Host contact card" data-save-card="host-contact">Save to Contacts</button>
             <div class="card-share">Share via…</div>
           </div>
           <div class="card-session">Session · 1h 42m remaining</div>
@@ -754,14 +1561,14 @@ body{
           </div>
           <div class="menu-foot">
             <span class="menu-foot-note">Prices include all taxes</span>
-            <button class="menu-save">Save Menu ↑</button>
+            <button class="menu-save" data-save-title="Dinner menu" data-save-card="menu">Save Menu ↑</button>
           </div>
         </div>
 
         <!-- PRODUCTS -->
         <div class="sc prod-screen" id="ps">
           <div class="prod-topbar">
-            <div class="prod-back">‹</div>
+            <button class="prod-back" id="prodBackButton" type="button" aria-label="Back to space overview">‹</button>
             <div class="prod-co">
               <div class="prod-co-name">Vega Electronics</div>
               <div class="prod-co-sub">Cables & Charging · 6 products</div>
@@ -884,7 +1691,7 @@ body{
               <span class="prod-pos" id="ppos">Cables · 1 of 6</span>
               <button class="prod-next" onclick="moveProd(1)">Next →</button>
             </div>
-            <button class="prod-save">Save Product Info ↑</button>
+            <button class="prod-save" data-save-title="Product information" data-save-card="products">Save Product Info ↑</button>
           </div>
         </div>
 
@@ -913,7 +1720,7 @@ body{
                 </div>
               </div>
               <div class="sp-actions">
-                <button class="sp-save">Save Product</button>
+                <button class="sp-save" data-save-title="Live spotlight item" data-save-card="live-spotlight">Save Product</button>
                 <button class="sp-share">⬆</button>
               </div>
             </div>
@@ -927,7 +1734,7 @@ body{
                 <div class="tl-n">Company Deck — FY2026</div>
                 <div class="tl-t">Shared 14 min ago</div>
               </div>
-              <button class="tl-save-small">Save ↑</button>
+              <button class="tl-save-small" data-save-title="Company deck" data-save-card="deck">Save ↑</button>
             </div>
             <div class="tl-item">
               <div class="tl-icon">🏷️</div>
@@ -935,7 +1742,7 @@ body{
                 <div class="tl-n">Volume Pricing — Up to 22% Off</div>
                 <div class="tl-t">Shared 29 min ago</div>
               </div>
-              <button class="tl-save-small">Save ↑</button>
+              <button class="tl-save-small" data-save-title="Volume pricing" data-save-card="pricing">Save ↑</button>
             </div>
             <div class="tl-item">
               <div class="tl-icon">👥</div>
@@ -943,12 +1750,12 @@ body{
                 <div class="tl-n">Sales Team Contacts · 5 people</div>
                 <div class="tl-t">Shared at start</div>
               </div>
-              <button class="tl-save-small">Save ↑</button>
+              <button class="tl-save-small" data-save-title="Sales team contacts" data-save-card="contacts">Save ↑</button>
             </div>
           </div>
           <div class="live-foot">
             <span class="lf-session">Session ends in 5h 12m</span>
-            <button class="lf-all">Save all ↑</button>
+            <button class="lf-all" data-save-title="Entire live session set" data-save-card="live-set">Save all ↑</button>
           </div>
         </div>
 
@@ -959,57 +1766,928 @@ body{
 
   <div class="ip">
     <div class="ic">
-      <div class="ic-t">The principle</div>
-      <div class="ic-b"><strong>Typography does the work.</strong> White space is the design. No decorative backgrounds. No glow effects. The content speaks for itself.</div>
+      <div class="ic-t">Flow Principle</div>
+      <div class="ic-b"><strong>Attendees only see one space at a time.</strong> The QR resolves into a single live overview, then only that space's collections, search results, and save actions.</div>
     </div>
     <div class="ic">
-      <div class="ic-t">Business Card</div>
-      <div class="ic-b">Real paper texture. Real card proportions. <strong>Tap to flip</strong> — exactly like a physical card. Cream on dark felt.</div>
+      <div class="ic-t">Overview</div>
+      <div class="ic-b">Slice 2 replaces the showcase handoff with a real <strong>space overview</strong>: featured item, live search, grouped collections, and an empty-space fallback.</div>
     </div>
     <div class="ic">
-      <div class="ic-t">Menu</div>
-      <div class="ic-b">Pure white. Cormorant Garamond. <strong>Dotted leaders</strong> like a real printed menu. Nothing else. No chrome.</div>
+      <div class="ic-t">Collections</div>
+      <div class="ic-b">Collection views still use the existing high-fidelity content screens, but attendees now reach them only through the overview or search flow.</div>
     </div>
     <div class="ic">
-      <div class="ic-t">Products</div>
-      <div class="ic-b"><strong>One product fills the screen.</strong> Flip through with Prev/Next. Right index — tap the letter to jump category. Images clean on white.</div>
+      <div class="ic-t">Save Behavior</div>
+      <div class="ic-b"><strong>Saving stays device-first.</strong> The prototype now shows the native-share handoff as a session-scoped action instead of pretending Spaces stores the item itself.</div>
     </div>
     <div class="ic">
-      <div class="ic-t">Live Event</div>
-      <div class="ic-b">The phone mirrors the presentation. <strong>What the host just shared fills the top.</strong> Timeline of earlier shares below. Nobody has built this.</div>
+      <div class="ic-t">Space Presets</div>
+      <div class="ic-b">Use the preset pills above the phone to switch the reviewed QR target between a meeting, restaurant, store, event, or live-but-empty space.</div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Live Signals</div>
+      <div class="ic-b">Slice 3 adds the room-state layer on top of the overview: host pin, five-minute warning, offline mode, and live end-of-session overlay.</div>
+      <div class="demo-links">
+        <button class="demo-link" id="pinDemoButton" type="button">Trigger Pin</button>
+        <button class="demo-link" id="expiryDemoButton" type="button">5m Warning</button>
+        <button class="demo-link" id="offlineDemoButton" type="button">Offline</button>
+        <button class="demo-link" id="endDemoButton" type="button">End Session</button>
+      </div>
+    </div>
+    <div class="ic">
+      <div class="ic-t">Bootstrap States</div>
+      <div class="ic-b">Slice 1 remains intact underneath: live, inactive, ended, identified, and anonymous entry all still gate the attendee before the overview appears.</div>
+      <div class="demo-links">
+        <a class="demo-link" href="/spaces_final.html?space=store&session=live&mode=identified">Live · Identified</a>
+        <a class="demo-link" href="/spaces_final.html?space=store&session=live&mode=anonymous">Live · Anonymous</a>
+        <a class="demo-link" href="/spaces_final.html?space=store&session=inactive&mode=identified">Inactive</a>
+        <a class="demo-link" href="/spaces_final.html?space=store&session=ended&mode=identified">Ended</a>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-// SCREEN NAV
-const bgs={cs:'#1A1714',ms:'#FAF8F3',ps:'#FAF8F3',ls:'#0D0D0E'};
-function go(id){
-  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
-  document.querySelectorAll('.nav button').forEach((b,i)=>{
-    b.classList.toggle('on',['cs','ms','ps','ls'][i]===id);
-  });
-  document.getElementById('PH').style.background=bgs[id]||'#1A1714';
-  document.querySelector('.phone::before') && (document.querySelector('.phone').style.setProperty('--nb',bgs[id]||'#1A1714'));
+const bgs={ov:'#FAF8F3',cs:'#1A1714',ms:'#FAF8F3',ps:'#FAF8F3',ls:'#0D0D0E'};
+const params=new URLSearchParams(window.location.search);
+const allowedSessions=['live','ending','inactive','ended'];
+const allowedSpaces=['store','meeting','restaurant','event','empty'];
+const roomKey=params.get('room');
+const roomBridgeEnabled=Boolean(roomKey);
+const signalConfig={
+  pin:params.get('pin')==='1',
+  offline:params.get('offline')==='1',
+  endOverlay:params.get('endOverlay')==='1'
+};
+
+const SPACE_PRESETS={
+  store:{
+    key:'store',
+    typeLabel:'Store space',
+    brandMark:'VE',
+    verification:'GST Verified',
+    spaceName:'Vega Dealer Day',
+    attendees:'14 attendees',
+    sessionTime:'1h 42m remaining',
+    bootSubtitle:'Enter the live dealer showcase for this room. Browse pricing, products, and saved contacts without installing anything.',
+    overviewSubtitle:'Open the featured item or browse only the collections shared in this dealer session.',
+    searchPlaceholder:'Search products, offers, or contacts',
+    searchMeta:'Search is instant from the current session cache. No loading state once the attendee enters.',
+    collectionSectionCopy:'Only the pricing, live shares, and contacts attached to this dealer space appear here.',
+    footNote:'Saving always leaves Spaces through your own device flow. Unsaved dealer content disappears when the session ends.',
+    emptySearchCopy:'Try a product line, pricing term, or the host contact shared in this room.',
+    emptyStateCopy:'The host has not pushed the dealer set into this space yet. Keep the page open and refresh if the live room changes.',
+    feature:{
+      screen:'ps',
+      collectionId:'products',
+      cardId:'VE-CH03',
+      productIndex:2,
+      eyebrow:'Featured now',
+      title:'65W GaN charger dealer pricing',
+      copy:'Start with the live offer, then move through the rest of the line without leaving this session.',
+      mark:'VE',
+      metaOne:'Live offer',
+      metaTwo:'6 items ready',
+      openLabel:'Open featured item',
+      saveLabel:'Save featured item ↑',
+      saveTitle:'Featured dealer pricing'
+    },
+    collections:[
+      {
+        screen:'ps',
+        collectionId:'products',
+        cardId:'VE-C01',
+        productIndex:0,
+        label:'Catalog',
+        title:'Dealer products',
+        description:'Six fast-moving charging and cable products with pricing, margin, and stock context.',
+        count:'6 items',
+        icon:'⚡',
+        openLabel:'Open products',
+        note:'Browse card by card or jump by category.'
+      },
+      {
+        screen:'ls',
+        collectionId:'live',
+        cardId:'live-spotlight',
+        label:'Live share',
+        title:'Live spotlight',
+        description:'What the host just pinned, plus the earlier commercial shares from this same session.',
+        count:'3 shares',
+        icon:'●',
+        openLabel:'Open live session',
+        note:'Use this when the room is actively presenting.'
+      },
+      {
+        screen:'cs',
+        collectionId:'contacts',
+        cardId:'host-contact',
+        label:'Contact',
+        title:'Sales contact',
+        description:'One verified contact card for the person running the dealer room right now.',
+        count:'1 card',
+        icon:'✦',
+        openLabel:'Open contact card',
+        note:'Save only if you want it in your own phone.'
+      }
+    ],
+    searchIndex:[
+      {group:'Dealer products',title:'65W GaN Dual USB-C Charger',meta:'Charging · Dealer exclusive price',screen:'ps',collectionId:'products',cardId:'VE-CH03',productIndex:2},
+      {group:'Dealer products',title:'USB-C Braided Cable 1m',meta:'Cables · 100W PD',screen:'ps',collectionId:'products',cardId:'VE-C01',productIndex:0},
+      {group:'Dealer products',title:'Wireless Charging Pad 15W',meta:'Charging · Qi certified',screen:'ps',collectionId:'products',cardId:'VE-CH06',productIndex:5},
+      {group:'Live session',title:'Volume pricing — up to 22% off',meta:'Pinned 29 minutes ago',screen:'ls',collectionId:'live',cardId:'pricing'},
+      {group:'Live session',title:'Company deck — FY2026',meta:'Pinned 14 minutes ago',screen:'ls',collectionId:'live',cardId:'deck'},
+      {group:'Sales contact',title:'Ananya Reddy',meta:'Verified host contact',screen:'cs',collectionId:'contacts',cardId:'host-contact'}
+    ]
+  },
+  meeting:{
+    key:'meeting',
+    typeLabel:'Meeting space',
+    brandMark:'NG',
+    verification:'GST Verified',
+    spaceName:'Weekly Investor Meeting',
+    attendees:'8 attendees',
+    sessionTime:'53m remaining',
+    bootSubtitle:'Enter the live meeting room for this session. Open only the contact and documents the host chose to share.',
+    overviewSubtitle:'This meeting stays lightweight: one featured host card plus the live items attached to the room.',
+    searchPlaceholder:'Search host cards or meeting shares',
+    searchMeta:'Search uses the room cache immediately after entry. No new loading state is introduced while typing.',
+    collectionSectionCopy:'Only the approved meeting items appear here. The room stays intentionally narrow.',
+    footNote:'Spaces does not keep a meeting inbox. Saved items are handed off to your phone and disappear from the room when the session ends.',
+    emptySearchCopy:'Try the host name, company name, or the live deck title.',
+    emptyStateCopy:'The meeting is live, but the host has not shared attendee-facing material yet.',
+    feature:{
+      screen:'cs',
+      collectionId:'contacts',
+      cardId:'host-contact',
+      eyebrow:'Start here',
+      title:'Host contact card',
+      copy:'Open the verified contact first, then save it only if you need to follow up after the session.',
+      mark:'NG',
+      metaOne:'1 verified card',
+      metaTwo:'Identified room',
+      openLabel:'Open host card',
+      saveLabel:'Save host card ↑',
+      saveTitle:'Host contact card'
+    },
+    collections:[
+      {
+        screen:'cs',
+        collectionId:'contacts',
+        cardId:'host-contact',
+        label:'Contact',
+        title:'Host card',
+        description:'A single verified contact card for the person presenting in this meeting.',
+        count:'1 card',
+        icon:'✦',
+        openLabel:'Open card',
+        note:'Used when the host wants attendees to save details selectively.'
+      }
+    ],
+    searchIndex:[
+      {group:'Host card',title:'Ananya Reddy',meta:'CEO · Verified meeting host',screen:'cs',collectionId:'contacts',cardId:'host-contact'},
+      {group:'Host card',title:'NextGen Ventures Pvt. Ltd.',meta:'Company on the shared card',screen:'cs',collectionId:'contacts',cardId:'host-contact'}
+    ]
+  },
+  restaurant:{
+    key:'restaurant',
+    typeLabel:'Restaurant space',
+    brandMark:'AK',
+    verification:'FSSAI Verified',
+    spaceName:'Amara Kitchen Dinner Service',
+    attendees:'32 diners',
+    sessionTime:'Tonight',
+    bootSubtitle:'Enter the live table-side menu for this service. Browse only the dishes the restaurant has published right now.',
+    overviewSubtitle:'This room opens straight into the current service menu, chef special, and search for dish names.',
+    searchPlaceholder:'Search dishes or dietary tags',
+    searchMeta:'Search is instant and local once the service menu is loaded.',
+    collectionSectionCopy:'The menu is the only attendee-facing collection in this restaurant service.',
+    footNote:'Saved menu items leave through your own device. The room itself does not keep a history after service ends.',
+    emptySearchCopy:'Try a dish name like biryani, prawns, or cheesecake.',
+    emptyStateCopy:'The restaurant has opened the room, but the service menu has not been published yet.',
+    feature:{
+      screen:'ms',
+      collectionId:'menu',
+      cardId:'chef-special',
+      eyebrow:'Chef special',
+      title:'Lamb raan with saffron rice',
+      copy:'Start with tonight’s special, then search or browse the rest of the menu only if you want more detail.',
+      mark:'AK',
+      metaOne:'Live menu',
+      metaTwo:'3 sections',
+      openLabel:'Open menu',
+      saveLabel:'Save menu ↑',
+      saveTitle:'Dinner menu'
+    },
+    collections:[
+      {
+        screen:'ms',
+        collectionId:'menu',
+        cardId:'menu',
+        label:'Menu',
+        title:'Tonight’s service menu',
+        description:'A clean, type-first menu with specials, starters, mains, and desserts for this live service.',
+        count:'11 dishes',
+        icon:'🍽',
+        openLabel:'Open menu',
+        note:'Search jumps by dish name without leaving the service.'
+      }
+    ],
+    searchIndex:[
+      {group:'Tonight’s menu',title:'Lamb Raan with Saffron Rice',meta:'Chef special',screen:'ms',collectionId:'menu',cardId:'chef-special'},
+      {group:'Tonight’s menu',title:'Hyderabadi Dum Biryani',meta:'Mains · Spicy',screen:'ms',collectionId:'menu',cardId:'menu'},
+      {group:'Tonight’s menu',title:'Gulab Jamun Cheesecake',meta:'Dessert · New',screen:'ms',collectionId:'menu',cardId:'menu'}
+    ]
+  },
+  event:{
+    key:'event',
+    typeLabel:'Event space',
+    brandMark:'SP',
+    verification:'Event Verified',
+    spaceName:'Spaces Summit Live Session',
+    attendees:'180 attendees',
+    sessionTime:'42m remaining',
+    bootSubtitle:'Enter the live keynote room. The attendee surface mirrors only the current spotlight and earlier session shares.',
+    overviewSubtitle:'Use the spotlight to follow the room in real time, then save only the items you need after the event.',
+    searchPlaceholder:'Search spotlight items or earlier shares',
+    searchMeta:'Search works against the session cache so it feels immediate even during a live presentation.',
+    collectionSectionCopy:'The keynote room keeps the attendee path focused on the current presentation state.',
+    footNote:'Saved event items go to your own apps. Anything left unsaved disappears when the keynote session ends.',
+    emptySearchCopy:'Try deck, pricing, or contacts from the live session timeline.',
+    emptyStateCopy:'The keynote room is live, but the presenter has not pushed attendee content yet.',
+    feature:{
+      screen:'ls',
+      collectionId:'live',
+      cardId:'live-spotlight',
+      eyebrow:'Presented now',
+      title:'Current live spotlight',
+      copy:'Follow what the speaker pinned most recently, then browse the earlier session timeline if needed.',
+      mark:'SP',
+      metaOne:'Live spotlight',
+      metaTwo:'3 earlier shares',
+      openLabel:'Open spotlight',
+      saveLabel:'Save spotlight ↑',
+      saveTitle:'Live spotlight item'
+    },
+    collections:[
+      {
+        screen:'ls',
+        collectionId:'live',
+        cardId:'live-spotlight',
+        label:'Live',
+        title:'Spotlight timeline',
+        description:'The presenter’s current pin at the top, followed by the earlier items from the same session.',
+        count:'4 items',
+        icon:'●',
+        openLabel:'Open timeline',
+        note:'Designed for active rooms, not for browsing everything at once.'
+      }
+    ],
+    searchIndex:[
+      {group:'Spotlight timeline',title:'65W GaN Charger — Dealer Exclusive Price',meta:'Current spotlight',screen:'ls',collectionId:'live',cardId:'live-spotlight'},
+      {group:'Spotlight timeline',title:'Company Deck — FY2026',meta:'Shared 14 minutes ago',screen:'ls',collectionId:'live',cardId:'deck'},
+      {group:'Spotlight timeline',title:'Sales Team Contacts · 5 people',meta:'Shared at start',screen:'ls',collectionId:'live',cardId:'contacts'}
+    ]
+  },
+  empty:{
+    key:'empty',
+    typeLabel:'Live space',
+    brandMark:'SP',
+    verification:'Live Reserved',
+    spaceName:'New Live Space',
+    attendees:'0 attendees',
+    sessionTime:'Waiting for host content',
+    bootSubtitle:'The link is live, but this room does not yet have attendee-facing content.',
+    overviewSubtitle:'The attendee route still resolves cleanly even when the room has nothing to browse yet.',
+    searchPlaceholder:'Search is unavailable until the host shares content',
+    searchMeta:'When the host publishes the first item, this overview can refresh into the normal collection flow.',
+    collectionSectionCopy:'There are no collections yet.',
+    footNote:'Spaces should degrade cleanly to an empty live room instead of showing a broken or blank state.',
+    emptySearchCopy:'There is nothing to search until the host shares content into this space.',
+    emptyStateCopy:'The room is active, but nothing has been published to attendees yet. Stay on this page or refresh later if the host starts sharing.',
+    feature:null,
+    collections:[],
+    searchIndex:[]
+  }
+};
+
+const activeSpaceKey=allowedSpaces.includes(params.get('space'))?params.get('space'):'store';
+const bootConfig={
+  session:allowedSessions.includes(params.get('session'))?params.get('session'):'live',
+  mode:params.get('mode')==='anonymous'?'anonymous':'identified'
+};
+const activePreset=SPACE_PRESETS[activeSpaceKey];
+const analyticsLog=[];
+let curP=0;
+let saveToastTimer=null;
+let searchActive=false;
+let sessionEndTracked=false;
+let activePinTarget=null;
+let lastBridgePinId=null;
+let offlineActive=false;
+let endedOverlayActive=false;
+let expiryWarningActive=false;
+let roomBridgeState=null;
+
+window.spacesAnalytics=analyticsLog;
+
+function getAttendeeRef(){
+  if(!roomBridgeEnabled){
+    return null;
+  }
+  const key=`digi:attendee-ref:${roomKey}`;
+  const existing=sessionStorage.getItem(key)||localStorage.getItem(key);
+  if(existing){
+    return existing;
+  }
+  const next=`attendee-${Math.random().toString(36).slice(2,10)}`;
+  sessionStorage.setItem(key,next);
+  localStorage.setItem(key,next);
+  return next;
 }
 
-// CARD FLIP
-function flipCard(el){
+const attendeeRef=getAttendeeRef();
+
+function getRoomBridgeStorageKey(){
+  return roomBridgeEnabled?`digi:live-room:${roomKey}`:null;
+}
+
+function loadRoomBridgeState(){
+  if(!roomBridgeEnabled){
+    return null;
+  }
+  const key=getRoomBridgeStorageKey();
+  const raw=key?localStorage.getItem(key):null;
+  if(!raw){
+    return null;
+  }
+  try{
+    return JSON.parse(raw);
+  }catch(_error){
+    return null;
+  }
+}
+
+function persistRoomBridgeState(state){
+  if(!roomBridgeEnabled||!state){
+    return;
+  }
+  const key=getRoomBridgeStorageKey();
+  if(!key){
+    return;
+  }
+  localStorage.setItem(key,JSON.stringify(state));
+}
+
+function getCurrentAttendeeName(){
+  const nameInput=document.getElementById('bootNameInput');
+  return nameInput&&nameInput.value.trim()?nameInput.value.trim():null;
+}
+
+function formatBridgeSessionTime(bridgeState){
+  if(!bridgeState||!bridgeState.endsAt||bridgeState.status==='ended'){
+    return bridgeState&&bridgeState.status==='ended'?'Session ended':getSessionTimeLabel();
+  }
+  const deltaMs=new Date(bridgeState.endsAt).getTime()-Date.now();
+  if(deltaMs<=0){
+    return 'Ending now';
+  }
+  const totalMinutes=Math.max(1,Math.round(deltaMs/60000));
+  const hours=Math.floor(totalMinutes/60);
+  const minutes=totalMinutes%60;
+  return hours>0?`${hours}h ${minutes}m remaining`:`${minutes}m remaining`;
+}
+
+function showPinNoticeForTarget(target){
+  if(!target||endedOverlayActive||document.getElementById('pinNotice').classList.contains('on')){
+    return;
+  }
+  activePinTarget=target;
+  document.getElementById('pinTitle').textContent=target.title;
+  document.getElementById('pinCopy').textContent='The host just pinned a new item for everyone in this room. Open it directly or dismiss the pin and keep browsing.';
+  document.getElementById('pinChip').textContent=target.collectionId==='live'?'Live pin':'Pinned now';
+  document.getElementById('pinNotice').classList.add('on');
+  trackEvent('pin_received',{
+    collection_id:target.collectionId,
+    card_id:target.cardId||target.id||null,
+    content_id:target.cardId||target.id||null,
+    content_title:target.title
+  });
+}
+
+function updateRoomBridgeState(mutator){
+  const current=loadRoomBridgeState();
+  if(!current){
+    return null;
+  }
+  const next=mutator(JSON.parse(JSON.stringify(current)));
+  if(!next){
+    return null;
+  }
+  roomBridgeState=next;
+  persistRoomBridgeState(next);
+  syncRoomBridgeState(next);
+  return next;
+}
+
+function registerRoomPresence(){
+  if(!roomBridgeEnabled||!attendeeRef){
+    return;
+  }
+  updateRoomBridgeState((state)=>{
+    const now=new Date().toISOString();
+    state.attendees=state.attendees||[];
+    state.events=state.events||[];
+    const existing=state.attendees.find((entry)=>entry.attendeeRef===attendeeRef);
+    if(existing){
+      existing.attendeeName=getCurrentAttendeeName();
+      existing.lastSeenAt=now;
+    }else{
+      state.attendees.unshift({
+        attendeeRef,
+        attendeeName:getCurrentAttendeeName(),
+        joinedAt:now,
+        lastSeenAt:now
+      });
+    }
+    return state;
+  });
+}
+
+function mirrorEventToRoomBridge(name,extra={}){
+  if(!roomBridgeEnabled||!attendeeRef){
+    return;
+  }
+  updateRoomBridgeState((state)=>{
+    const now=new Date().toISOString();
+    state.events=state.events||[];
+    state.attendees=state.attendees||[];
+    const attendeeName=bootConfig.mode==='identified'?getCurrentAttendeeName():null;
+    const existing=state.attendees.find((entry)=>entry.attendeeRef===attendeeRef);
+    if(existing){
+      existing.attendeeName=attendeeName;
+      existing.lastSeenAt=now;
+    }
+    state.events.push({
+      id:`event-${Math.random().toString(36).slice(2,10)}`,
+      name,
+      createdAt:now,
+      attendeeRef,
+      attendeeName,
+      contentId:extra.content_id??extra.card_id??null,
+      contentTitle:extra.content_title??null
+    });
+    state.events=state.events.slice(-100);
+    return state;
+  });
+}
+
+function syncRoomBridgeState(nextState){
+  roomBridgeState=nextState;
+  if(!nextState){
+    return;
+  }
+
+  const attendeeCount=nextState.attendees&&nextState.attendees.length?nextState.attendees.length:null;
+  const attendeeLabel=attendeeCount!==null?`${attendeeCount} attendees`:activePreset.attendees;
+  const timeLabel=formatBridgeSessionTime(nextState);
+
+  if(document.getElementById('bootLiveMeta')){
+    document.getElementById('bootLiveMeta').textContent=`${attendeeLabel} · ${timeLabel}`;
+  }
+  if(document.getElementById('overviewFootTimer')){
+    document.getElementById('overviewFootTimer').textContent=timeLabel;
+  }
+  const liveCount=document.querySelector('.live-bar-count');
+  if(liveCount){
+    liveCount.textContent=attendeeCount!==null?`👁 ${attendeeCount} watching`:`👁 ${activePreset.attendees} watching`;
+  }
+  const liveFoot=document.querySelector('.lf-session');
+  if(liveFoot){
+    liveFoot.textContent=nextState.status==='ended'?'Session ended':`Session ends in ${timeLabel.replace(' remaining','')}`;
+  }
+
+  if(nextState.status==='ended'){
+    showEndedOverlay();
+  }else if(nextState.endsAt){
+    const remainingMs=new Date(nextState.endsAt).getTime()-Date.now();
+    setExpiryWarning(remainingMs>0&&remainingMs<=300000);
+  }
+
+  if(nextState.pinnedItem&&nextState.pinnedItem.id!==lastBridgePinId){
+    lastBridgePinId=nextState.pinnedItem.id;
+    showPinNoticeForTarget(nextState.pinnedItem);
+  }
+}
+
+function trackEvent(name,extra={}){
+  analyticsLog.push({
+    name,
+    timestamp:new Date().toISOString(),
+    space_id:activePreset.key,
+    session_id:`${activePreset.key}-${bootConfig.session}`,
+    surface:'attendee',
+    space_mode:bootConfig.mode,
+    ...extra
+  });
+  mirrorEventToRoomBridge(name,extra);
+}
+
+function getSessionTimeLabel(){
+  if(roomBridgeState){
+    return formatBridgeSessionTime(roomBridgeState);
+  }
+  return bootConfig.session==='ending'?'5m remaining':activePreset.sessionTime;
+}
+
+function getPinTarget(){
+  if(roomBridgeState&&roomBridgeState.pinnedItem){
+    return roomBridgeState.pinnedItem;
+  }
+  if(activePreset.feature){
+    return activePreset.feature;
+  }
+  return activePreset.collections[0]||null;
+}
+
+function setActivePresetButtons(){
+  document.querySelectorAll('.nav button').forEach((button)=>{
+    button.classList.toggle('on',button.dataset.space===activeSpaceKey);
+  });
+}
+
+function buildPresetUrl(spaceKey){
+  const next=new URL(window.location.href);
+  next.searchParams.set('space',spaceKey);
+  return `${next.pathname}${next.search}`;
+}
+
+function buildStateUrl(overrides={}){
+  const next=new URL(window.location.href);
+  Object.entries(overrides).forEach(([key,value])=>{
+    if(value===null||value===false||value===''){
+      next.searchParams.delete(key);
+      return;
+    }
+    next.searchParams.set(key,String(value));
+  });
+  return `${next.pathname}${next.search}`;
+}
+
+function go(id){
+  document.querySelectorAll('.sc').forEach((screen)=>screen.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.getElementById('PH').style.background=bgs[id]||'#FAF8F3';
+  const showBack=['cs','ms','ls'].includes(id);
+  document.getElementById('collectionBackButton').classList.toggle('on',showBack);
+}
+
+function openOverview(track=true){
+  go('ov');
+  if(track){
+    trackEvent('space_overview_viewed');
+  }
+}
+
+function setBootScreen(id){
+  document.querySelectorAll('.boot-screen').forEach((screen)=>screen.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+function showSaveToast(message){
+  const toast=document.getElementById('saveToast');
+  toast.textContent=message;
+  toast.classList.add('on');
+  window.clearTimeout(saveToastTimer);
+  saveToastTimer=window.setTimeout(()=>toast.classList.remove('on'),2200);
+}
+
+function triggerSave(title,cardId){
+  if(offlineActive){
+    trackEvent('offline_save_queued',{card_id:cardId||null,content_id:cardId||null,content_title:title});
+    showSaveToast(`Queued “${title}” until the connection returns.`);
+    return;
+  }
+  trackEvent('content_saved',{card_id:cardId||null,content_id:cardId||null,content_title:title});
+  showSaveToast(`Ready to hand off “${title}” to the native share sheet on device.`);
+}
+
+function setExpiryWarning(visible){
+  expiryWarningActive=visible;
+  document.getElementById('expiryBanner').classList.toggle('on',visible);
+  document.getElementById('overviewStateBadge').textContent=visible?'Ending soon':'Live space';
+  document.getElementById('overviewFootTimer').textContent=visible?'5m remaining':getSessionTimeLabel();
+}
+
+function setOfflineState(visible){
+  const banner=document.getElementById('offlineBanner');
+  if(visible&&!offlineActive){
+    trackEvent('offline_state_shown');
+  }
+  offlineActive=visible;
+  banner.classList.toggle('on',visible);
+}
+
+function showPinNotice(){
+  const target=getPinTarget();
+  showPinNoticeForTarget(target);
+}
+
+function dismissPinNotice(trackDismiss=true){
+  const notice=document.getElementById('pinNotice');
+  if(!notice.classList.contains('on')){
+    return;
+  }
+  notice.classList.remove('on');
+  if(trackDismiss&&activePinTarget){
+    trackEvent('pin_dismissed',{collection_id:activePinTarget.collectionId,card_id:activePinTarget.cardId||null});
+  }
+}
+
+function showEndedOverlay(){
+  if(endedOverlayActive){
+    return;
+  }
+  endedOverlayActive=true;
+  dismissPinNotice(false);
+  setExpiryWarning(false);
+  document.getElementById('endedOverlay').classList.add('on');
+  if(!sessionEndTracked){
+    trackEvent('session_end_viewed');
+    sessionEndTracked=true;
+  }
+}
+
+function applyLiveSignals(){
+  if(bootConfig.session==='ending'){
+    setExpiryWarning(true);
+  }
+  if(signalConfig.offline){
+    setOfflineState(true);
+  }
+  if(signalConfig.pin){
+    showPinNotice();
+  }
+  if(signalConfig.endOverlay){
+    showEndedOverlay();
+  }
+}
+
+function matchesSearch(item,query){
+  const haystack=`${item.group} ${item.title} ${item.meta}`.toLowerCase();
+  return haystack.includes(query.toLowerCase());
+}
+
+function renderSearchResults(query){
+  const resultsSection=document.getElementById('searchResultsSection');
+  const groupsContainer=document.getElementById('searchGroups');
+  const searchEmpty=document.getElementById('searchEmpty');
+  const searchResultsCopy=document.getElementById('searchResultsCopy');
+  const collectionsSection=document.getElementById('overviewCollectionsSection');
+  const overviewEmpty=document.getElementById('overviewEmpty');
+  const trimmed=query.trim();
+
+  if(!trimmed){
+    searchActive=false;
+    resultsSection.hidden=true;
+    collectionsSection.hidden=activePreset.collections.length===0;
+    overviewEmpty.hidden=activePreset.collections.length!==0;
+    groupsContainer.innerHTML='';
+    searchEmpty.hidden=true;
+    searchResultsCopy.textContent='Grouped instantly from the current session cache.';
+    return;
+  }
+
+  if(!searchActive){
+    trackEvent('search_started');
+    searchActive=true;
+  }
+  const matches=activePreset.searchIndex.filter((item)=>matchesSearch(item,trimmed));
+  const grouped=new Map();
+
+  matches.forEach((item)=>{
+    if(!grouped.has(item.group)){
+      grouped.set(item.group,[]);
+    }
+    grouped.get(item.group).push(item);
+  });
+
+  groupsContainer.innerHTML='';
+  grouped.forEach((items,groupLabel)=>{
+    const group=document.createElement('div');
+    group.className='search-group';
+    group.innerHTML=`<div class="search-group-label">${groupLabel}</div>`;
+
+    items.forEach((item)=>{
+      const row=document.createElement('div');
+      row.className='search-result';
+
+      const copy=document.createElement('div');
+      copy.className='search-result-copy';
+      copy.innerHTML=`
+        <div class="search-result-title">${item.title}</div>
+        <div class="search-result-meta">${item.meta}</div>
+      `;
+
+      const button=document.createElement('button');
+      button.className='search-open';
+      button.type='button';
+      button.textContent='Open';
+      button.addEventListener('click',()=>{
+        trackEvent('search_result_opened',{collection_id:item.collectionId,card_id:item.cardId||null,content_id:item.cardId||null,content_title:item.title});
+        openCollection(item,'search');
+      });
+
+      row.append(copy,button);
+      group.appendChild(row);
+    });
+
+    groupsContainer.appendChild(group);
+  });
+
+  resultsSection.hidden=false;
+  collectionsSection.hidden=true;
+  overviewEmpty.hidden=true;
+  searchEmpty.hidden=matches.length!==0;
+  searchResultsCopy.textContent=matches.length
+    ? `${matches.length} matching item${matches.length===1?'':'s'} across this live space.`
+    : 'Grouped instantly from the current session cache.';
+}
+
+function renderCollections(){
+  const collectionsContainer=document.getElementById('overviewCollections');
+  const collectionsSection=document.getElementById('overviewCollectionsSection');
+  const overviewEmpty=document.getElementById('overviewEmpty');
+  const featureCard=document.getElementById('overviewFeatureCard');
+  const searchInput=document.getElementById('spaceSearchInput');
+
+  collectionsContainer.innerHTML='';
+
+  if(activePreset.feature){
+    document.getElementById('featureEyebrow').textContent=activePreset.feature.eyebrow;
+    document.getElementById('featureTitle').textContent=activePreset.feature.title;
+    document.getElementById('featureCopy').textContent=activePreset.feature.copy;
+    document.getElementById('featureMark').textContent=activePreset.feature.mark;
+    document.getElementById('featureMetaOne').textContent=activePreset.feature.metaOne;
+    document.getElementById('featureMetaTwo').textContent=activePreset.feature.metaTwo;
+    document.getElementById('featureOpenButton').textContent=activePreset.feature.openLabel;
+    document.getElementById('featureSaveButton').textContent=activePreset.feature.saveLabel;
+    featureCard.hidden=false;
+  }else{
+    featureCard.hidden=true;
+  }
+
+  if(activePreset.collections.length===0){
+    collectionsSection.hidden=true;
+    overviewEmpty.hidden=false;
+    searchInput.disabled=true;
+    searchInput.value='';
+    return;
+  }
+
+  searchInput.disabled=false;
+  overviewEmpty.hidden=true;
+  collectionsSection.hidden=false;
+
+  activePreset.collections.forEach((collection,index)=>{
+    const card=document.createElement('div');
+    card.className=`collection-card${index===0?' topline':''}`;
+    card.innerHTML=`
+      <div class="collection-meta">
+        <div class="collection-copy">
+          <div class="collection-icon">${collection.icon}</div>
+          <div>
+            <div class="collection-label">${collection.label}</div>
+            <div class="collection-title">${collection.title}</div>
+            <div class="collection-description">${collection.description}</div>
+          </div>
+        </div>
+        <div class="collection-count">${collection.count}</div>
+      </div>
+      <div class="collection-actions">
+        <button class="collection-open" type="button">${collection.openLabel}</button>
+        <div class="collection-note">${collection.note}</div>
+      </div>
+    `;
+
+    card.querySelector('.collection-open').addEventListener('click',()=>openCollection(collection,'collection'));
+    collectionsContainer.appendChild(card);
+  });
+}
+
+function renderOverview(){
+  document.getElementById('overviewTitle').textContent=activePreset.spaceName;
+  document.getElementById('overviewSubtitle').textContent=activePreset.overviewSubtitle;
+  document.getElementById('overviewKickerCopy').textContent=`${activePreset.typeLabel} · ${bootConfig.mode==='identified'?'Identified entry':'Anonymous entry'}`;
+  document.getElementById('overviewFootTimer').textContent=getSessionTimeLabel();
+  document.getElementById('overviewFootNote').textContent=activePreset.footNote;
+  document.getElementById('searchMeta').textContent=activePreset.searchMeta;
+  document.getElementById('spaceSearchInput').placeholder=activePreset.searchPlaceholder;
+  document.getElementById('collectionSectionCopy').textContent=activePreset.collectionSectionCopy;
+  document.getElementById('searchEmptyCopy').textContent=activePreset.emptySearchCopy;
+  document.getElementById('overviewEmptyCopy').textContent=activePreset.emptyStateCopy;
+  renderCollections();
+  renderSearchResults(document.getElementById('spaceSearchInput').value);
+}
+
+function showStatusState(){
+  const chip=document.getElementById('bootStatusChip');
+  const title=document.getElementById('bootStatusTitle');
+  const copy=document.getElementById('bootStatusCopy');
+  const help=document.getElementById('bootStatusHelp');
+
+  if(bootConfig.session==='inactive'){
+    chip.textContent='Space inactive';
+    chip.className='boot-chip offline';
+    title.textContent="This space isn't live yet.";
+    copy.textContent='The QR is active, but the host has not started this session. Check back when the room goes live.';
+    help.textContent='When a host starts the session, refreshing this page will take attendees into the live experience instead of a broken or blank link.';
+  }else{
+    chip.textContent='Session ended';
+    chip.className='boot-chip ended';
+    title.textContent='This session has ended.';
+    copy.textContent='Your saved items remain in your chosen app. Unsaved live content is no longer available.';
+    help.textContent='This space link stays valid. If the host starts a new session, refreshing will take you back into the live experience.';
+    if(!sessionEndTracked){
+      trackEvent('session_end_viewed');
+      sessionEndTracked=true;
+    }
+  }
+
+  setBootScreen('bootStatus');
+}
+
+function resolveBootstrapFlow(){
+  if(['live','ending'].includes(bootConfig.session)){
+    setBootScreen('bootEntry');
+    trackEvent('entry_screen_viewed');
+    return;
+  }
+  showStatusState();
+}
+
+function completeBootstrap(){
+  document.getElementById('bootstrapShell').classList.add('done');
+  openOverview();
+  registerRoomPresence();
+  trackEvent('presence_registered');
+  applyLiveSignals();
+}
+
+function handleEnterSpace(){
+  if(!['live','ending'].includes(bootConfig.session)){
+    showStatusState();
+    return;
+  }
+  if(bootConfig.mode==='identified'){
+    setBootScreen('bootName');
+    document.getElementById('bootNameInput').focus();
+    return;
+  }
+  completeBootstrap();
+}
+
+function initBootstrapCopy(){
+  document.getElementById('bootBrandMark').textContent=activePreset.brandMark;
+  document.getElementById('bootNameBrand').textContent=activePreset.brandMark;
+  document.getElementById('bootStatusBrand').textContent=activePreset.brandMark;
+  document.getElementById('bootVerifiedLabel').textContent=activePreset.verification;
+  document.getElementById('bootSpaceName').textContent=activePreset.spaceName;
+  document.getElementById('bootSubtitle').textContent=activePreset.bootSubtitle;
+  document.getElementById('bootLiveMeta').textContent=`${activePreset.attendees} · ${getSessionTimeLabel()}`;
+  document.getElementById('bootModePill').textContent=bootConfig.mode==='identified'?'Identified space':'Anonymous space';
+  document.getElementById('bootEntryNote').textContent=bootConfig.mode==='identified'
+    ? 'The host may ask for your name before you enter. Saving still goes directly into your own apps.'
+    : 'You can enter instantly. No name is needed unless you later choose to save a contact.';
+  document.getElementById('overviewStateBadge').textContent=bootConfig.session==='ending'?'Ending soon':'Live space';
+}
+
+function openCollection(item,source){
+  if(source==='pin'){
+    dismissPinNotice(false);
+  }
+  if(item.screen==='ps'&&typeof item.productIndex==='number'){
+    showProd(item.productIndex);
+  }
+  go(item.screen);
+  trackEvent('collection_opened',{collection_id:item.collectionId,card_id:item.cardId||null,content_id:item.cardId||item.id||null,content_title:item.title,source});
+  trackEvent('card_viewed',{collection_id:item.collectionId,card_id:item.cardId||null,content_id:item.cardId||item.id||null,content_title:item.title});
+}
+
+function flipCard(){
   document.getElementById('cb').classList.toggle('flip');
 }
 
-// PRODUCTS
 const prods=[
   {label:'Cables',pos:'Cables · 1 of 6'},
   {label:'Cables',pos:'Cables · 2 of 6'},
   {label:'Charging',pos:'Charging · 3 of 6'},
   {label:'Charging',pos:'Charging · 4 of 6'},
   {label:'Charging',pos:'Charging · 5 of 6'},
-  {label:'Charging',pos:'Charging · 6 of 6'},
+  {label:'Charging',pos:'Charging · 6 of 6'}
 ];
-const secMap=[0,0,1,1,1,1]; // which section each product belongs to
-let curP=0;
+const secMap=[0,0,1,1,1,1];
 const total=6;
 
 function moveProd(dir){
@@ -1019,26 +2697,95 @@ function moveProd(dir){
 }
 
 function showProd(idx,outClass){
-  document.getElementById('pc'+(curP+1)).classList.remove('on');
-  if(outClass)document.getElementById('pc'+(curP+1)).classList.add(outClass);
-  setTimeout(()=>{
-    if(outClass)document.getElementById('pc'+(curP+1)).classList.remove(outClass);
+  const current=document.getElementById(`pc${curP+1}`);
+  current.classList.remove('on');
+  if(outClass)current.classList.add(outClass);
+  window.setTimeout(()=>{
+    if(outClass)current.classList.remove(outClass);
   },320);
   curP=idx;
-  const el=document.getElementById('pc'+(curP+1));
-  el.classList.add('on');
-  document.getElementById('pcount').textContent=(curP+1)+' / '+total;
+  const next=document.getElementById(`pc${curP+1}`);
+  next.classList.add('on');
+  document.getElementById('pcount').textContent=`${curP+1} / ${total}`;
   document.getElementById('ppos').textContent=prods[curP].pos;
-  // update section index
   const sec=secMap[curP];
-  document.querySelectorAll('.sec-item').forEach((s,i)=>s.classList.toggle('on',i===sec));
+  document.querySelectorAll('.sec-item').forEach((item,index)=>item.classList.toggle('on',index===sec));
 }
 
 function secJump(secIdx){
-  const firstInSec=secMap.findIndex(s=>s===secIdx);
-  if(firstInSec>=0)showProd(firstInSec,firstInSec>curP?null:null);
-  document.querySelectorAll('.sec-item').forEach((s,i)=>s.classList.toggle('on',i===secIdx));
+  const firstInSec=secMap.findIndex((section)=>section===secIdx);
+  if(firstInSec>=0)showProd(firstInSec);
+  document.querySelectorAll('.sec-item').forEach((item,index)=>item.classList.toggle('on',index===secIdx));
 }
+
+document.querySelectorAll('.nav button').forEach((button)=>{
+  button.addEventListener('click',()=>window.location.assign(buildPresetUrl(button.dataset.space)));
+});
+document.getElementById('collectionBackButton').addEventListener('click',()=>openOverview(false));
+document.getElementById('prodBackButton').addEventListener('click',()=>openOverview(false));
+document.getElementById('featureOpenButton').addEventListener('click',()=>{
+  if(activePreset.feature){
+    openCollection(activePreset.feature,'feature');
+  }
+});
+document.getElementById('featureSaveButton').addEventListener('click',()=>{
+  if(activePreset.feature){
+    triggerSave(activePreset.feature.saveTitle,activePreset.feature.cardId);
+  }
+});
+document.getElementById('pinOpenButton').addEventListener('click',()=>{
+  if(activePinTarget){
+    openCollection(activePinTarget,'pin');
+  }
+});
+document.getElementById('pinDismissButton').addEventListener('click',()=>dismissPinNotice(true));
+document.getElementById('endedRefreshButton').addEventListener('click',()=>{
+  window.location.assign(buildStateUrl({session:'ended',endOverlay:null,pin:null,offline:null}));
+});
+document.getElementById('spaceSearchInput').addEventListener('input',(event)=>{
+  renderSearchResults(event.target.value);
+});
+document.getElementById('bootEnterButton').addEventListener('click',handleEnterSpace);
+document.getElementById('bootSkipButton').addEventListener('click',()=>{
+  trackEvent('identity_skipped');
+  completeBootstrap();
+});
+document.getElementById('bootStatusRefresh').addEventListener('click',()=>window.location.reload());
+document.getElementById('bootNameForm').addEventListener('submit',(event)=>{
+  event.preventDefault();
+  const input=document.getElementById('bootNameInput');
+  if(!input.value.trim()){
+    input.focus();
+    return;
+  }
+  trackEvent('identity_submitted');
+  completeBootstrap();
+});
+document.querySelectorAll('[data-save-title]').forEach((button)=>{
+  button.addEventListener('click',()=>triggerSave(button.dataset.saveTitle,button.dataset.saveCard));
+});
+document.getElementById('pinDemoButton').addEventListener('click',showPinNotice);
+document.getElementById('expiryDemoButton').addEventListener('click',()=>setExpiryWarning(!expiryWarningActive));
+document.getElementById('offlineDemoButton').addEventListener('click',()=>setOfflineState(!offlineActive));
+document.getElementById('endDemoButton').addEventListener('click',showEndedOverlay);
+
+setActivePresetButtons();
+go('ov');
+showProd(0);
+renderOverview();
+initBootstrapCopy();
+trackEvent('qr_opened');
+trackEvent('session_bootstrap_loaded');
+roomBridgeState=loadRoomBridgeState();
+syncRoomBridgeState(roomBridgeState);
+if(roomBridgeEnabled){
+  window.addEventListener('storage',(event)=>{
+    if(event.key===getRoomBridgeStorageKey()){
+      syncRoomBridgeState(event.newValue?JSON.parse(event.newValue):null);
+    }
+  });
+}
+window.setTimeout(resolveBootstrapFlow,850);
 </script>
 </body>
 </html>

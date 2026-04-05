@@ -12,6 +12,11 @@ required_root_files=(
   "CONTRIBUTING.md"
   "SECURITY.md"
   "SUPPORT.md"
+  "autonomous-sdlc/README.md"
+  "autonomous-sdlc/process.md"
+  "autonomous-sdlc/lessons.md"
+  "autonomous-sdlc/github-repo-settings.md"
+  "autonomous-sdlc/product/architecture/README.md"
   ".github/pull_request_template.md"
   ".github/CODEOWNERS"
   ".github/workflows/repository-checks.yml"
@@ -32,6 +37,8 @@ fi
 bash -n autonomous-sdlc/scripts/new_feature.sh
 bash -n autonomous-sdlc/scripts/check_feature.sh
 bash -n autonomous-sdlc/scripts/validate_repo.sh
+bash -n autonomous-sdlc/scripts/check_staged_feature_context.sh
+bash -n autonomous-sdlc/scripts/start_session.sh
 
 for feature_dir in autonomous-sdlc/features/[0-9][0-9][0-9]-*; do
   if [[ -d "$feature_dir" ]]; then
@@ -40,4 +47,3 @@ for feature_dir in autonomous-sdlc/features/[0-9][0-9][0-9]-*; do
 done
 
 echo "Repository validation passed."
-

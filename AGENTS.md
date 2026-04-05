@@ -1,28 +1,36 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-The root currently contains the two HTML prototypes, `spaces_final.html` and `spaces_host.html`, plus product docs `spaces_prd.docx` and `spaces_ux_guide.docx`. The new `autonomous-sdlc/` folder is the operating system for delivery work: `standards/` holds repo rules, `agents/` defines role responsibilities, `workflows/` documents each phase, `templates/` stores artifact templates, `features/` holds numbered workspaces such as `001-booking-flow`, and `scripts/` contains helper commands. GitHub issue and PR templates live in `.github/`.
+The root contains the HTML prototypes `spaces_final.html` and `spaces_host.html`, product docs, and the active TypeScript workspace config. Real app code lives in `apps/attendee-web/` for the Next.js attendee surface and `apps/host-mobile/` for the Expo host app. Shared contracts live in `packages/`, and tracked database work lives in `supabase/migrations/`. The `autonomous-sdlc/` folder holds the workflow: `product/` for milestones, discovery, and architecture; `features/` for numbered workspaces; `scripts/` for validation helpers; and `process.md`, `lessons.md`, and `github-repo-settings.md` for operating rules.
 
 ## Build, Test, and Development Commands
-There is still no package manager or app build pipeline in this workspace. Use these commands from the repo root:
+Use these commands from the repo root:
 
 ```bash
+corepack pnpm install
 python3 -m http.server 8000
+npm run attendee:dev
+npm run attendee:build
+npm run host:dev
+npm run host:web:export
 bash autonomous-sdlc/scripts/new_feature.sh booking-flow "Booking Flow"
 bash autonomous-sdlc/scripts/check_feature.sh autonomous-sdlc/features/001-booking-flow
 bash autonomous-sdlc/scripts/validate_repo.sh
+npm run verify
 ```
 
-The first command serves the prototypes locally. The second creates a complete feature workspace. The third validates one feature workspace. The fourth validates repository-level GitHub and workflow wiring.
+`corepack pnpm install` installs the workspace. `python3 -m http.server 8000` serves the prototypes. `npm run attendee:dev` starts the real attendee web app, `npm run attendee:build` builds it for production, `npm run host:dev` starts the Expo host app, and `npm run host:web:export` builds the browser-tested host export. The SDLC scripts create and validate feature workspaces. `npm run verify` runs repo validation, unit tests, typecheck, the attendee build, the host export, Supabase schema checks, and Playwright smoke tests.
 
 ## Coding Style & Naming Conventions
-Use 2-space indentation in HTML, CSS, JavaScript, Markdown, and shell scripts. Keep filenames lowercase; root prototype files use underscores, while feature workspaces use a three-digit prefix plus slug, for example `002-host-onboarding`. Prefer semantic class names and organize inline CSS and scripts by screen or feature.
+Use 2-space indentation in HTML, CSS, JavaScript, TypeScript, Markdown, and shell scripts. Keep filenames lowercase; root prototypes use underscores, and feature workspaces use a three-digit prefix plus slug such as `010-host-go-live`. Prefer semantic names, keep shared contracts in `packages/`, and avoid duplicating domain logic inside UI screens.
 
 ## Testing Guidelines
-Automated tests are not configured yet, so manual browser validation is required for every UI change. Verify both prototypes, core interactions, and mobile-sized layouts, then record evidence in the feature workspace `qa-report.md`. Run `check_feature.sh` before handoff to confirm the required artifacts are in place.
+Run `npm run verify` before handoff or push. That command covers repo validation, Vitest unit tests, TypeScript checks, Expo web export, Supabase schema verification, and Playwright smoke tests. Manual browser validation is still required for visible UI changes; record evidence in the feature workspace `qa-report.md`.
 
 ## Commit & Pull Request Guidelines
-Git is now initialized locally. Use short imperative commit subjects such as `Refine host dashboard card states`. Open pull requests with the template in `.github/pull_request_template.md`, link the relevant feature workspace artifacts, summarize risk, and include screenshots or recordings for visible UI changes.
+Use short imperative commit subjects such as `Build host go-live flow`. Install hooks with `npm run hooks:install`. The hooks block commits that lack feature-context updates and block direct pushes to `main`. Open pull requests with `.github/pull_request_template.md`, link the relevant feature workspace artifacts, summarize risk, and include screenshots or recordings for visible UI changes.
+
+For milestone-sized product work, begin with `autonomous-sdlc/product/design-approach.md`, `milestones.md`, `backlog.md`, and a discovery brief before opening implementation tasks.
 
 ## Security & Configuration Tips
-Do not embed secrets, private endpoints, or unsafe third-party scripts in prototypes or docs. Treat any future auth, payments, uploads, or personal-data work as high-risk and route it through the approval gates documented in `autonomous-sdlc/governance/approval-matrix.md`.
+Do not commit `.env` files, secrets, or unsafe third-party scripts. Treat auth, payments, uploads, personal-data handling, schema changes, and deployment changes as high-risk and route them through the approval gates in `autonomous-sdlc/process.md`.

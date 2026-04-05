@@ -15,7 +15,7 @@ Initialized this directory as a local Git repository and added the GitHub-facing
 - File: `SUPPORT.md`
 - File: `autonomous-sdlc/scripts/validate_repo.sh`
 - File: `autonomous-sdlc/scripts/connect_github_remote.sh`
-- File: `autonomous-sdlc/governance/github-repo-settings.md`
+- File: `autonomous-sdlc/github-repo-settings.md`
 
 ## Verification Summary
 - Evidence: repository validation passes locally
@@ -26,7 +26,7 @@ Initialized this directory as a local Git repository and added the GitHub-facing
 - Step: create or choose the target GitHub repository
 - Step: run `bash autonomous-sdlc/scripts/connect_github_remote.sh <repo>`
 - Step: push `main`
-- Step: apply settings from `autonomous-sdlc/governance/github-repo-settings.md`
+- Step: apply settings from `autonomous-sdlc/github-repo-settings.md`
 
 ## Rollback
 - Step: remove `.git/` to undo local repository initialization if needed

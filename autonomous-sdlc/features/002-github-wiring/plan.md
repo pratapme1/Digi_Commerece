@@ -9,7 +9,7 @@ Initialize Git locally and add the minimum durable GitHub surface area: root rep
 - Rejected alternative: introducing a heavier framework-specific CI stack before the codebase itself warrants it
 
 ## Touched Areas
-- Files: `.gitignore`, `.github/**/*`, `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md`, `AGENTS.md`, `autonomous-sdlc/scripts/*`, `autonomous-sdlc/governance/github-repo-settings.md`
+- Files: `.gitignore`, `.github/**/*`, `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md`, `AGENTS.md`, `autonomous-sdlc/scripts/*`, `autonomous-sdlc/github-repo-settings.md`
 - Docs: repository README, contributor, support, and security docs
 - External dependencies: none added beyond GitHub-hosted Actions references
 

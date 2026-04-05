@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+bash autonomous-sdlc/scripts/check_staged_feature_context.sh

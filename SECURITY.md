@@ -13,5 +13,4 @@ Please report security concerns privately to the repository owner instead of ope
 ## Expectations
 - Do not commit secrets.
 - Treat future auth, payment, upload, and personal-data features as high-risk.
-- Follow `autonomous-sdlc/governance/approval-matrix.md` for sensitive changes.
-
+- Follow `autonomous-sdlc/process.md` for sensitive changes.

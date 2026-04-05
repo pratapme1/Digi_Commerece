@@ -10,9 +10,18 @@ dist/
 build/
 coverage/
 .playwright-mcp/
+playwright-report/
+test-results/
 
 # Python cache
 __pycache__/
 
 # Node package directories if the repo grows into an app later
 node_modules/
+.next/
+*.tsbuildinfo
+
+# Local environment files
+.env
+.env.*
+!.env.example
