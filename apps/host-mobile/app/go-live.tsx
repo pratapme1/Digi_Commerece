@@ -20,7 +20,7 @@ export default function GoLiveScreen() {
 
   async function handleGoLive() {
     await goLiveNow(duration);
-    router.replace("/dashboard");
+    router.replace("/live-panel");
   }
 
   return (

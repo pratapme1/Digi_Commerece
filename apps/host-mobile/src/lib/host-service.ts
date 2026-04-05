@@ -1,15 +1,28 @@
 import type {
+  EndLiveSessionInput,
+  EndLiveSessionResult,
   GoLiveInput,
   GoLiveResult,
   HostSetupResponse,
+  LivePanelResponse,
+  PinLiveContentInput,
+  PinLiveContentResult,
   SaveHostSetupInput,
 } from "@digi/api-contracts";
 import {
+  appendDemoEvent,
   buildAttendeeShareUrl,
   buildGoLiveWindow,
+  buildSessionSummary,
+  createDemoRoomState,
   createHostSetupDraft,
+  getLiveContentLibrary,
+  toLivePanelSnapshot,
   type HostSetupSnapshot,
   type HostSpace,
+  type DemoRoomState,
+  type LiveActivityEvent,
+  type LivePresenceEntry,
 } from "@digi/domain";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -25,6 +38,24 @@ function createQrSlug(spaceName: string): string {
 
 function getPrimarySpace(snapshot: HostSetupSnapshot): HostSpace | undefined {
   return snapshot.spaces.find((space) => space.isDefault) ?? snapshot.spaces[0];
+}
+
+function createLiveEvent(
+  name: LiveActivityEvent["name"],
+  contentId: string | null,
+  contentTitle: string | null,
+  attendeeRef: string | null = null,
+  attendeeName: string | null = null,
+): LiveActivityEvent {
+  return {
+    id: createId("event"),
+    name,
+    createdAt: new Date().toISOString(),
+    attendeeRef,
+    attendeeName,
+    contentId,
+    contentTitle,
+  };
 }
 
 export function createDemoSnapshot(input: SaveHostSetupInput): HostSetupSnapshot {
@@ -80,6 +111,7 @@ export function createDemoSnapshot(input: SaveHostSetupInput): HostSetupSnapshot
 export function applyDemoGoLive(snapshot: HostSetupSnapshot, input: GoLiveInput): {
   nextSnapshot: HostSetupSnapshot;
   result: GoLiveResult;
+  roomState: DemoRoomState;
 } {
   const { startsAt, endsAt } = buildGoLiveWindow(input.durationMinutes);
   const space = snapshot.spaces.find((item) => item.id === input.spaceId) ?? getPrimarySpace(snapshot);
@@ -101,6 +133,23 @@ export function applyDemoGoLive(snapshot: HostSetupSnapshot, input: GoLiveInput)
     updatedAt: startsAt,
   };
 
+  const attendeeUrl = buildAttendeeShareUrl(hostAppConfig.attendeeBaseUrl, space.qrSlug);
+  const roomState = appendDemoEvent(
+    createDemoRoomState({
+      sessionId: liveSession.id,
+      spaceId: space.id,
+      qrSlug: space.qrSlug,
+      spaceName: space.name,
+      spaceType: space.spaceType,
+      mode: space.mode,
+      attendeeUrl,
+      startedAt: startsAt,
+      endsAt,
+      durationMinutes: input.durationMinutes,
+    }),
+    createLiveEvent("session_started", null, null),
+  );
+
   return {
     nextSnapshot: {
       ...snapshot,
@@ -111,9 +160,122 @@ export function applyDemoGoLive(snapshot: HostSetupSnapshot, input: GoLiveInput)
       status: "live",
       startedAt: startsAt,
       endsAt,
-      attendeeUrl: buildAttendeeShareUrl(hostAppConfig.attendeeBaseUrl, space.qrSlug),
+      attendeeUrl,
+    },
+    roomState,
+  };
+}
+
+export function getDemoLivePanel(roomState: DemoRoomState | null): LivePanelResponse | null {
+  return roomState ? toLivePanelSnapshot(roomState) : null;
+}
+
+export function applyDemoPinLiveContent(
+  roomState: DemoRoomState,
+  input: PinLiveContentInput,
+): {
+  roomState: DemoRoomState;
+  result: PinLiveContentResult;
+} {
+  const nextRoomState = appendDemoEvent(
+    {
+      ...roomState,
+      pinnedItem: input.content,
+    },
+    createLiveEvent("featured_item_changed", input.content.id, input.content.title),
+  );
+
+  return {
+    roomState: nextRoomState,
+    result: {
+      sessionId: input.sessionId,
+      pinnedItem: input.content,
     },
   };
+}
+
+export function applyDemoAttendeePresence(
+  roomState: DemoRoomState,
+  presence: LivePresenceEntry,
+): DemoRoomState {
+  return appendDemoEvent(
+    {
+      ...roomState,
+      attendees: [presence, ...roomState.attendees.filter((entry) => entry.attendeeRef !== presence.attendeeRef)],
+    },
+    createLiveEvent("presence_registered", null, null, presence.attendeeRef, presence.attendeeName),
+  );
+}
+
+export function applyDemoAttendeeEvent(
+  roomState: DemoRoomState,
+  input: {
+    attendeeRef: string;
+    attendeeName?: string | null;
+    eventName: LiveActivityEvent["name"];
+    contentId?: string | null;
+    contentTitle?: string | null;
+  },
+): DemoRoomState {
+  return appendDemoEvent(
+    roomState,
+    createLiveEvent(
+      input.eventName,
+      input.contentId ?? null,
+      input.contentTitle ?? null,
+      input.attendeeRef,
+      input.attendeeName ?? null,
+    ),
+  );
+}
+
+export function applyDemoEndLiveSession(
+  roomState: DemoRoomState,
+): {
+  roomState: DemoRoomState;
+  result: EndLiveSessionResult;
+} {
+  const endedAt = new Date().toISOString();
+  const nextRoomState = appendDemoEvent(
+    {
+      ...roomState,
+      status: "ended",
+      endedAt,
+    },
+    createLiveEvent("session_ended", null, null),
+  );
+  const summary = buildSessionSummary(
+    roomState.sessionId,
+    "ended",
+    roomState.startedAt,
+    endedAt,
+    roomState.durationMinutes,
+    nextRoomState.events,
+    nextRoomState.attendees,
+  );
+
+  return {
+    roomState: {
+      ...nextRoomState,
+      endedAt,
+      status: "ended",
+    },
+    result: {
+      sessionId: roomState.sessionId,
+      status: "ended",
+      endedAt,
+      summary,
+    },
+  };
+}
+
+export function getDefaultPinnedContent(snapshot: HostSetupSnapshot): ReturnType<typeof getLiveContentLibrary>[number] | null {
+  const space = getPrimarySpace(snapshot);
+  if (!space) {
+    return null;
+  }
+
+  return getLiveContentLibrary(space.spaceType)[0] ?? null;
 }
 
 export async function fetchHostSetup(client: SupabaseClient): Promise<HostSetupSnapshot> {
@@ -171,6 +333,58 @@ export async function goLive(client: SupabaseClient, input: GoLiveInput): Promis
       ? result.attendeeUrl
       : buildAttendeeShareUrl(hostAppConfig.attendeeBaseUrl, result.attendeeUrl.replace(/^\/s\//, "")),
   };
+}
+
+export async function fetchLivePanel(
+  client: SupabaseClient,
+  spaceId?: string,
+): Promise<LivePanelResponse | null> {
+  const { data, error } = await client.rpc("digi_get_live_panel", {
+    p_space_id: spaceId ?? null,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data as LivePanelResponse | null) ?? null;
+}
+
+export async function pinLiveContent(
+  client: SupabaseClient,
+  input: PinLiveContentInput,
+): Promise<PinLiveContentResult> {
+  const { data, error } = await client.rpc("digi_pin_live_content", {
+    p_session_id: input.sessionId,
+    p_content_id: input.content.id,
+    p_content_title: input.content.title,
+    p_content_subtitle: input.content.subtitle,
+    p_collection_id: input.content.collectionId,
+    p_attendee_screen: input.content.screen,
+    p_card_id: input.content.cardId,
+    p_product_index: input.content.productIndex ?? null,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as PinLiveContentResult;
+}
+
+export async function endLiveSession(
+  client: SupabaseClient,
+  input: EndLiveSessionInput,
+): Promise<EndLiveSessionResult> {
+  const { data, error } = await client.rpc("digi_end_live_session", {
+    p_session_id: input.sessionId,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as EndLiveSessionResult;
 }
 
 export function createEmptyDraft() {

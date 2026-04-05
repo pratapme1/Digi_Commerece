@@ -2,19 +2,20 @@ import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 import { hostTheme } from "@digi/design-tokens";
+import { formatTimeRemaining } from "@digi/domain";
 
 import { AppButton } from "../src/components/app-button";
 import { PageShell } from "../src/components/page-shell";
 import { useHostApp } from "../src/host-app-context";
 
 export default function DashboardScreen() {
-  const { demoMode, error, setup, signOut } = useHostApp();
+  const { demoMode, error, livePanel, sessionSummary, setup, signOut } = useHostApp();
 
   const account = setup?.account;
   const space =
     setup?.spaces.find((item: NonNullable<typeof setup>["spaces"][number]) => item.isDefault) ??
     setup?.spaces[0];
-  const liveSession = setup?.liveSession;
+  const liveSession = livePanel ?? setup?.liveSession;
 
   return (
     <PageShell
@@ -23,7 +24,14 @@ export default function DashboardScreen() {
       footer={
         <View style={{ gap: 12 }}>
           <AppButton label="Show QR" onPress={() => router.push("/qr")} />
-          <AppButton label="Go Live" onPress={() => router.push("/go-live")} variant="secondary" />
+          {livePanel ? (
+            <AppButton label="Open live panel" onPress={() => router.push("/live-panel")} variant="secondary" />
+          ) : (
+            <AppButton label="Go Live" onPress={() => router.push("/go-live")} variant="secondary" />
+          )}
+          {sessionSummary ? (
+            <AppButton label="View last summary" onPress={() => router.push("/session-summary")} variant="secondary" />
+          ) : null}
           <AppButton label="Sign out" onPress={() => void signOut()} variant="secondary" />
         </View>
       }
@@ -51,8 +59,14 @@ export default function DashboardScreen() {
       {liveSession ? (
         <View style={styles.liveCard}>
           <Text style={styles.liveLabel}>Live session active</Text>
-          <Text style={styles.liveTitle}>Ends at {new Date(liveSession.endsAt ?? "").toLocaleTimeString()}</Text>
-          <Text style={styles.liveBody}>The full live-control layer lands in `M3`, but go-live is already writing the canonical session.</Text>
+          <Text style={styles.liveTitle}>
+            {"endsAt" in liveSession ? formatTimeRemaining(liveSession.endsAt ?? null) : "Live now"}
+          </Text>
+          <Text style={styles.liveBody}>
+            {"metrics" in liveSession
+              ? `${liveSession.metrics.attendeeCount} attendees · ${liveSession.metrics.totalViews} views · ${liveSession.metrics.totalSaves} saves`
+              : "Open the live panel to start running the room."}
+          </Text>
         </View>
       ) : (
         <View style={styles.card}>

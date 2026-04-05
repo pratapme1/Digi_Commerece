@@ -1813,6 +1813,8 @@ const bgs={ov:'#FAF8F3',cs:'#1A1714',ms:'#FAF8F3',ps:'#FAF8F3',ls:'#0D0D0E'};
 const params=new URLSearchParams(window.location.search);
 const allowedSessions=['live','ending','inactive','ended'];
 const allowedSpaces=['store','meeting','restaurant','event','empty'];
+const roomKey=params.get('room');
+const roomBridgeEnabled=Boolean(roomKey);
 const signalConfig={
   pin:params.get('pin')==='1',
   offline:params.get('offline')==='1',
@@ -2082,11 +2084,202 @@ let saveToastTimer=null;
 let searchActive=false;
 let sessionEndTracked=false;
 let activePinTarget=null;
+let lastBridgePinId=null;
 let offlineActive=false;
 let endedOverlayActive=false;
 let expiryWarningActive=false;
+let roomBridgeState=null;
 
 window.spacesAnalytics=analyticsLog;
+
+function getAttendeeRef(){
+  if(!roomBridgeEnabled){
+    return null;
+  }
+  const key=`digi:attendee-ref:${roomKey}`;
+  const existing=sessionStorage.getItem(key)||localStorage.getItem(key);
+  if(existing){
+    return existing;
+  }
+  const next=`attendee-${Math.random().toString(36).slice(2,10)}`;
+  sessionStorage.setItem(key,next);
+  localStorage.setItem(key,next);
+  return next;
+}
+
+const attendeeRef=getAttendeeRef();
+
+function getRoomBridgeStorageKey(){
+  return roomBridgeEnabled?`digi:live-room:${roomKey}`:null;
+}
+
+function loadRoomBridgeState(){
+  if(!roomBridgeEnabled){
+    return null;
+  }
+  const key=getRoomBridgeStorageKey();
+  const raw=key?localStorage.getItem(key):null;
+  if(!raw){
+    return null;
+  }
+  try{
+    return JSON.parse(raw);
+  }catch(_error){
+    return null;
+  }
+}
+
+function persistRoomBridgeState(state){
+  if(!roomBridgeEnabled||!state){
+    return;
+  }
+  const key=getRoomBridgeStorageKey();
+  if(!key){
+    return;
+  }
+  localStorage.setItem(key,JSON.stringify(state));
+}
+
+function getCurrentAttendeeName(){
+  const nameInput=document.getElementById('bootNameInput');
+  return nameInput&&nameInput.value.trim()?nameInput.value.trim():null;
+}
+
+function formatBridgeSessionTime(bridgeState){
+  if(!bridgeState||!bridgeState.endsAt||bridgeState.status==='ended'){
+    return bridgeState&&bridgeState.status==='ended'?'Session ended':getSessionTimeLabel();
+  }
+  const deltaMs=new Date(bridgeState.endsAt).getTime()-Date.now();
+  if(deltaMs<=0){
+    return 'Ending now';
+  }
+  const totalMinutes=Math.max(1,Math.round(deltaMs/60000));
+  const hours=Math.floor(totalMinutes/60);
+  const minutes=totalMinutes%60;
+  return hours>0?`${hours}h ${minutes}m remaining`:`${minutes}m remaining`;
+}
+
+function showPinNoticeForTarget(target){
+  if(!target||endedOverlayActive||document.getElementById('pinNotice').classList.contains('on')){
+    return;
+  }
+  activePinTarget=target;
+  document.getElementById('pinTitle').textContent=target.title;
+  document.getElementById('pinCopy').textContent='The host just pinned a new item for everyone in this room. Open it directly or dismiss the pin and keep browsing.';
+  document.getElementById('pinChip').textContent=target.collectionId==='live'?'Live pin':'Pinned now';
+  document.getElementById('pinNotice').classList.add('on');
+  trackEvent('pin_received',{
+    collection_id:target.collectionId,
+    card_id:target.cardId||target.id||null,
+    content_id:target.cardId||target.id||null,
+    content_title:target.title
+  });
+}
+
+function updateRoomBridgeState(mutator){
+  const current=loadRoomBridgeState();
+  if(!current){
+    return null;
+  }
+  const next=mutator(JSON.parse(JSON.stringify(current)));
+  if(!next){
+    return null;
+  }
+  roomBridgeState=next;
+  persistRoomBridgeState(next);
+  syncRoomBridgeState(next);
+  return next;
+}
+
+function registerRoomPresence(){
+  if(!roomBridgeEnabled||!attendeeRef){
+    return;
+  }
+  updateRoomBridgeState((state)=>{
+    const now=new Date().toISOString();
+    state.attendees=state.attendees||[];
+    state.events=state.events||[];
+    const existing=state.attendees.find((entry)=>entry.attendeeRef===attendeeRef);
+    if(existing){
+      existing.attendeeName=getCurrentAttendeeName();
+      existing.lastSeenAt=now;
+    }else{
+      state.attendees.unshift({
+        attendeeRef,
+        attendeeName:getCurrentAttendeeName(),
+        joinedAt:now,
+        lastSeenAt:now
+      });
+    }
+    return state;
+  });
+}
+
+function mirrorEventToRoomBridge(name,extra={}){
+  if(!roomBridgeEnabled||!attendeeRef){
+    return;
+  }
+  updateRoomBridgeState((state)=>{
+    const now=new Date().toISOString();
+    state.events=state.events||[];
+    state.attendees=state.attendees||[];
+    const attendeeName=bootConfig.mode==='identified'?getCurrentAttendeeName():null;
+    const existing=state.attendees.find((entry)=>entry.attendeeRef===attendeeRef);
+    if(existing){
+      existing.attendeeName=attendeeName;
+      existing.lastSeenAt=now;
+    }
+    state.events.push({
+      id:`event-${Math.random().toString(36).slice(2,10)}`,
+      name,
+      createdAt:now,
+      attendeeRef,
+      attendeeName,
+      contentId:extra.content_id??extra.card_id??null,
+      contentTitle:extra.content_title??null
+    });
+    state.events=state.events.slice(-100);
+    return state;
+  });
+}
+
+function syncRoomBridgeState(nextState){
+  roomBridgeState=nextState;
+  if(!nextState){
+    return;
+  }
+
+  const attendeeCount=nextState.attendees&&nextState.attendees.length?nextState.attendees.length:null;
+  const attendeeLabel=attendeeCount!==null?`${attendeeCount} attendees`:activePreset.attendees;
+  const timeLabel=formatBridgeSessionTime(nextState);
+
+  if(document.getElementById('bootLiveMeta')){
+    document.getElementById('bootLiveMeta').textContent=`${attendeeLabel} · ${timeLabel}`;
+  }
+  if(document.getElementById('overviewFootTimer')){
+    document.getElementById('overviewFootTimer').textContent=timeLabel;
+  }
+  const liveCount=document.querySelector('.live-bar-count');
+  if(liveCount){
+    liveCount.textContent=attendeeCount!==null?`👁 ${attendeeCount} watching`:`👁 ${activePreset.attendees} watching`;
+  }
+  const liveFoot=document.querySelector('.lf-session');
+  if(liveFoot){
+    liveFoot.textContent=nextState.status==='ended'?'Session ended':`Session ends in ${timeLabel.replace(' remaining','')}`;
+  }
+
+  if(nextState.status==='ended'){
+    showEndedOverlay();
+  }else if(nextState.endsAt){
+    const remainingMs=new Date(nextState.endsAt).getTime()-Date.now();
+    setExpiryWarning(remainingMs>0&&remainingMs<=300000);
+  }
+
+  if(nextState.pinnedItem&&nextState.pinnedItem.id!==lastBridgePinId){
+    lastBridgePinId=nextState.pinnedItem.id;
+    showPinNoticeForTarget(nextState.pinnedItem);
+  }
+}
 
 function trackEvent(name,extra={}){
   analyticsLog.push({
@@ -2098,13 +2291,20 @@ function trackEvent(name,extra={}){
     space_mode:bootConfig.mode,
     ...extra
   });
+  mirrorEventToRoomBridge(name,extra);
 }
 
 function getSessionTimeLabel(){
+  if(roomBridgeState){
+    return formatBridgeSessionTime(roomBridgeState);
+  }
   return bootConfig.session==='ending'?'5m remaining':activePreset.sessionTime;
 }
 
 function getPinTarget(){
+  if(roomBridgeState&&roomBridgeState.pinnedItem){
+    return roomBridgeState.pinnedItem;
+  }
   if(activePreset.feature){
     return activePreset.feature;
   }
@@ -2165,11 +2365,11 @@ function showSaveToast(message){
 
 function triggerSave(title,cardId){
   if(offlineActive){
-    trackEvent('offline_save_queued',{card_id:cardId||null});
+    trackEvent('offline_save_queued',{card_id:cardId||null,content_id:cardId||null,content_title:title});
     showSaveToast(`Queued “${title}” until the connection returns.`);
     return;
   }
-  trackEvent('content_saved',{card_id:cardId||null});
+  trackEvent('content_saved',{card_id:cardId||null,content_id:cardId||null,content_title:title});
   showSaveToast(`Ready to hand off “${title}” to the native share sheet on device.`);
 }
 
@@ -2191,15 +2391,7 @@ function setOfflineState(visible){
 
 function showPinNotice(){
   const target=getPinTarget();
-  if(!target||endedOverlayActive||document.getElementById('pinNotice').classList.contains('on')){
-    return;
-  }
-  activePinTarget=target;
-  document.getElementById('pinTitle').textContent=target.title;
-  document.getElementById('pinCopy').textContent='The host just pinned a new item for everyone in this room. Open it directly or dismiss the pin and keep browsing.';
-  document.getElementById('pinChip').textContent=target.collectionId==='live'?'Live pin':'Pinned now';
-  document.getElementById('pinNotice').classList.add('on');
-  trackEvent('pin_received',{collection_id:target.collectionId,card_id:target.cardId||null});
+  showPinNoticeForTarget(target);
 }
 
 function dismissPinNotice(trackDismiss=true){
@@ -2303,7 +2495,7 @@ function renderSearchResults(query){
       button.type='button';
       button.textContent='Open';
       button.addEventListener('click',()=>{
-        trackEvent('search_result_opened',{collection_id:item.collectionId,card_id:item.cardId||null});
+        trackEvent('search_result_opened',{collection_id:item.collectionId,card_id:item.cardId||null,content_id:item.cardId||null,content_title:item.title});
         openCollection(item,'search');
       });
 
@@ -2438,6 +2630,7 @@ function resolveBootstrapFlow(){
 function completeBootstrap(){
   document.getElementById('bootstrapShell').classList.add('done');
   openOverview();
+  registerRoomPresence();
   trackEvent('presence_registered');
   applyLiveSignals();
 }
@@ -2478,8 +2671,8 @@ function openCollection(item,source){
     showProd(item.productIndex);
   }
   go(item.screen);
-  trackEvent('collection_opened',{collection_id:item.collectionId,card_id:item.cardId||null,source});
-  trackEvent('card_viewed',{collection_id:item.collectionId,card_id:item.cardId||null});
+  trackEvent('collection_opened',{collection_id:item.collectionId,card_id:item.cardId||null,content_id:item.cardId||item.id||null,content_title:item.title,source});
+  trackEvent('card_viewed',{collection_id:item.collectionId,card_id:item.cardId||null,content_id:item.cardId||item.id||null,content_title:item.title});
 }
 
 function flipCard(){
@@ -2583,6 +2776,15 @@ renderOverview();
 initBootstrapCopy();
 trackEvent('qr_opened');
 trackEvent('session_bootstrap_loaded');
+roomBridgeState=loadRoomBridgeState();
+syncRoomBridgeState(roomBridgeState);
+if(roomBridgeEnabled){
+  window.addEventListener('storage',(event)=>{
+    if(event.key===getRoomBridgeStorageKey()){
+      syncRoomBridgeState(event.newValue?JSON.parse(event.newValue):null);
+    }
+  });
+}
 window.setTimeout(resolveBootstrapFlow,850);
 </script>
 </body>

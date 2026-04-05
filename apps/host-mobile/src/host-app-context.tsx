@@ -1,11 +1,46 @@
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
 
-import type { GoLiveResult, SaveHostSetupInput } from "@digi/api-contracts";
-import { createHostSetupDraft, type HostSetupDraft, type HostSetupSnapshot } from "@digi/domain";
+import type {
+  EndLiveSessionResult,
+  GoLiveResult,
+  LivePanelResponse,
+  SaveHostSetupInput,
+} from "@digi/api-contracts";
+import {
+  createHostSetupDraft,
+  type HostSetupDraft,
+  type HostSetupSnapshot,
+  type LiveContentItem,
+  type SessionSummarySnapshot,
+} from "@digi/domain";
 
-import { clearDemoState, loadDemoAuthenticated, loadDemoPhone, loadDemoSetup, persistDemoAuthenticated, persistDemoPhone, persistDemoSetup } from "./lib/demo-state";
+import {
+  clearDemoState,
+  loadDemoAuthenticated,
+  loadDemoPhone,
+  loadDemoRoom,
+  loadDemoSetup,
+  persistDemoAuthenticated,
+  persistDemoPhone,
+  persistDemoRoom,
+  persistDemoSetup,
+} from "./lib/demo-state";
 import { hostAppConfig } from "./lib/config";
-import { applyDemoGoLive, createDemoSnapshot, createEmptyDraft, fetchHostSetup, goLive, saveHostSetup } from "./lib/host-service";
+import { clearBrowserRoomState, loadBrowserRoomState, persistBrowserRoomState } from "./lib/live-room-bridge";
+import {
+  applyDemoEndLiveSession,
+  applyDemoGoLive,
+  applyDemoPinLiveContent,
+  createDemoSnapshot,
+  createEmptyDraft,
+  endLiveSession,
+  fetchHostSetup,
+  fetchLivePanel,
+  getDemoLivePanel,
+  goLive,
+  pinLiveContent,
+  saveHostSetup,
+} from "./lib/host-service";
 import { getSupabaseClient } from "./lib/supabase";
 
 interface HostAppContextValue {
@@ -17,6 +52,8 @@ interface HostAppContextValue {
   pendingPhone: string;
   draft: HostSetupDraft;
   setup: HostSetupSnapshot | null;
+  livePanel: LivePanelResponse | null;
+  sessionSummary: SessionSummarySnapshot | null;
   requestOtp: (phone: string) => Promise<void>;
   verifyOtp: (phone: string, code: string) => Promise<void>;
   startDemoMode: () => Promise<void>;
@@ -24,6 +61,9 @@ interface HostAppContextValue {
   saveCurrentSetup: () => Promise<HostSetupSnapshot>;
   goLiveNow: (durationMinutes: number) => Promise<GoLiveResult>;
   refreshSetup: () => Promise<void>;
+  refreshLivePanel: () => Promise<void>;
+  pinCurrentItem: (content: LiveContentItem) => Promise<void>;
+  endCurrentSession: () => Promise<EndLiveSessionResult>;
   signOut: () => Promise<void>;
 }
 
@@ -37,6 +77,15 @@ function parseError(error: unknown): string {
   return "Something went wrong.";
 }
 
+function getPrimarySpace(snapshot: HostSetupSnapshot | null) {
+  return snapshot?.spaces.find((item) => item.isDefault) ?? snapshot?.spaces[0] ?? null;
+}
+
+async function loadPreferredDemoRoom(snapshot: HostSetupSnapshot | null) {
+  const primarySpace = getPrimarySpace(snapshot);
+  return (primarySpace ? loadBrowserRoomState(primarySpace.qrSlug) : null) ?? (await loadDemoRoom());
+}
+
 export function HostAppProvider({ children }: PropsWithChildren) {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -46,6 +95,8 @@ export function HostAppProvider({ children }: PropsWithChildren) {
   const [pendingPhone, setPendingPhone] = useState("+91 ");
   const [draft, setDraft] = useState<HostSetupDraft>(createHostSetupDraft());
   const [setup, setSetup] = useState<HostSetupSnapshot | null>(null);
+  const [livePanel, setLivePanel] = useState<LivePanelResponse | null>(null);
+  const [sessionSummary, setSessionSummary] = useState<SessionSummarySnapshot | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -61,10 +112,14 @@ export function HostAppProvider({ children }: PropsWithChildren) {
           ]);
 
           if (isMounted && demoAuthenticated) {
+            const demoRoom = await loadPreferredDemoRoom(demoSetup ?? null);
+            const nextLivePanel = getDemoLivePanel(demoRoom);
             setDemoMode(true);
             setAuthenticated(true);
             setPendingPhone(demoPhone);
             setSetup(demoSetup);
+            setLivePanel(nextLivePanel);
+            setSessionSummary(nextLivePanel?.summary ?? null);
           }
         }
 
@@ -74,9 +129,12 @@ export function HostAppProvider({ children }: PropsWithChildren) {
           } = await client.auth.getSession();
 
           if (isMounted && session) {
+            const nextSetup = await fetchHostSetup(client);
+            const primarySpace = getPrimarySpace(nextSetup);
             setAuthenticated(true);
             setPendingPhone(session.user.phone ?? "+91 ");
-            setSetup(await fetchHostSetup(client));
+            setSetup(nextSetup);
+            setLivePanel(await fetchLivePanel(client, primarySpace?.id));
           }
         }
       } catch (nextError) {
@@ -107,6 +165,8 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       if (!session) {
         setSetup(null);
+        setLivePanel(null);
+        setSessionSummary(null);
       } else {
         void refreshSetupFromClient(client);
       }
@@ -114,7 +174,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     async function refreshSetupFromClient(supabaseClient: NonNullable<ReturnType<typeof getSupabaseClient>>) {
       try {
-        setSetup(await fetchHostSetup(supabaseClient));
+        const nextSetup = await fetchHostSetup(supabaseClient);
+        const primarySpace = getPrimarySpace(nextSetup);
+        setSetup(nextSetup);
+        setLivePanel(await fetchLivePanel(supabaseClient, primarySpace?.id));
       } catch (nextError) {
         setError(parseError(nextError));
       }
@@ -168,9 +231,12 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         throw verifyError;
       }
 
+      const nextSetup = await fetchHostSetup(client);
+      const primarySpace = getPrimarySpace(nextSetup);
       setPendingPhone(phone);
       setAuthenticated(true);
-      setSetup(await fetchHostSetup(client));
+      setSetup(nextSetup);
+      setLivePanel(await fetchLivePanel(client, primarySpace?.id));
     } catch (nextError) {
       setError(parseError(nextError));
       throw nextError;
@@ -184,10 +250,16 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     setError(null);
 
     try {
+      const demoSetup = await loadDemoSetup();
+      const demoRoom = await loadPreferredDemoRoom(demoSetup ?? null);
+      const nextLivePanel = getDemoLivePanel(demoRoom);
+
       setDemoMode(true);
       setAuthenticated(true);
       setPendingPhone("+91 99999 99999");
-      setSetup((await loadDemoSetup()) ?? null);
+      setSetup(demoSetup ?? null);
+      setLivePanel(nextLivePanel);
+      setSessionSummary(nextLivePanel?.summary ?? null);
       await Promise.all([
         persistDemoAuthenticated(true),
         persistDemoPhone("+91 99999 99999"),
@@ -249,21 +321,27 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     try {
       const currentSetup = setup;
-      const space =
-        currentSetup?.spaces.find((item: HostSetupSnapshot["spaces"][number]) => item.isDefault) ??
-        currentSetup?.spaces[0];
+      const space = getPrimarySpace(currentSetup);
 
       if (!currentSetup || !space) {
         throw new Error("Finish setup before going live.");
       }
 
       if (demoMode) {
-        const { nextSnapshot, result } = applyDemoGoLive(currentSetup, {
+        const { nextSnapshot, result, roomState } = applyDemoGoLive(currentSetup, {
           durationMinutes,
           spaceId: space.id,
         });
+        const nextLivePanel = getDemoLivePanel(roomState);
+
         setSetup(nextSnapshot);
-        await persistDemoSetup(nextSnapshot);
+        setLivePanel(nextLivePanel);
+        setSessionSummary(null);
+        await Promise.all([
+          persistDemoSetup(nextSnapshot),
+          persistDemoRoom(roomState),
+        ]);
+        persistBrowserRoomState(roomState);
         return result;
       }
 
@@ -277,7 +355,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         durationMinutes,
         spaceId: space.id,
       });
-      setSetup(await fetchHostSetup(client));
+      const nextSetup = await fetchHostSetup(client);
+      setSetup(nextSetup);
+      setSessionSummary(null);
+      setLivePanel(await fetchLivePanel(client, space.id));
       return result;
     } catch (nextError) {
       setError(parseError(nextError));
@@ -291,7 +372,12 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     setError(null);
 
     if (demoMode) {
-      setSetup((await loadDemoSetup()) ?? null);
+      const demoSetup = await loadDemoSetup();
+      const demoRoom = await loadPreferredDemoRoom(demoSetup ?? null);
+      const nextLivePanel = getDemoLivePanel(demoRoom);
+      setSetup(demoSetup ?? null);
+      setLivePanel(nextLivePanel);
+      setSessionSummary(nextLivePanel?.summary ?? null);
       return;
     }
 
@@ -301,7 +387,140 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    setSetup(await fetchHostSetup(client));
+    const nextSetup = await fetchHostSetup(client);
+    const primarySpace = getPrimarySpace(nextSetup);
+    setSetup(nextSetup);
+    setLivePanel(await fetchLivePanel(client, primarySpace?.id));
+  }
+
+  async function refreshLivePanel() {
+    setError(null);
+
+    if (demoMode) {
+      const room = await loadPreferredDemoRoom(setup);
+      const nextLivePanel = getDemoLivePanel(room);
+      setLivePanel(nextLivePanel);
+      setSessionSummary(nextLivePanel?.summary ?? null);
+      return;
+    }
+
+    const client = getSupabaseClient();
+
+    if (!client || !authenticated) {
+      return;
+    }
+
+    const primarySpace = getPrimarySpace(setup);
+    const nextLivePanel = await fetchLivePanel(client, primarySpace?.id);
+    setLivePanel(nextLivePanel);
+    setSessionSummary(nextLivePanel?.summary ?? null);
+  }
+
+  async function pinCurrentItem(content: LiveContentItem) {
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (!livePanel) {
+        throw new Error("Start a live session before pinning content.");
+      }
+
+      if (demoMode) {
+        const room = await loadPreferredDemoRoom(setup);
+
+        if (!room) {
+          throw new Error("Demo room state is missing.");
+        }
+
+        const next = applyDemoPinLiveContent(room, {
+          sessionId: livePanel.sessionId,
+          content,
+        });
+        const nextLivePanel = getDemoLivePanel(next.roomState);
+
+        setLivePanel(nextLivePanel);
+        await persistDemoRoom(next.roomState);
+        persistBrowserRoomState(next.roomState);
+        return;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      await pinLiveContent(client, {
+        sessionId: livePanel.sessionId,
+        content,
+      });
+      const primarySpace = getPrimarySpace(setup);
+      setLivePanel(await fetchLivePanel(client, primarySpace?.id));
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function endCurrentSession() {
+    setBusy(true);
+    setError(null);
+
+    try {
+      if (!livePanel) {
+        throw new Error("There is no active session to end.");
+      }
+
+      if (demoMode) {
+        const room = await loadPreferredDemoRoom(setup);
+        const currentSetup = setup;
+
+        if (!room) {
+          throw new Error("Demo room state is missing.");
+        }
+
+        const next = applyDemoEndLiveSession(room);
+        const nextLivePanel = getDemoLivePanel(next.roomState);
+        const nextSetup = currentSetup
+          ? {
+              ...currentSetup,
+              liveSession: null,
+            }
+          : currentSetup;
+
+        setLivePanel(nextLivePanel);
+        setSessionSummary(next.result.summary);
+        setSetup(nextSetup);
+        await Promise.all([
+          persistDemoRoom(next.roomState),
+          persistDemoSetup(nextSetup),
+        ]);
+        persistBrowserRoomState(next.roomState);
+        return next.result;
+      }
+
+      const client = getSupabaseClient();
+
+      if (!client) {
+        throw new Error("Supabase credentials are missing. Use demo mode or add mobile runtime config.");
+      }
+
+      const result = await endLiveSession(client, {
+        sessionId: livePanel.sessionId,
+      });
+      const nextSetup = await fetchHostSetup(client);
+      setSessionSummary(result.summary);
+      setSetup(nextSetup);
+      setLivePanel(null);
+      return result;
+    } catch (nextError) {
+      setError(parseError(nextError));
+      throw nextError;
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function signOut() {
@@ -310,10 +529,15 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     try {
       if (demoMode) {
+        if (setup?.spaces[0]?.qrSlug) {
+          clearBrowserRoomState(setup.spaces[0].qrSlug);
+        }
         await clearDemoState();
         setDemoMode(false);
         setAuthenticated(false);
         setSetup(null);
+        setLivePanel(null);
+        setSessionSummary(null);
         setDraft(createHostSetupDraft());
         return;
       }
@@ -326,6 +550,8 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       setAuthenticated(false);
       setSetup(null);
+      setLivePanel(null);
+      setSessionSummary(null);
       setDraft(createHostSetupDraft());
     } catch (nextError) {
       setError(parseError(nextError));
@@ -344,6 +570,8 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     pendingPhone,
     draft,
     setup,
+    livePanel,
+    sessionSummary,
     requestOtp,
     verifyOtp,
     startDemoMode,
@@ -351,6 +579,9 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     saveCurrentSetup,
     goLiveNow,
     refreshSetup,
+    refreshLivePanel,
+    pinCurrentItem,
+    endCurrentSession,
     signOut,
   };
 
