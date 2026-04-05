@@ -1,4 +1,5 @@
 import type { SessionStatus, SpaceMode, SpaceType } from "./host";
+import type { SpaceContentEntry } from "./content-catalog";
 
 export type LiveEventName =
   | "session_started"
@@ -95,6 +96,7 @@ export interface DemoRoomState {
   endedAt: string | null;
   durationMinutes: number;
   pinnedItem: LiveContentItem | null;
+  contentEntries: SpaceContentEntry[];
   attendees: LivePresenceEntry[];
   events: LiveActivityEvent[];
 }
@@ -264,6 +266,7 @@ export function createDemoRoomState(input: {
   startedAt: string;
   endsAt: string;
   durationMinutes: number;
+  contentEntries: SpaceContentEntry[];
 }): DemoRoomState {
   return {
     sessionId: input.sessionId,
@@ -279,6 +282,7 @@ export function createDemoRoomState(input: {
     endedAt: null,
     durationMinutes: input.durationMinutes,
     pinnedItem: null,
+    contentEntries: input.contentEntries,
     attendees: [],
     events: [],
   };

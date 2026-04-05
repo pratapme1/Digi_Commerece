@@ -81,7 +81,7 @@ test.describe("Digi host mobile web export", () => {
     await expect(attendeePage.getByText("65W GaN charger dealer pricing").first()).toBeVisible();
 
     await attendeePage.getByRole("button", { name: "Open pinned item" }).first().click();
-    await expect(attendeePage.getByRole("heading", { name: "65W GaN Dual USB-C Charger" })).toBeVisible();
+    await expect(attendeePage.getByRole("heading", { name: "65W GaN charger dealer pricing" })).toBeVisible();
     await attendeePage.getByRole("button", { name: "Save Product Info" }).click();
 
     await page.getByRole("button", { name: "End live session" }).click();
@@ -147,5 +147,41 @@ test.describe("Digi host mobile web export", () => {
     await expect(page.getByText("South Zone Meet-Up")).toHaveCount(0);
 
     expect(pageErrors, `Unexpected operations page errors: ${pageErrors.map((error) => error.message).join("; ")}`).toHaveLength(0);
+  });
+
+  test("promotes imported content into the attendee experience", async ({ page }) => {
+    test.setTimeout(45_000);
+
+    await bootstrapDemoWorkspace(page, "Atlas Retail");
+    await page.getByRole("button", { name: "Open operations" }).click();
+
+    await page.getByLabel("File name").fill("attendee-catalog.csv");
+    await page
+      .getByLabel("CSV payload")
+      .fill(
+        [
+          "space_name,brand_name,content_type,title,subtitle,sku",
+          "Dealer Day,Vega Prime,product,Importer Spotlight Bundle,Pilot offer pricing,AT-BUNDLE-01",
+          "Dealer Day,Vega Prime,contact,Rhea Sen,Regional sales lead,",
+        ].join("\n"),
+      );
+    await page.getByRole("button", { name: "Validate and record import" }).click();
+    await expect(page.getByText("attendee-catalog.csv · Validated")).toBeVisible();
+
+    await page.getByRole("button", { name: "Back to dashboard" }).click();
+    await page.getByRole("button", { name: "Go Live" }).click();
+    await page.getByRole("button", { name: "90 min" }).click();
+    await page.getByRole("button", { name: "Confirm and go live" }).click();
+
+    const attendeePage = await openDemoAttendeeFromHost(page);
+    await attendeePage.getByRole("button", { name: "Enter Space" }).click();
+    await attendeePage.getByLabel("Name").fill("Rhea Kapoor");
+    await attendeePage.getByRole("button", { name: "Continue" }).click();
+
+    await attendeePage.getByLabel("Search this space").fill("spotlight");
+    const spotlightResult = attendeePage.locator("button").filter({ hasText: "Importer Spotlight Bundle" }).first();
+    await expect(spotlightResult).toBeVisible();
+    await spotlightResult.click();
+    await expect(attendeePage.getByRole("heading", { name: "Importer Spotlight Bundle" })).toBeVisible();
   });
 });

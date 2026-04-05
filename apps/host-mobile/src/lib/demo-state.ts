@@ -1,12 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import type { DemoOperationsState, DemoRoomState, HostSetupSnapshot } from "@digi/domain";
+import type { DemoOperationsState, DemoRoomState, HostSetupSnapshot, SpaceContentCatalog } from "@digi/domain";
 
 const DEMO_AUTH_KEY = "digi:host:demo-authenticated";
 const DEMO_PHONE_KEY = "digi:host:demo-phone";
 const DEMO_SETUP_KEY = "digi:host:demo-setup";
 const DEMO_ROOM_KEY = "digi:host:demo-room";
 const DEMO_OPERATIONS_KEY = "digi:host:demo-operations";
+const DEMO_CONTENT_CATALOGS_KEY = "digi:host:demo-content-catalogs";
 
 export async function loadDemoAuthenticated(): Promise<boolean> {
   return (await AsyncStorage.getItem(DEMO_AUTH_KEY)) === "true";
@@ -66,6 +67,20 @@ export async function persistDemoOperations(state: DemoOperationsState | null): 
   await AsyncStorage.setItem(DEMO_OPERATIONS_KEY, JSON.stringify(state));
 }
 
+export async function loadDemoContentCatalogs(): Promise<SpaceContentCatalog[] | null> {
+  const raw = await AsyncStorage.getItem(DEMO_CONTENT_CATALOGS_KEY);
+  return raw ? (JSON.parse(raw) as SpaceContentCatalog[]) : null;
+}
+
+export async function persistDemoContentCatalogs(catalogs: SpaceContentCatalog[] | null): Promise<void> {
+  if (!catalogs) {
+    await AsyncStorage.removeItem(DEMO_CONTENT_CATALOGS_KEY);
+    return;
+  }
+
+  await AsyncStorage.setItem(DEMO_CONTENT_CATALOGS_KEY, JSON.stringify(catalogs));
+}
+
 export async function clearDemoState(): Promise<void> {
   await Promise.all([
     AsyncStorage.removeItem(DEMO_AUTH_KEY),
@@ -73,5 +88,6 @@ export async function clearDemoState(): Promise<void> {
     AsyncStorage.removeItem(DEMO_SETUP_KEY),
     AsyncStorage.removeItem(DEMO_ROOM_KEY),
     AsyncStorage.removeItem(DEMO_OPERATIONS_KEY),
+    AsyncStorage.removeItem(DEMO_CONTENT_CATALOGS_KEY),
   ]);
 }

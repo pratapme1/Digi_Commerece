@@ -69,3 +69,12 @@ Use this backlog with the milestone order in `milestones.md`. Discovery items co
 - [P0][Build] Integrate host QR and live-panel links with the real attendee app in both real and local-demo flows.
 - [P0][Build] Replace attendee-demo Playwright coverage with the production attendee route while keeping local verification repeatable.
 - [P1][Build] Leave the HTML prototype as a design reference only, not the canonical attendee runtime.
+
+## M7 Canonical Attendee Content And Host Integration
+- [P0][Discovery] Identify every remaining preset-only attendee path and define the canonical host-managed content contract that replaces it.
+- [P0][Build] Add shared content-entry contracts and transformation helpers for attendee rendering, search, and host pinning.
+- [P0][Build] Add tracked Supabase storage and RPCs for canonical space content.
+- [P0][Build] Promote accepted import rows into canonical attendee content for the targeted space.
+- [P0][Build] Update the host live panel to use canonical content for pin controls.
+- [P0][Build] Update the attendee app to render canonical content with fallback only when no stored content exists.
+- [P1][Build] Add browser E2E that proves host-managed content appears in the attendee app.

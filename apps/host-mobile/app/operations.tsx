@@ -235,7 +235,7 @@ export default function OperationsScreen() {
         <Text style={styles.sectionLabel}>Imports</Text>
         <Text style={styles.sectionTitle}>CSV validation</Text>
         <Text style={styles.sectionCopy}>
-          Use the template, paste the CSV, and log the validation result. The current pilot path supports CSV and records row-level outcomes.
+          Use the template, paste the CSV, and log the validation result. Accepted rows are now promoted into the canonical attendee content for the selected space.
         </Text>
         <TextField
           label="File name"

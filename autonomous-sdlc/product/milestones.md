@@ -166,3 +166,25 @@ Replace the attendee HTML prototype with the approved Next.js web app and connec
 - Host-generated attendee links resolve into the production attendee surface
 - Attendee events update host live metrics and pin state through the real backend path
 - Local and CI verification prove both the standalone attendee flow and host integration
+
+## M7 Canonical Attendee Content And Host Integration
+### Objective
+Replace preset-only attendee content with canonical host-managed content that both apps can read and operate on.
+
+### Discovery Focus
+- Where the current product still relies on static preset data instead of host-authored or imported content
+- How imports, seed content, pin controls, and attendee rendering should converge on one canonical content contract
+- How local demo verification should preserve repeatable browser E2E without reintroducing prototype-only shortcuts
+
+### Delivery Scope
+- Canonical shared content-entry contracts in the monorepo
+- Supabase storage and RPCs for attendee-facing space content
+- Import promotion from validated catalog rows into canonical content
+- Host live-panel pin controls driven by canonical content instead of static libraries
+- Attendee rendering driven by canonical content with preset fallback only when the space has no stored content
+
+### Exit Criteria
+- Attendee content comes from canonical host-managed data when available
+- Host live controls and attendee rendering use the same content contract
+- Imports can be proven in browser E2E to affect the attendee experience
+- Preset content remains only as seed or fallback scaffolding, not the primary real-data path

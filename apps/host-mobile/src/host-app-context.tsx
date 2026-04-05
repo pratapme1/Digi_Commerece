@@ -12,6 +12,9 @@ import {
   applyDemoCreateBrandProfile,
   applyDemoCreateSpace,
   applyDemoDeleteSpace,
+  createSeedContentCatalogsForSpaces,
+  createSpaceContentCatalog,
+  findSpaceContentCatalog,
   isDemoBridgeMessage,
   applyDemoImportJob,
   applyDemoInviteTeamMember,
@@ -21,6 +24,9 @@ import {
   createEmptyOperationsSnapshot,
   createHostSetupDraft,
   getPrimaryHostSpace,
+  mergeImportRowsIntoSpaceContentEntries,
+  removeSpaceContentCatalog,
+  upsertSpaceContentCatalog,
   recordDemoSessionSummary,
   validateBrandProfileInput,
   validateCatalogImportCsv,
@@ -35,6 +41,7 @@ import {
   type OperationsSnapshot,
   type RemoveTeamAccessInput,
   type SessionSummarySnapshot,
+  type SpaceContentCatalog,
   type SubmitCatalogImportInput,
 } from "@digi/domain";
 
@@ -45,19 +52,22 @@ import {
   loadDemoPhone,
   loadDemoRoom,
   loadDemoSetup,
+  loadDemoContentCatalogs,
   persistDemoAuthenticated,
+  persistDemoContentCatalogs,
   persistDemoOperations,
   persistDemoPhone,
   persistDemoRoom,
   persistDemoSetup,
 } from "./lib/demo-state";
 import { hostAppConfig } from "./lib/config";
+import { loadBrowserContentCatalogs, persistBrowserContentCatalogs } from "./lib/content-catalog-bridge";
 import { clearBrowserRoomState, loadBrowserRoomState, persistBrowserRoomState } from "./lib/live-room-bridge";
 import {
   applyDemoAttendeeEvent,
   applyDemoAttendeePresence,
   applyDemoEndLiveSession,
-  applyDemoGoLive,
+  applyDemoGoLiveWithCatalog,
   applyDemoPinLiveContent,
   archiveSpace,
   assignSpaceBrand,
@@ -67,6 +77,7 @@ import {
   createSpace,
   deleteSpace,
   endLiveSession,
+  fetchHostContentCatalogs,
   fetchHostSetup,
   fetchLivePanel,
   fetchOperationsSnapshot,
@@ -92,6 +103,7 @@ interface HostAppContextValue {
   livePanel: LivePanelResponse | null;
   sessionSummary: SessionSummarySnapshot | null;
   operations: OperationsSnapshot | null;
+  contentCatalogs: SpaceContentCatalog[];
   operationsRange: AnalyticsRange;
   requestOtp: (phone: string) => Promise<void>;
   verifyOtp: (phone: string, code: string) => Promise<void>;
@@ -142,6 +154,34 @@ async function loadPreferredDemoOperations(snapshot: HostSetupSnapshot | null) {
   return seeded;
 }
 
+async function loadPreferredDemoContentCatalogs(snapshot: HostSetupSnapshot | null) {
+  const browserStored = loadBrowserContentCatalogs();
+
+  if (browserStored) {
+    return browserStored;
+  }
+
+  const stored = await loadDemoContentCatalogs();
+
+  if (stored) {
+    persistBrowserContentCatalogs(stored);
+    return stored;
+  }
+
+  const seeded = createSeedContentCatalogsForSpaces((snapshot?.spaces ?? []).map((space) => ({
+    id: space.id,
+    spaceType: space.spaceType,
+  })));
+  await persistDemoContentCatalogs(seeded);
+  persistBrowserContentCatalogs(seeded);
+  return seeded;
+}
+
+async function persistDemoCatalogMirrors(catalogs: SpaceContentCatalog[] | null) {
+  await persistDemoContentCatalogs(catalogs);
+  persistBrowserContentCatalogs(catalogs);
+}
+
 export function HostAppProvider({ children }: PropsWithChildren) {
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -154,6 +194,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
   const [livePanel, setLivePanel] = useState<LivePanelResponse | null>(null);
   const [sessionSummary, setSessionSummary] = useState<SessionSummarySnapshot | null>(null);
   const [operations, setOperations] = useState<OperationsSnapshot | null>(null);
+  const [contentCatalogs, setContentCatalogs] = useState<SpaceContentCatalog[]>([]);
   const [operationsRange, setOperationsRange] = useState<AnalyticsRange>("30d");
 
   useEffect(() => {
@@ -170,9 +211,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
           ]);
 
           if (isMounted && demoAuthenticated) {
-            const [demoRoom, demoOperations] = await Promise.all([
+            const [demoRoom, demoOperations, demoCatalogs] = await Promise.all([
               loadPreferredDemoRoom(demoSetup ?? null),
               loadPreferredDemoOperations(demoSetup ?? null),
+              loadPreferredDemoContentCatalogs(demoSetup ?? null),
             ]);
             const nextLivePanel = getDemoLivePanel(demoRoom);
 
@@ -183,6 +225,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
             setLivePanel(nextLivePanel);
             setSessionSummary(nextLivePanel?.summary ?? null);
             setOperations(buildOperationsSnapshot(demoOperations, demoSetup?.spaces ?? [], operationsRange));
+            setContentCatalogs(demoCatalogs);
           }
         }
 
@@ -194,15 +237,19 @@ export function HostAppProvider({ children }: PropsWithChildren) {
           if (isMounted && session) {
             const nextSetup = await fetchHostSetup(client);
             const primarySpace = getPrimaryHostSpace(nextSetup);
-            const nextOperations = nextSetup.account
-              ? await fetchOperationsSnapshot(client, { range: operationsRange })
-              : createEmptyOperationsSnapshot(operationsRange);
+            const [nextOperations, nextCatalogs] = await Promise.all([
+              nextSetup.account
+                ? fetchOperationsSnapshot(client, { range: operationsRange })
+                : Promise.resolve(createEmptyOperationsSnapshot(operationsRange)),
+              nextSetup.account ? fetchHostContentCatalogs(client) : Promise.resolve([]),
+            ]);
 
             setAuthenticated(true);
             setPendingPhone(session.user.phone ?? "+91 ");
             setSetup(nextSetup);
             setLivePanel(await fetchLivePanel(client, primarySpace?.id));
             setOperations(nextOperations);
+            setContentCatalogs(nextCatalogs);
           }
         }
       } catch (nextError) {
@@ -236,6 +283,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         setLivePanel(null);
         setSessionSummary(null);
         setOperations(null);
+        setContentCatalogs([]);
       } else {
         void refreshSetupFromClient(client);
       }
@@ -245,13 +293,17 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       try {
         const nextSetup = await fetchHostSetup(supabaseClient);
         const primarySpace = getPrimaryHostSpace(nextSetup);
-        const nextOperations = nextSetup.account
-          ? await fetchOperationsSnapshot(supabaseClient, { range: operationsRange })
-          : createEmptyOperationsSnapshot(operationsRange);
+        const [nextOperations, nextCatalogs] = await Promise.all([
+          nextSetup.account
+            ? fetchOperationsSnapshot(supabaseClient, { range: operationsRange })
+            : Promise.resolve(createEmptyOperationsSnapshot(operationsRange)),
+          nextSetup.account ? fetchHostContentCatalogs(supabaseClient) : Promise.resolve([]),
+        ]);
 
         setSetup(nextSetup);
         setLivePanel(await fetchLivePanel(supabaseClient, primarySpace?.id));
         setOperations(nextOperations);
+        setContentCatalogs(nextCatalogs);
       } catch (nextError) {
         setError(parseError(nextError));
       }
@@ -296,21 +348,30 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       void (async () => {
         const roomState = loadBrowserRoomState(primarySpace.qrSlug) ?? (await loadPreferredDemoRoom(setup));
+        const demoCatalogs = await loadPreferredDemoContentCatalogs(setup);
+        const activeCatalog = roomState ? findSpaceContentCatalog(demoCatalogs, roomState.spaceId) : null;
+        const effectiveRoomState =
+          roomState && activeCatalog
+            ? {
+                ...roomState,
+                contentEntries: activeCatalog.entries,
+              }
+            : roomState;
 
         if (event.data.type === "digi-demo-room-request") {
-          respond(roomState);
+          respond(effectiveRoomState);
           return;
         }
 
-        if (!roomState) {
+        if (!effectiveRoomState) {
           respond(null);
           return;
         }
 
         const nextRoomState =
           event.data.type === "digi-demo-attendee-presence"
-            ? applyDemoAttendeePresence(roomState, event.data.presence)
-            : applyDemoAttendeeEvent(roomState, {
+            ? applyDemoAttendeePresence(effectiveRoomState, event.data.presence)
+            : applyDemoAttendeeEvent(effectiveRoomState, {
                 attendeeRef: event.data.attendeeRef,
                 attendeeName: event.data.attendeeName ?? null,
                 contentId: event.data.contentId ?? null,
@@ -376,15 +437,19 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       const nextSetup = await fetchHostSetup(client);
       const primarySpace = getPrimaryHostSpace(nextSetup);
-      const nextOperations = nextSetup.account
-        ? await fetchOperationsSnapshot(client, { range: operationsRange })
-        : createEmptyOperationsSnapshot(operationsRange);
+      const [nextOperations, nextCatalogs] = await Promise.all([
+        nextSetup.account
+          ? fetchOperationsSnapshot(client, { range: operationsRange })
+          : Promise.resolve(createEmptyOperationsSnapshot(operationsRange)),
+        nextSetup.account ? fetchHostContentCatalogs(client) : Promise.resolve([]),
+      ]);
 
       setPendingPhone(phone);
       setAuthenticated(true);
       setSetup(nextSetup);
       setLivePanel(await fetchLivePanel(client, primarySpace?.id));
       setOperations(nextOperations);
+      setContentCatalogs(nextCatalogs);
     } catch (nextError) {
       setError(parseError(nextError));
       throw nextError;
@@ -399,9 +464,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     try {
       const demoSetup = await loadDemoSetup();
-      const [demoRoom, demoOperations] = await Promise.all([
+      const [demoRoom, demoOperations, demoCatalogs] = await Promise.all([
         loadPreferredDemoRoom(demoSetup ?? null),
         loadPreferredDemoOperations(demoSetup ?? null),
+        loadPreferredDemoContentCatalogs(demoSetup ?? null),
       ]);
       const nextLivePanel = getDemoLivePanel(demoRoom);
 
@@ -412,6 +478,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       setLivePanel(nextLivePanel);
       setSessionSummary(nextLivePanel?.summary ?? null);
       setOperations(buildOperationsSnapshot(demoOperations, demoSetup?.spaces ?? [], operationsRange));
+      setContentCatalogs(demoCatalogs);
       await Promise.all([
         persistDemoAuthenticated(true),
         persistDemoPhone("+91 99999 99999"),
@@ -445,12 +512,18 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       if (demoMode) {
         const nextSetup = createDemoSnapshot(input);
         const nextOperationsState = createDemoOperationsState(nextSetup);
+        const nextCatalogs = createSeedContentCatalogsForSpaces(nextSetup.spaces.map((space) => ({
+          id: space.id,
+          spaceType: space.spaceType,
+        })));
 
         setSetup(nextSetup);
         setOperations(buildOperationsSnapshot(nextOperationsState, nextSetup.spaces, operationsRange));
+        setContentCatalogs(nextCatalogs);
         await Promise.all([
           persistDemoSetup(nextSetup),
           persistDemoOperations(nextOperationsState),
+          persistDemoCatalogMirrors(nextCatalogs),
         ]);
         return nextSetup;
       }
@@ -462,13 +535,16 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       }
 
       const nextSetup = await saveHostSetup(client, input);
+      const [nextOperations, nextCatalogs] = await Promise.all([
+        nextSetup.account
+          ? fetchOperationsSnapshot(client, { range: operationsRange })
+          : Promise.resolve(createEmptyOperationsSnapshot(operationsRange)),
+        nextSetup.account ? fetchHostContentCatalogs(client) : Promise.resolve([]),
+      ]);
       setSetup(nextSetup);
       setDraft(createEmptyDraft());
-      setOperations(
-        nextSetup.account
-          ? await fetchOperationsSnapshot(client, { range: operationsRange })
-          : createEmptyOperationsSnapshot(operationsRange),
-      );
+      setOperations(nextOperations);
+      setContentCatalogs(nextCatalogs);
       return nextSetup;
     } catch (nextError) {
       setError(parseError(nextError));
@@ -491,18 +567,44 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       }
 
       if (demoMode) {
-        const { nextSnapshot, result, roomState } = applyDemoGoLive(currentSetup, {
-          durationMinutes,
-          spaceId: space.id,
-        });
+        const storedCatalogs = await loadPreferredDemoContentCatalogs(currentSetup);
+        const demoOperationsState = await loadPreferredDemoOperations(currentSetup);
+        const latestImport = demoOperationsState.importJobs.find((job) =>
+          job.spaceId === space.id && job.rows.some((row) => row.status === "accepted"),
+        );
+        const effectiveCatalogs = latestImport
+          ? upsertSpaceContentCatalog(
+              storedCatalogs,
+              createSpaceContentCatalog(
+                space.id,
+                space.spaceType,
+                mergeImportRowsIntoSpaceContentEntries(
+                  space.id,
+                  space.spaceType,
+                  findSpaceContentCatalog(storedCatalogs, space.id)?.entries ?? createSpaceContentCatalog(space.id, space.spaceType).entries,
+                  latestImport.rows,
+                ),
+              ),
+            )
+          : storedCatalogs;
+        const { nextSnapshot, result, roomState } = applyDemoGoLiveWithCatalog(
+          currentSetup,
+          {
+            durationMinutes,
+            spaceId: space.id,
+          },
+          effectiveCatalogs,
+        );
         const nextLivePanel = getDemoLivePanel(roomState);
 
         setSetup(nextSnapshot);
+        setContentCatalogs(effectiveCatalogs);
         setLivePanel(nextLivePanel);
         setSessionSummary(null);
         await Promise.all([
           persistDemoSetup(nextSnapshot),
           persistDemoRoom(roomState),
+          persistDemoCatalogMirrors(effectiveCatalogs),
         ]);
         persistBrowserRoomState(roomState);
         return result;
@@ -519,7 +621,9 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         spaceId: space.id,
       });
       const nextSetup = await fetchHostSetup(client);
+      const nextCatalogs = await fetchHostContentCatalogs(client);
       setSetup(nextSetup);
+      setContentCatalogs(nextCatalogs);
       setSessionSummary(null);
       setLivePanel(await fetchLivePanel(client, space.id));
       setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
@@ -537,9 +641,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     if (demoMode) {
       const demoSetup = await loadDemoSetup();
-      const [demoRoom, demoOperationsState] = await Promise.all([
+      const [demoRoom, demoOperationsState, demoCatalogs] = await Promise.all([
         loadPreferredDemoRoom(demoSetup ?? null),
         loadPreferredDemoOperations(demoSetup ?? null),
+        loadPreferredDemoContentCatalogs(demoSetup ?? null),
       ]);
       const nextLivePanel = getDemoLivePanel(demoRoom);
 
@@ -547,6 +652,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       setLivePanel(nextLivePanel);
       setSessionSummary(nextLivePanel?.summary ?? null);
       setOperations(buildOperationsSnapshot(demoOperationsState, demoSetup?.spaces ?? [], operationsRange));
+      setContentCatalogs(demoCatalogs);
       return;
     }
 
@@ -558,13 +664,17 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     const nextSetup = await fetchHostSetup(client);
     const primarySpace = getPrimaryHostSpace(nextSetup);
-    const nextOperations = nextSetup.account
-      ? await fetchOperationsSnapshot(client, { range: operationsRange })
-      : createEmptyOperationsSnapshot(operationsRange);
+    const [nextOperations, nextCatalogs] = await Promise.all([
+      nextSetup.account
+        ? fetchOperationsSnapshot(client, { range: operationsRange })
+        : Promise.resolve(createEmptyOperationsSnapshot(operationsRange)),
+      nextSetup.account ? fetchHostContentCatalogs(client) : Promise.resolve([]),
+    ]);
 
     setSetup(nextSetup);
     setLivePanel(await fetchLivePanel(client, primarySpace?.id));
     setOperations(nextOperations);
+    setContentCatalogs(nextCatalogs);
   }
 
   async function refreshLivePanel() {
@@ -717,9 +827,11 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         sessionId: livePanel.sessionId,
       });
       const nextSetup = await fetchHostSetup(client);
+      const nextCatalogs = await fetchHostContentCatalogs(client);
 
       setSessionSummary(result.summary);
       setSetup(nextSetup);
+      setContentCatalogs(nextCatalogs);
       setLivePanel(null);
       setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
       return result;
@@ -761,8 +873,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       await createBrandProfile(client, input);
       const nextSetup = await fetchHostSetup(client);
+      const nextCatalogs = await fetchHostContentCatalogs(client);
 
       setSetup(nextSetup);
+      setContentCatalogs(nextCatalogs);
       setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
     } catch (nextError) {
       setError(parseError(nextError));
@@ -783,8 +897,17 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       if (demoMode) {
         const nextSetup = applyDemoCreateSpace(setup, input);
+        const createdSpace = nextSetup.spaces[nextSetup.spaces.length - 1];
+        const storedCatalogs = await loadPreferredDemoContentCatalogs(setup);
+        const nextCatalogs = createdSpace
+          ? upsertSpaceContentCatalog(storedCatalogs, createSpaceContentCatalog(createdSpace.id, createdSpace.spaceType))
+          : storedCatalogs;
         setSetup(nextSetup);
-        await persistDemoSetup(nextSetup);
+        setContentCatalogs(nextCatalogs);
+        await Promise.all([
+          persistDemoSetup(nextSetup),
+          persistDemoCatalogMirrors(nextCatalogs),
+        ]);
         await refreshOperations();
         return;
       }
@@ -797,8 +920,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       await createSpace(client, input);
       const nextSetup = await fetchHostSetup(client);
+      const nextCatalogs = await fetchHostContentCatalogs(client);
 
       setSetup(nextSetup);
+      setContentCatalogs(nextCatalogs);
       setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
     } catch (nextError) {
       setError(parseError(nextError));
@@ -833,8 +958,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       await assignSpaceBrand(client, { spaceId, brandProfileId });
       const nextSetup = await fetchHostSetup(client);
+      const nextCatalogs = await fetchHostContentCatalogs(client);
 
       setSetup(nextSetup);
+      setContentCatalogs(nextCatalogs);
       setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
     } catch (nextError) {
       setError(parseError(nextError));
@@ -906,11 +1033,53 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
     try {
       const validation = validateCatalogImportCsv(input.csvText, setup);
+      const resolvedSpaceId = input.spaceId ?? getPrimaryHostSpace(setup)?.id ?? null;
 
       if (demoMode) {
-        const nextState = applyDemoImportJob(await loadPreferredDemoOperations(setup), validation, input);
+        const nextState = applyDemoImportJob(await loadPreferredDemoOperations(setup), validation, {
+          ...input,
+          spaceId: resolvedSpaceId,
+        });
+        const storedCatalogs = await loadPreferredDemoContentCatalogs(setup);
+        const targetSpace = resolvedSpaceId
+          ? setup?.spaces.find((space) => space.id === resolvedSpaceId) ?? null
+          : getPrimaryHostSpace(setup);
+        let nextCatalogs = storedCatalogs;
+
+        if (targetSpace) {
+          const existingEntries = findSpaceContentCatalog(storedCatalogs, targetSpace.id)?.entries ?? createSpaceContentCatalog(targetSpace.id, targetSpace.spaceType).entries;
+          const mergedEntries = mergeImportRowsIntoSpaceContentEntries(
+            targetSpace.id,
+            targetSpace.spaceType,
+            existingEntries,
+            validation.rows,
+          );
+          nextCatalogs = upsertSpaceContentCatalog(
+            contentCatalogs,
+            createSpaceContentCatalog(targetSpace.id, targetSpace.spaceType, mergedEntries),
+          );
+        }
+
         setOperations(buildOperationsSnapshot(nextState, setup?.spaces ?? [], operationsRange));
-        await persistDemoOperations(nextState);
+        setContentCatalogs(nextCatalogs);
+        const room = await loadPreferredDemoRoom(setup);
+        const activeCatalog = room ? findSpaceContentCatalog(nextCatalogs, room.spaceId) : null;
+        const nextRoom = room && activeCatalog
+          ? {
+              ...room,
+              contentEntries: activeCatalog.entries,
+            }
+          : room;
+
+        await Promise.all([
+          persistDemoOperations(nextState),
+          persistDemoCatalogMirrors(nextCatalogs),
+          persistDemoRoom(nextRoom),
+        ]);
+        if (nextRoom) {
+          persistBrowserRoomState(nextRoom);
+          setLivePanel(getDemoLivePanel(nextRoom));
+        }
         return;
       }
 
@@ -922,14 +1091,19 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       await recordCatalogImport(client, {
         fileName: input.fileName,
-        spaceId: input.spaceId,
+        spaceId: resolvedSpaceId,
         processedRows: validation.processedRows,
         acceptedRows: validation.acceptedRows,
         rejectedRows: validation.rejectedRows,
         status: validation.status,
         rows: validation.rows,
       });
-      setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
+      const [nextOperations, nextCatalogs] = await Promise.all([
+        fetchOperationsSnapshot(client, { range: operationsRange }),
+        fetchHostContentCatalogs(client),
+      ]);
+      setOperations(nextOperations);
+      setContentCatalogs(nextCatalogs);
     } catch (nextError) {
       setError(parseError(nextError));
       throw nextError;
@@ -963,8 +1137,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       await archiveSpace(client, { spaceId });
       const nextSetup = await fetchHostSetup(client);
+      const nextCatalogs = await fetchHostContentCatalogs(client);
 
       setSetup(nextSetup);
+      setContentCatalogs(nextCatalogs);
       setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
     } catch (nextError) {
       setError(parseError(nextError));
@@ -985,9 +1161,15 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       if (demoMode) {
         const nextSetup = applyDemoDeleteSpace(setup, spaceId);
+        const storedCatalogs = await loadPreferredDemoContentCatalogs(setup);
+        const nextCatalogs = removeSpaceContentCatalog(storedCatalogs, spaceId);
 
         setSetup(nextSetup);
-        await persistDemoSetup(nextSetup);
+        setContentCatalogs(nextCatalogs);
+        await Promise.all([
+          persistDemoSetup(nextSetup),
+          persistDemoCatalogMirrors(nextCatalogs),
+        ]);
         await refreshOperations();
         return;
       }
@@ -1000,8 +1182,10 @@ export function HostAppProvider({ children }: PropsWithChildren) {
 
       await deleteSpace(client, { spaceId });
       const nextSetup = await fetchHostSetup(client);
+      const nextCatalogs = await fetchHostContentCatalogs(client);
 
       setSetup(nextSetup);
+      setContentCatalogs(nextCatalogs);
       setOperations(await fetchOperationsSnapshot(client, { range: operationsRange }));
     } catch (nextError) {
       setError(parseError(nextError));
@@ -1024,12 +1208,14 @@ export function HostAppProvider({ children }: PropsWithChildren) {
         }
 
         await clearDemoState();
+        persistBrowserContentCatalogs(null);
         setDemoMode(false);
         setAuthenticated(false);
         setSetup(null);
         setLivePanel(null);
         setSessionSummary(null);
         setOperations(createEmptyOperationsSnapshot());
+        setContentCatalogs([]);
         setDraft(createHostSetupDraft());
         return;
       }
@@ -1045,6 +1231,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
       setLivePanel(null);
       setSessionSummary(null);
       setOperations(null);
+      setContentCatalogs([]);
       setDraft(createHostSetupDraft());
     } catch (nextError) {
       setError(parseError(nextError));
@@ -1066,6 +1253,7 @@ export function HostAppProvider({ children }: PropsWithChildren) {
     livePanel,
     sessionSummary,
     operations,
+    contentCatalogs,
     operationsRange,
     requestOtp,
     verifyOtp,

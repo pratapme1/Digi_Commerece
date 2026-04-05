@@ -5,8 +5,9 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { AttendeeRoomEventInput } from "@digi/api-contracts";
 import {
   buildAttendeeShareMessage,
+  buildAttendeePresetFromEntries,
+  createSeedSpaceContentEntries,
   formatTimeRemaining,
-  getAttendeeSpacePreset,
   isDemoBridgeMessage,
   resolvePinnedFeature,
   searchAttendeePreset,
@@ -126,7 +127,8 @@ export function AttendeeSpace({ qrSlug, initialSearchParams }: AttendeeSpaceProp
   const searchTrackedRef = useRef(false);
   const queuedEventsRef = useRef<QueuedEvent[]>([]);
 
-  const preset = room ? getAttendeeSpacePreset(room.spaceType) : getAttendeeSpacePreset("store");
+  const resolvedEntries = room ? (room.contentEntries.length ? room.contentEntries : createSeedSpaceContentEntries(room.spaceType, room.spaceId)) : createSeedSpaceContentEntries("store", null);
+  const preset = room ? buildAttendeePresetFromEntries(room.spaceType, resolvedEntries) : buildAttendeePresetFromEntries("store", resolvedEntries);
   const feature = room ? resolvePinnedFeature(preset, room.pinnedItem) : preset.feature;
   const searchResults = searchAttendeePreset(preset, searchQuery);
   const groupedResults = groupSearchResults(searchResults);

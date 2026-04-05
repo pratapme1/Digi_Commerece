@@ -14,6 +14,8 @@ import type {
   RemoveTeamAccessInput,
   SubmitCatalogImportInput,
   SessionSummarySnapshot,
+  SpaceContentCatalog,
+  SpaceContentEntry,
   SpaceMode,
   SpaceType,
   TeamInvite,
@@ -89,6 +91,10 @@ export interface HostSetupResponse extends HostSetupSnapshot {}
 
 export interface OperationsSnapshotResponse extends OperationsSnapshot {}
 
+export interface HostContentCatalogsResponse {
+  catalogs: SpaceContentCatalog[];
+}
+
 export interface CreateBrandProfileResult {
   brandId: string;
 }
@@ -147,5 +153,7 @@ export type {
   InviteTeamMemberInput,
   OperationsSnapshot,
   RemoveTeamAccessInput,
+  SpaceContentCatalog,
+  SpaceContentEntry,
   SubmitCatalogImportInput,
 };

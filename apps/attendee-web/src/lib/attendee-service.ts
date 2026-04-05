@@ -2,6 +2,7 @@
 
 import type { AttendeeBootstrapResponse, AttendeeRoomEventInput, AttendeeRoomEventResult } from "@digi/api-contracts";
 import {
+  createSeedSpaceContentEntries,
   createAttendeeBrandTheme,
   getAttendeeVerificationLabel,
   type AttendeeRoomBootstrap,
@@ -109,6 +110,7 @@ export function buildDemoBootstrap(qrSlug: string, searchParams: SearchParamMap)
     endedAt: status === "ended" ? new Date().toISOString() : null,
     attendeeCount: Number(normalizeSearchValue(searchParams.attendees) ?? 0),
     pinnedItem: parsePinnedItem(searchParams),
+    contentEntries: createSeedSpaceContentEntries(spaceType, `demo_${qrSlug}`),
   };
 }
 
@@ -136,6 +138,7 @@ export function buildBootstrapFromDemoRoom(
     endedAt: roomState.endedAt,
     attendeeCount: roomState.attendees.length,
     pinnedItem: roomState.pinnedItem,
+    contentEntries: roomState.contentEntries ?? createSeedSpaceContentEntries(roomState.spaceType, roomState.spaceId),
   };
 }
 

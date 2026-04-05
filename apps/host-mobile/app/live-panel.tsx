@@ -4,7 +4,15 @@ import { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { hostTheme } from "@digi/design-tokens";
-import { formatTimeRemaining, getLiveContentLibrary, getPrimaryHostSpace, type LiveContentItem } from "@digi/domain";
+import {
+  buildLiveContentLibraryFromEntries,
+  createSpaceContentCatalog,
+  findSpaceContentCatalog,
+  formatTimeRemaining,
+  getPrimaryHostSpace,
+  mergeImportRowsIntoSpaceContentEntries,
+  type LiveContentItem,
+} from "@digi/domain";
 
 import { AppButton } from "../src/components/app-button";
 import { PageShell } from "../src/components/page-shell";
@@ -13,10 +21,30 @@ import { buildHostAttendeeUrl } from "../src/lib/attendee-link";
 import { hostAppConfig } from "../src/lib/config";
 
 export default function LivePanelScreen() {
-  const { busy, demoMode, endCurrentSession, error, livePanel, pinCurrentItem, refreshLivePanel, setup } = useHostApp();
+  const { busy, contentCatalogs, demoMode, endCurrentSession, error, livePanel, operations, pinCurrentItem, refreshLivePanel, setup } = useHostApp();
 
   const space = getPrimaryHostSpace(setup);
-  const contentLibrary = space ? getLiveContentLibrary(space.spaceType) : [];
+  const latestImport =
+    demoMode && space
+      ? operations?.importJobs.find((job) => job.spaceId === space.id && job.rows.some((row) => row.status === "accepted")) ?? null
+      : null;
+  const effectiveEntries =
+    demoMode && space && latestImport
+      ? mergeImportRowsIntoSpaceContentEntries(
+          space.id,
+          space.spaceType,
+          findSpaceContentCatalog(contentCatalogs, space.id)?.entries ?? createSpaceContentCatalog(space.id, space.spaceType).entries,
+          latestImport.rows,
+        )
+      : space
+        ? findSpaceContentCatalog(contentCatalogs, space.id)?.entries ?? []
+        : [];
+  const contentLibrary = space
+    ? buildLiveContentLibraryFromEntries(
+        space.spaceType,
+        effectiveEntries,
+      )
+    : [];
   const attendeeUrl =
     livePanel && space
       ? buildHostAttendeeUrl({

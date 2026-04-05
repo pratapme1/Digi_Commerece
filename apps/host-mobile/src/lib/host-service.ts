@@ -25,21 +25,24 @@ import type {
   RemoveTeamAccessResult,
   SaveHostSetupInput,
   SubmitCatalogImportResult,
+  HostContentCatalogsResponse,
 } from "@digi/api-contracts";
 import {
   appendDemoEvent,
+  buildLiveContentLibraryFromEntries,
   buildAttendeeShareUrl,
   buildGoLiveWindow,
   buildSessionSummary,
   createDemoRoomState,
   createHostSetupDraft,
+  findSpaceContentCatalog,
   getPrimaryHostSpace,
-  getLiveContentLibrary,
   toLivePanelSnapshot,
   type HostSetupSnapshot,
   type DemoRoomState,
   type LiveActivityEvent,
   type LivePresenceEntry,
+  type SpaceContentCatalog,
 } from "@digi/domain";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -122,7 +125,11 @@ export function createDemoSnapshot(input: SaveHostSetupInput): HostSetupSnapshot
   };
 }
 
-export function applyDemoGoLive(snapshot: HostSetupSnapshot, input: GoLiveInput): {
+export function applyDemoGoLiveWithCatalog(
+  snapshot: HostSetupSnapshot,
+  input: GoLiveInput,
+  contentCatalogs: SpaceContentCatalog[],
+): {
   nextSnapshot: HostSetupSnapshot;
   result: GoLiveResult;
   roomState: DemoRoomState;
@@ -160,6 +167,7 @@ export function applyDemoGoLive(snapshot: HostSetupSnapshot, input: GoLiveInput)
       startedAt: startsAt,
       endsAt,
       durationMinutes: input.durationMinutes,
+      contentEntries: findSpaceContentCatalog(contentCatalogs, space.id)?.entries ?? [],
     }),
     createLiveEvent("session_started", null, null),
   );
@@ -178,6 +186,14 @@ export function applyDemoGoLive(snapshot: HostSetupSnapshot, input: GoLiveInput)
     },
     roomState,
   };
+}
+
+export function applyDemoGoLive(snapshot: HostSetupSnapshot, input: GoLiveInput): {
+  nextSnapshot: HostSetupSnapshot;
+  result: GoLiveResult;
+  roomState: DemoRoomState;
+} {
+  return applyDemoGoLiveWithCatalog(snapshot, input, []);
 }
 
 export function getDemoLivePanel(roomState: DemoRoomState | null): LivePanelResponse | null {
@@ -283,13 +299,16 @@ export function applyDemoEndLiveSession(
   };
 }
 
-export function getDefaultPinnedContent(snapshot: HostSetupSnapshot): ReturnType<typeof getLiveContentLibrary>[number] | null {
+export function getDefaultPinnedContent(snapshot: HostSetupSnapshot, contentCatalogs: SpaceContentCatalog[] = []): ReturnType<typeof buildLiveContentLibraryFromEntries>[number] | null {
   const space = getPrimaryHostSpace(snapshot);
   if (!space) {
     return null;
   }
 
-  return getLiveContentLibrary(space.spaceType)[0] ?? null;
+  return buildLiveContentLibraryFromEntries(
+    space.spaceType,
+    findSpaceContentCatalog(contentCatalogs, space.id)?.entries ?? [],
+  )[0] ?? null;
 }
 
 export async function fetchHostSetup(client: SupabaseClient): Promise<HostSetupSnapshot> {
@@ -320,6 +339,16 @@ export async function fetchOperationsSnapshot(
   }
 
   return data as OperationsSnapshotResponse;
+}
+
+export async function fetchHostContentCatalogs(client: SupabaseClient): Promise<SpaceContentCatalog[]> {
+  const { data, error } = await client.rpc("digi_get_host_content_catalogs");
+
+  if (error) {
+    throw error;
+  }
+
+  return ((data as HostContentCatalogsResponse | null)?.catalogs ?? []) as SpaceContentCatalog[];
 }
 
 export async function saveHostSetup(

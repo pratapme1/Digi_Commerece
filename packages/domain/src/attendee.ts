@@ -1,5 +1,6 @@
 import type { SessionStatus, SpaceMode, SpaceType, VerificationTier } from "./host";
 import type { LiveContentItem } from "./live-room";
+import type { SpaceContentEntry } from "./content-catalog";
 
 export type AttendeeScreen = "ps" | "cs" | "ms" | "ls";
 export type AttendeeRoomStatus = Extract<SessionStatus, "live" | "ending" | "ended"> | "inactive";
@@ -153,6 +154,7 @@ export interface AttendeeRoomBootstrap {
   endedAt: string | null;
   attendeeCount: number;
   pinnedItem: LiveContentItem | null;
+  contentEntries: SpaceContentEntry[];
 }
 
 const STORE_PRODUCTS: AttendeeProductCard[] = [

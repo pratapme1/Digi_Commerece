@@ -33,7 +33,8 @@ where schemaname = 'Digi'
     'team_members',
     'team_invites',
     'catalog_import_jobs',
-    'catalog_import_rows'
+    'catalog_import_rows',
+    'space_content_entries'
   )
 union all
 select 'function:' || proname
@@ -58,6 +59,7 @@ where pronamespace = 'public'::regnamespace
     'digi_remove_team_access',
     'digi_record_catalog_import',
     'digi_get_operations_snapshot',
+    'digi_get_host_content_catalogs',
     'digi_get_attendee_room',
     'digi_get_attendee_live_state'
   )
@@ -76,6 +78,7 @@ required_lines=(
   "table:team_invites"
   "table:catalog_import_jobs"
   "table:catalog_import_rows"
+  "table:space_content_entries"
   "function:digi_get_host_setup"
   "function:digi_save_host_setup"
   "function:digi_go_live"
@@ -94,6 +97,7 @@ required_lines=(
   "function:digi_remove_team_access"
   "function:digi_record_catalog_import"
   "function:digi_get_operations_snapshot"
+  "function:digi_get_host_content_catalogs"
   "function:digi_get_attendee_room"
   "function:digi_get_attendee_live_state"
 )
